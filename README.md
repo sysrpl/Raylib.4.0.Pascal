@@ -29,17 +29,17 @@ Raylib has a fairly complete [cheatsheet page](https://www.raylib.com/cheatsheet
 
 Here are a few notes you should be aware of when using the Pascal bindings in this package.
 
-  Windows:
-    The file dlls/raylib.dll must be copied to a folder in your path.
-    You can do this by copying raylib.dll to your program folder, or
-    by copying raylib.dll to C:\Windows\System32 one time.
+### Windows
+>    The file dlls/raylib.dll must be copied to a folder in your path.
+>    You can do this by copying raylib.dll to your program folder, or
+>    by copying raylib.dll to C:\Windows\System32 one time.
 
-  Linux, MacOS, and Raspberry Pi:
-    Static libraries are used and everything is built into your programs.
+###, MacOS, and Raspberry Pi
+> Static libraries are used and everything is built into your programs.
 
   When compiling from the command line, make sure the src folder is included
   in your unit path.
 
-  Example:
+**Example**
 
-  fpc hellotest.pas -Fu../src 
+> fpc hellotest.pas -Fu../src 
