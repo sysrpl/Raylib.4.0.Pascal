@@ -81,4 +81,4 @@ Here are a few notes you should be aware of when using the Pascal bindings in th
 
 **Example**
 
-> fpc hellotest.pas -Fu../src 
+> fpc helloworld.pas -Fu../src 
