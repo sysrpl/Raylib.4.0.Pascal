@@ -1,6 +1,10 @@
 # Raylib 4.0 Pascal Bindings
 
+*Supporting Windows, macOS, Linux, and Raspberry Pi enviroments* 
+
 This package includes a complete set of Pascal bindings for [Raylib](https://www.raylib.com/) version 4.0. Raylib is a popular game development toolkit in the computer programming education space. This package supports the following Raylib modules:
+
+
 
 * Raylib Core (raylib.pas)
   * Shapes
