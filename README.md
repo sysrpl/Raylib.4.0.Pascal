@@ -25,7 +25,7 @@ If you would like to see what can be done with Raylib, [this page](https://www.r
 Raylib has a fairly complete [cheatsheet page](https://www.raylib.com/cheatsheet/cheatsheet.html) you can use as a reference. All the functions are easy to use and are pretty self explanatory.
 
 
-## A BIG NOTE ON COMPILING AND RUNNING
+## A Note on Compiling and Running
 
 Here are a few notes you should be aware of when using the Pascal bindings in this package.
 
@@ -34,7 +34,7 @@ Here are a few notes you should be aware of when using the Pascal bindings in th
 >    You can do this by copying raylib.dll to your program folder, or
 >    by copying raylib.dll to C:\Windows\System32 one time.
 
-###, MacOS, and Raspberry Pi
+### Linux, MacOS, and Raspberry Pi
 > Static libraries are used and everything is built into your programs.
 
   When compiling from the command line, make sure the src folder is included
