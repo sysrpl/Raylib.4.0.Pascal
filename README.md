@@ -1,6 +1,6 @@
 # Raylib 4.0 Pascal Bindings
 
-This package includes a complete set of Pascal bindings for [Raylib](https://www.raylib.com/), the popular educational game development toolkit. This package supports the following Raylib modules:
+This package includes a complete set of Pascal bindings for [Raylib](https://www.raylib.com/) version 4.0. Raylib is a popular game development toolkit in the computer programming education space. This package supports the following Raylib modules:
 
 * Raylib Core (raylib.pas)
   * Shapes
@@ -18,7 +18,7 @@ This package includes a complete set of Pascal bindings for [Raylib](https://www
 
 ## Basic Window
 
-The following example get you a basic window.
+The following example will give you a basic window.
 
 ```pascal
 program HelloWorld;
@@ -51,6 +51,9 @@ begin
   CloseWindow;
 end.
 ```
+This is the result:
+
+![screenshot](https://github.com/sysrpl/Raylib.4.0.Pascal/blob/master/screenshot/raylib-hello.gif?raw=true)
 
 ## Examples
 
