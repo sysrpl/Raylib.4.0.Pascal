@@ -1,7 +1,10 @@
 { Raylib 4.0 Pascal bindings for Windows, macOS, Linux, and Raspberry Pi
-  Git repository https://www.github.com/sysrpl/Raylib.4.0.Pascal
-  By Anthony Walter <admim@getlazarus.org>
-  Modified August 2022
+
+  Author: Anthony Walter <admim@getlazarus.org>
+  Git repository: https://www.github.com/sysrpl/Raylib.4.0.Pascal
+  License: MIT No Attribution
+
+  Modified: August 2022
 
   This package includes complete pascal bindings of the following packages:
 
@@ -107,7 +110,7 @@ unit Raylib;
 
 {$mode delphi}
 {$a8}
-
+{$WARN 5060 off : Function result variable does not seem to be initialized}
 interface
 
 { Raylib version }
@@ -120,12 +123,16 @@ const
   DEG2RAD = PI / 180;
   RAD2DEG = 180 / PI;
 
+type
+  TSingleArray = array of Single;
+
 { Vec2, 2 components }
 
-type
   TVec2 = record
     x, y: Single;
     class operator Implicit(const Value: Single): TVec2;
+    class operator Implicit(const A: TSingleArray): TVec2;
+    class operator Implicit(const V: TVec2): TSingleArray;
   end;
   PVec2 = ^TVec2;
   TVector2 = TVec2;
@@ -136,6 +143,8 @@ type
   TVec3 = record
     x, y, z: Single;
     class operator Implicit(const Value: Single): TVec3;
+    class operator Implicit(const A: TSingleArray): TVec3;
+    class operator Implicit(const V: TVec3): TSingleArray;
   end;
   PVec3 = ^TVec3;
   TVector3 = TVec3;
@@ -146,6 +155,8 @@ type
   TVec4 = record
     x, y, z, w: Single;
     class operator Implicit(const Value: Single): TVec4;
+    class operator Implicit(const A: TSingleArray): TVec4;
+    class operator Implicit(const V: TVec4): TSingleArray;
   end;
   PVec4 = ^TVec4;
   TVector4 = TVec4;
@@ -154,7 +165,7 @@ type
 { Quaternion, 4 components (Vec4 alias) }
 
   TQuaternion = TVec4;
-  PQuaternion = ^TQuaternion;
+  PQuaternion = ^PVec4;
 
 { TMat4, 4x4 components, column major, OpenGL style, right handed
 
@@ -188,6 +199,8 @@ type
     x, y, width, height: Single;
     class operator Implicit(const Value: Single): TRect;
     class operator Implicit(const Value: TVec2): TRect;
+    class operator Implicit(const A: TSingleArray): TRect;
+    class operator Implicit(const R: TRect): TSingleArray;
   end;
   PRect = ^TRect;
   TRectangle = TRect;
@@ -2562,14 +2575,65 @@ begin
   Result.x := Value; Result.y := Value;
 end;
 
+class operator TVec2.Implicit(const A: TSingleArray): TVec2;
+begin
+  FillChar(Result, SizeOf(Result), 0);
+  case Length(A) of
+    0: ;
+    1: Result.x := A[0];
+  else
+    Result.x := A[0]; Result.y := A[1];
+  end;
+end;
+
+class operator TVec2.Implicit(const V: TVec2): TSingleArray;
+begin
+  Result := [V.x, V.y];
+end;
+
 class operator TVec3.Implicit(const Value: Single): TVec3;
 begin
   Result.x := Value; Result.y := Value; Result.z := Value;
 end;
 
+class operator TVec3.Implicit(const A: TSingleArray): TVec3;
+begin
+  FillChar(Result, SizeOf(Result), 0);
+  case Length(A) of
+    0: ;
+    1: Result.x := A[0];
+    2: begin Result.x := A[0]; Result.y := A[1]; end;
+  else
+    Result.x := A[0]; Result.y := A[1]; Result.z := A[2];
+  end;
+end;
+
+class operator TVec3.Implicit(const V: TVec3): TSingleArray;
+begin
+  Result := [V.x, V.y, V.z];
+end;
+
 class operator TVec4.Implicit(const Value: Single): TVec4;
 begin
   Result.x := Value; Result.y := Value; Result.z := Value; Result.w := Value;
+end;
+
+class operator TVec4.Implicit(const A: TSingleArray): TVec4;
+begin
+  FillChar(Result, SizeOf(Result), 0);
+  case Length(A) of
+    0: ;
+    1: Result.x := A[0];
+    2: begin Result.x := A[0]; Result.y := A[1]; end;
+    3: begin Result.x := A[0]; Result.y := A[1]; Result.z := A[2]; end;
+  else
+    Result.x := A[0]; Result.y := A[1]; Result.z := A[2]; Result.w := A[3];
+  end;
+end;
+
+class operator TVec4.Implicit(const V: TVec4): TSingleArray;
+begin
+  Result := [V.x, V.y, V.z, V.w];
 end;
 
 function TColorB.Mix(Color: TColorB; Percent: Single): TColorB;
@@ -2598,6 +2662,24 @@ end;
 class operator TRect.Implicit(const Value: TVec2): TRect;
 begin
   Result.x := 0; Result.y := 0; Result.width := Value.x; Result.height := Value.y;
+end;
+
+class operator TRect.Implicit(const A: TSingleArray): TRect;
+begin
+  FillChar(Result, SizeOf(Result), 0);
+  case Length(A) of
+    0: ;
+    1: Result.x := A[0];
+    2: begin Result.x := A[0]; Result.y := A[1]; end;
+    3: begin Result.x := A[0]; Result.x := A[1]; Result.width := A[2]; end;
+  else
+    Result.x := A[0]; Result.y := A[1]; Result.width := A[2]; Result.height := A[3];
+  end;
+end;
+
+class operator TRect.Implicit(const R: TRect): TSingleArray;
+begin
+  Result := [R.x, R.y, R.width, r.height];
 end;
 
 procedure TMat4.Identity;
