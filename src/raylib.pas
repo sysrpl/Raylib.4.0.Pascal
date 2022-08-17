@@ -110,7 +110,8 @@ unit Raylib;
 
 {$mode delphi}
 {$a8}
-{$WARN 5060 off : Function result variable does not seem to be initialized}
+{$warn 5060 off}
+
 interface
 
 { Raylib version }
@@ -125,6 +126,7 @@ const
 
 type
   TSingleArray = array of Single;
+  TByteArray = array of Byte;
 
 { Vec2, 2 components }
 
@@ -186,6 +188,8 @@ type
 
   TColorB = record
     r, g, b, a: Byte;
+    class operator Implicit(const Value: LongWord): TColorB;
+    class operator Implicit(const A: TByteArray): TColorB;
     function Mix(Color: TColorB; Percent: Single): TColorB;
     function Fade(Alpha: Single): TColorB;
   end;
@@ -1652,7 +1656,7 @@ procedure UnloadFileData(data: Pointer); cdecl; external;
 { Save data to file from byte write): array ; returns true on success }
 function SaveFileData(fileName: PChar; data: Pointer; bytesToWrite: LongWord): Boolean; cdecl; external;
 { Load text data from read): file ; returns a '\0' terminated string }
-function LoadFileText(fileName: PChar): char ; cdecl; external;
+function LoadFileText(fileName: PChar): PChar; cdecl; external;
 { Unload file text data allocated by LoadFileText() }
 procedure UnloadFileText(text: PChar); cdecl; external;
 { Save text data to write): file ; string must be '\terminated: 0'; returns true on success }
@@ -1681,7 +1685,7 @@ function GetDirectoryFiles(dirPath: PChar; out count: PInteger): PChar; cdecl; e
 procedure ClearDirectoryFiles; cdecl; external;
 { Change directory: working; return true on success }
 function ChangeDirectory(dir: PChar): Boolean; cdecl; external;
-{ Check if a file has been dropped Integero window }
+{ Check if a file has been dropped into window }
 function IsFileDropped: Boolean; cdecl; external;
 { Get dropped files names (memory should be freed) }
 function GetDroppedFiles(count: PInteger): PPChar; cdecl; external;
@@ -1939,7 +1943,7 @@ function GetCollisionRec(rec1, rec2: TRect): TRect; cdecl; external;
 { TImage loading functions
   NOTE: This functions do not require GPU access }
 
-{ Load image from file Integero CPU memory (RAM) }
+{ Load image from file into CPU memory (RAM) }
 function LoadImage(fileName: PChar): TImage; cdecl; external;
 { Load image from RAW file data }
 function LoadImageRaw(fileName: PChar; width: Integer; height: Integer; format: Integer; headerSize: Integer): TImage; cdecl; external;
@@ -2077,7 +2081,7 @@ procedure ImageDrawTextEx(var dst: TImage; font: TFont; text: PChar; position: T
 { Texture loading functions
   NOTE: These functions require GPU access }
 
-{ Load texture from file Integero GPU memory (VRAM) }
+{ Load texture from file into GPU memory (VRAM) }
 function LoadTexture(fileName: PChar): TTexture2D; cdecl; external;
 { Load texture from image data }
 function LoadTextureFromImage(image: TImage): TTexture2D; cdecl; external;
@@ -2115,7 +2119,7 @@ procedure DrawTextureEx(texture: TTexture2D; position: TVec2; rotation: Single; 
 procedure DrawTextureRec(texture: TTexture2D; source: TRect; position: TVec2; tint: TColorB); cdecl; external;
 { Draw texture quad with tiling and offset parameters }
 procedure DrawTextureQuad(texture: TTexture2D; tiling: TVec2; offset: TVec2; quad: TRect; tint: TColorB); cdecl; external;
-{ Draw part of a texture (defined by a rectangle) with rotation and scale tiled Integero dest. }
+{ Draw part of a texture (defined by a rectangle) with rotation and scale tiled into dest. }
 procedure DrawTextureTiled(texture: TTexture2D; source: TRect; dest: TRect; origin: TVec2; rotation: Single; scale: Single; tint: TColorB); cdecl; external;
 { Draw a part of a texture defined by a rectangle with 'pro' parameters }
 procedure DrawTexturePro(texture: TTexture2D; source: TRect; dest: TRect; origin: TVec2; rotation: Single; tint: TColorB); cdecl; external;
@@ -2140,13 +2144,13 @@ function ColorToHSV(color: TColorB): TVec3; cdecl; external;
 function ColorFromHSV(hue: Single; saturation: Single; value: Single): TColorB; cdecl; external;
 { Get color with applied: alpha; alpha goes from 0.0f to 1.0f }
 function ColorAlpha(color: TColorB; alpha: Single): TColorB; cdecl; external;
-{ Get src alpha-blended Integero dst color with tint }
+{ Get src alpha-blended into dst color with tint }
 function ColorAlphaBlend(dst: TColorB; src: TColorB; tint: TColorB): TColorB; cdecl; external;
 { Get TColorB structure from hexadecimal value }
 function GetColor(hexValue: LongWord): TColorB; cdecl; external;
 { Get TColorB from a source pixel pointer of certain format }
 function GetPixelColor(srcPtr: Pointer; format: Integer): TColorB; cdecl; external;
-{ Set color formatted Integero destination pixel pointer }
+{ Set color formatted into destination pixel pointer }
 procedure SetPixelColor(dstPtr: Pointer; color: TColorB; format: Integer); cdecl; external;
 { Get pixel data size in bytes for certain format }
 function GetPixelDataSize(width, height, format: Integer): Integer; cdecl; external;
@@ -2156,7 +2160,7 @@ function GetPixelDataSize(width, height, format: Integer): Integer; cdecl; exter
 
 { Get the default TFont }
 function GetFontDefault: TFont; cdecl; external;
-{ Load font from file Integero GPU memory (VRAM) }
+{ Load font from file into GPU memory (VRAM) }
 function LoadFont(fileName: PChar): TFont; cdecl; external;
 { Load font from file with extended parameters }
 function LoadFontEx(fileName: PChar; fontSize: Integer; fontChars: PInteger; glyphCount: Integer): TFont; cdecl; external;
@@ -2209,9 +2213,9 @@ procedure UnloadCodepoints(codepoints: PInteger); cdecl; external;
 function GetCodepointCount(text: PChar): Integer; cdecl; external;
 { Get next codepoint in a UTF-8 string: encoded; 0x3f('?') is returned on failure }
 function GetCodepoint(text: PChar; out bytesProcessed: Integer): Integer; cdecl; external;
-{ Encode one codepoint Integero UTF-8 byte array (array length returned as parameter) }
+{ Encode one codepoint into UTF-8 byte array (array length returned as parameter) }
 function CodepointToUTF8(codepoint: Integer; out byteSize: Integer): PChar; cdecl; external;
-{ Encode text as codepoints array Integero UTF-8 text string (WARNING: memory must be freed!) }
+{ Encode text as codepoints array into UTF-8 text string (WARNING: memory must be freed!) }
 function TextCodepointsToUTF8(codepoints: PInteger; length: Integer): PPChar; cdecl; external;
 
 { Text strings management functions (no UTF-strings: 8; only byte chars)
@@ -2233,7 +2237,7 @@ function TextReplace(text: PChar; replace: PChar; by: PChar): PPChar; cdecl; ext
 function TextInsert(text: PChar; insert: PChar; position: Integer): PPChar; cdecl; external;
 { Join text strings with delimiter }
 function TextJoin(textList: PPChar; count: Integer; delimiter: PChar): PChar; cdecl; external;
-{ Split text Integero multiple strings }
+{ Split text into multiple strings }
 function TextSplit(text: PChar; delimiter: char; count: PInteger): PPChar; cdecl; external;
 { Append text at specific position and move cursor! }
 procedure TextAppend(text: PChar; append: PChar; position: PInteger); cdecl; external;
@@ -2551,8 +2555,7 @@ function Vec4: TVec4;
 function Vec(x, y: Single): TVec2; overload;
 function Vec(x, y, z: Single): TVec3; overload;
 function Vec(x, y, z, w: Single): TVec4; overload;
-function Color: TColorB; overload;
-function Color(r, g, b: Byte; a: Byte = $FF): TColorB; overload;
+function Rgba(r, g, b: Byte; a: Byte = $FF): TColorB; overload;
 function Rect(width, height: Single): TRect; overload;
 function Rect(x, y, width, height: Single): TRect; overload;
 
@@ -2634,6 +2637,28 @@ end;
 class operator TVec4.Implicit(const V: TVec4): TSingleArray;
 begin
   Result := [V.x, V.y, V.z, V.w];
+end;
+
+class operator TColorB.Implicit(const Value: LongWord): TColorB;
+begin
+  Result.r := Value and $FF0000 shr 16; Result.g := Value and $FF00 shr 8; Result.b := Value and $FF;
+  if Value and $FF000000 > 0 then
+    Result.a := Value shr 24
+  else
+    Result.a := $FF;
+end;
+
+class operator TColorB.Implicit(const A: TByteArray): TColorB;
+begin
+  Result := BLACK;
+  case Length(A) of
+    0: ;
+    1: Result.r := A[0];
+    2: begin Result.r := A[0]; Result.g := A[1]; end;
+    3: begin Result.r := A[0]; Result.g := A[1]; Result.b := A[2]; end;
+  else
+    Result.r := A[0]; Result.g := A[1]; Result.b := A[2]; Result.a := A[3];
+  end;
 end;
 
 function TColorB.Mix(Color: TColorB; Percent: Single): TColorB;
@@ -2728,12 +2753,7 @@ begin
   Result.x := x; Result.y := y; Result.z := z; Result.w := w;
 end;
 
-function Color: TColorB;
-begin
-  Result.r := 0; Result.g := 0; Result.b := 0; Result.a := $FF;
-end;
-
-function Color(r, g, b: Byte; a: Byte = $FF): TColorB;
+function Rgba(r, g, b: Byte; a: Byte = $FF): TColorB;
 begin
   Result.r := r; Result.g := g; Result.b := b; Result.a := a;
 end;
