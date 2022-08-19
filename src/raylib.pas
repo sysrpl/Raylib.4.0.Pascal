@@ -128,37 +128,82 @@ type
   TSingleArray = array of Single;
   TByteArray = array of Byte;
 
-{ Vec2, 2 components }
+{ TVec2, 2 components }
 
   TVec2 = record
     x, y: Single;
     class operator Implicit(const Value: Single): TVec2;
     class operator Implicit(const A: TSingleArray): TVec2;
     class operator Implicit(const V: TVec2): TSingleArray;
+    class operator Negative(const A: TVec2): TVec2;
+    class operator Equal(const A, B: TVec2): Boolean;
+    class operator NotEqual(const A, B: TVec2): Boolean;
+    class operator Add(const A, B: TVec2): TVec2;
+    class operator Subtract(const A, B: TVec2): TVec2;
+    class operator Multiply(const A, B: TVec2): TVec2;
+    class operator Divide(const A, B: TVec2): TVec2;
+    function Equals(const Value: TVec2): Boolean;
+    function Angle: Single; overload;
+    function Angle(X, Y: Single): Single; overload;
+    function Angle(const V: TVec2): Single; overload;
+    function Distance: Single; overload;
+    function Distance(X, Y: Single): Single; overload;
+    function Distance(const V: TVec2): Single; overload;
+    procedure Offset(X, Y: Single); overload;
+    procedure Offset(const V: TVec2); overload;
+    function Move(X, Y: Single): TVec2; overload;
+    function Move(const V: TVec2): TVec2; overload;
+    procedure Normalize;
+    function Normal: TVec2;
+    function Binormal: TVec2;
+    function Mid(const V: TVec2): TVec2;
+    function Extend(const V: TVec2; Dist: Single): TVec2;
+    function Rotate(Angle: Single): TVec2; overload;
+    function Rotate(const V: TVec2; Angle: Single): TVec2; overload;
   end;
   PVec2 = ^TVec2;
   TVector2 = TVec2;
   PVector2 = PVec2;
 
-{ Vec3, 3 components }
+{ TVec3, 3 components }
 
   TVec3 = record
     x, y, z: Single;
     class operator Implicit(const Value: Single): TVec3;
     class operator Implicit(const A: TSingleArray): TVec3;
     class operator Implicit(const V: TVec3): TSingleArray;
+    class operator Negative(const A: TVec3): TVec3;
+    class operator Equal(const A, B: TVec3): Boolean;
+    class operator NotEqual(const A, B: TVec3): Boolean;
+    class operator Add(const A, B: TVec3): TVec3;
+    class operator Subtract(const A, B: TVec3): TVec3;
+    class operator Multiply(const A, B: TVec3): TVec3;
+    class operator Divide(const A, B: TVec3): TVec3;
+    function Equals(const Value: TVec3): Boolean;
+    function Cross(const V: TVec3): TVec3;
+    function Dot(const V: TVec3): Single;
+    function Distance: Single;
+    procedure Normalize;
   end;
   PVec3 = ^TVec3;
   TVector3 = TVec3;
   PVector3 = PVec3;
 
-{ Vector4, 4 components }
+{ TVec4, 4 components }
 
   TVec4 = record
     x, y, z, w: Single;
     class operator Implicit(const Value: Single): TVec4;
     class operator Implicit(const A: TSingleArray): TVec4;
     class operator Implicit(const V: TVec4): TSingleArray;
+    class operator Negative(const A: TVec4): TVec4;
+    class operator Equal(const A, B: TVec4): Boolean;
+    class operator NotEqual(const A, B: TVec4): Boolean;
+    class operator Multiply(const A, B: TVec4): TVec4;
+    class operator Divide(const A, B: TVec4): TVec4;
+    function Equals(const Value: TVec4): Boolean;
+    function Distance: Single;
+    procedure Normalize;
   end;
   PVec4 = ^TVec4;
   TVector4 = TVec4;
@@ -169,16 +214,45 @@ type
   TQuaternion = TVec4;
   PQuaternion = ^PVec4;
 
-{ TMat4, 4x4 components, column major, OpenGL style, right handed
+{ TMat4, 4x4 components }
 
-  m0   m1   m2   m3
-  m4   m5   m6   m7
-  m8   m9   m10  m11
-  m12  m13  m14  m15 }
+  TTransformOrder = (toTRS, toRST, toSTR, toTSR, toSRT, toRTS);
+  TRotationOrder = (roXYZ, roYZX, roZXY, roXZY, roZYX, roYXZ);
+  TMatrixOrder = (moPrepend, moAppend);
 
   TMat4 = record
-    m0, m4, m8, m12, m1, m5, m9, m13, m2, m6, m10, m14, m3, m7, m11, m15: Single;
+  public
+    class operator Equal(const A, B: TMat4): Boolean;
+    class operator NotEqual(const A, B: TMat4): Boolean;
+    class operator Add(const A, B: TMat4): TMat4;
+    class operator Subtract(const A, B: TMat4): TMat4;
+    class operator Multiply(const A: TMat4; const B: TVec2): TVec2; overload;
+    class operator Multiply(const A: TMat4; const B: TVec3): TVec3; overload;
+    class operator Multiply(const A, B: TMat4): TMat4; overload;
+    class operator Divide(const A, B: TMat4): TMat4;
+    function Equals(const Value: TMat4): Boolean;
     procedure Identity;
+    function IsIdentity: Boolean;
+    function CanInvert: Boolean;
+    function Invert: Boolean;
+    procedure Transpose;
+    procedure Rotate(X, Y, Z: Single); overload;
+    procedure Rotate(X, Y, Z: Single; Order: TRotationOrder); overload;
+    procedure RotateAt(X, Y, Z: Single; const Pivot: TVec3); overload;
+    procedure RotateAt(X, Y, Z: Single; const Pivot: TVec3; Order: TRotationOrder); overload;
+    procedure Scale(X, Y, Z: Single);
+    procedure ScaleAt(X, Y, Z: Single; const Pivot: TVec3);
+    procedure Translate(X, Y, Z: Single);
+    function Transform(const V: TVec2): TVec2; overload;
+    function Transform(const V: TVec3): TVec3; overload;
+    function Transform(const M: TMat4): TMat4; overload;
+    procedure Perspective(FoV, AspectRatio, NearPlane, FarPlane: Single);
+    procedure Frustum(Left, Right, Top, Bottom, NearPlane, FarPlane: Single);
+    procedure LookAt(Eye, Center, Up: TVec3);
+    case Integer of
+      0: (m: array[0..3, 0..3] of Single);
+      1: (m0, m1, m2, m3: array[0..3] of Single);
+      2: (v: array[0..15] of Single);
   end;
   PMat4 = ^TMat4;
   TMatrix = TMat4;
@@ -2559,6 +2633,16 @@ function Rgba(r, g, b: Byte; a: Byte = $FF): TColorB; overload;
 function Rect(width, height: Single): TRect; overload;
 function Rect(x, y, width, height: Single): TRect; overload;
 
+const
+  StockMatrix: TMatrix = (M: (
+    (1, 0, 0, 0),
+    (0, 1, 0, 0),
+    (0, 0, 1, 0),
+    (0, 0, 0, 1)));
+
+var
+  DefaultRotationOrder: TRotationOrder = roZXY;
+
 implementation
 
 {$ifdef linux}
@@ -2572,6 +2656,46 @@ implementation
 {$ifdef windows}
   {$linklib raylib-win64}
 {$endif}
+
+const
+  Epsilon = 0.0001;
+
+function FloatEqual(A, B: Single): Boolean; inline;
+begin
+  Result := Abs(A - B) < Epsilon;
+end;
+
+procedure SinCos(const X: Extended; out S, C: Extended);
+begin
+  S := Sin(X);
+  C := Cos(X);
+end;
+
+function Tan(const X: Extended): Extended;
+begin
+  Result := Sin(X) / Cos(X);
+end;
+
+function MemCompare(const A, B; Size: LongWord): Boolean;
+var
+  C, D: PByte;
+begin
+  C := @A;
+  D := @B;
+  if (C = nil) or (D = nil) then
+    Exit(False);
+  while Size > 0 do
+  begin
+    if C^ <> D^ then
+      Exit(False);
+    Inc(C);
+    Inc(D);
+    Dec(Size);
+  end;
+  Result := True;
+end;
+
+{ TVec2 }
 
 class operator TVec2.Implicit(const Value: Single): TVec2;
 begin
@@ -2593,6 +2717,194 @@ class operator TVec2.Implicit(const V: TVec2): TSingleArray;
 begin
   Result := [V.x, V.y];
 end;
+
+class operator TVec2.Negative(const A: TVec2): TVec2;
+begin
+  Result.X := -A.x;
+  Result.y := -A.y;
+end;
+
+class operator TVec2.Equal(const A, B: TVec2): Boolean;
+begin
+  Result := FloatEqual(A.x, B.x) and FloatEqual(A.y, B.y);
+end;
+
+class operator TVec2.NotEqual(const A, B: TVec2): Boolean;
+begin
+  Result := not (FloatEqual(A.x, B.x) and FloatEqual(A.y, B.y));
+end;
+
+class operator TVec2.Add(const A, B: TVec2): TVec2;
+begin
+  Result.x := A.x + B.x;
+  Result.y := A.y + B.y;
+end;
+
+class operator TVec2.Subtract(const A, B: TVec2): TVec2;
+begin
+  Result.x := A.x - B.x;
+  Result.y := A.y - B.y;
+end;
+
+class operator TVec2.Multiply(const A, B: TVec2): TVec2;
+begin
+  Result.x := A.x * B.x;
+  Result.y := A.y * B.y;
+end;
+
+class operator TVec2.Divide(const A, B: TVec2): TVec2;
+begin
+  Result.x := A.x / B.x;
+  Result.y := A.y / B.y;
+end;
+
+function TVec2.Equals(const Value: TVec2): Boolean;
+begin
+  Result := Self = Value;
+end;
+
+
+function TVec2.Angle: Single;
+const
+  Origin: TVec2 = (x: 0; y: 0);
+begin
+  Result := Origin.Angle(Self);
+end;
+
+function TVec2.Angle(x, y: Single): Single;
+begin
+  Result := Angle(Vec(X, Y));
+end;
+
+function TVec2.Angle(const V: TVec2): Single;
+var
+  X, Y: Single;
+begin
+  X := Self.x - V.x;
+  Y := Self.y - V.y;
+  if X = 0 then
+    if Y < 0 then
+      Exit(Pi)
+    else
+      Exit(0);
+  Result := Arctan(Y / X) + Pi / 2;
+  if X > 0 then
+    Result := Result + Pi;
+end;
+
+function TVec2.Distance: Single;
+begin
+  Result := Sqrt(x * x + y * y);
+end;
+
+function TVec2.Distance(X, Y: Single): Single;
+begin
+  Result := (Self - Vec(X, Y)).Distance;
+end;
+
+function TVec2.Distance(const V: TVec2): Single;
+begin
+  Result := (Self - V).Distance;
+end;
+
+procedure TVec2.Offset(X, Y: Single);
+begin
+  Self.x :=  Self.x + X;
+  Self.y :=  Self.y + Y;
+end;
+
+procedure TVec2.Offset(const V: TVec2);
+begin
+  x :=  x + V.x;
+  y :=  y + V.y;
+end;
+
+function TVec2.Move(X, Y: Single): TVec2;
+begin
+  Result.x := Self.x + X;
+  Result.y := Self.y + Y;
+end;
+
+function TVec2.Move(const V: TVec2): TVec2;
+begin
+  Result.x := x + V.x;
+  Result.y := y + V.y;
+end;
+
+procedure TVec2.Normalize;
+var
+  N: Single;
+begin
+  N := x * x + y * y;
+  if N = 0 then Exit;
+  if N = 1 then Exit;
+  N := 1 / Sqrt(N);
+  x := x * N; y := y * N;
+end;
+
+function TVec2.Normal: TVec2;
+begin
+  Result := Self;
+  Result.Normalize;
+end;
+
+function TVec2.Binormal: TVec2;
+var
+  F: Single;
+begin
+  Result := Normal;
+  F := Result.x;
+  Result.x := Result.y;
+  Result.y := -F;
+end;
+
+function TVec2.Mid(const V: TVec2): TVec2;
+begin
+  Result.x := (x + V.x) / 2;
+  Result.y := (y + V.y) / 2;
+end;
+
+function TVec2.Extend(const V: TVec2; Dist: Single): TVec2;
+var
+  X, Y, R: Single;
+begin
+  X := Self.x - V.x;
+  Y := Self.y - V.y;
+  R := Sqrt(X * X + Y * Y);
+  if R = 0 then
+    Exit(Self);
+  R := 1 / R;
+  Result.x := Self.x - X * R * Dist;
+  Result.y := Self.y - Y * R * Dist;
+end;
+
+function TVec2.Rotate(Angle: Single): TVec2;
+var
+  S, C: Extended;
+begin
+  if Angle = 0 then
+    Exit(Self);
+  SinCos(Angle, S, C);
+  Result.x := (C * Self.x) + (S * Self.y);
+  Result.y := (C * Self.y) - (S * Self.x);
+end;
+
+function TVec2.Rotate(const V: TVec2; Angle: Single): TVec2;
+var
+  S, C: Extended;
+  X, Y: Single;
+begin
+  if Angle = 0 then
+    Exit(V);
+  Angle := Angle / 180 * Pi;
+  SinCos(Angle, S, C);
+  X := Self.y * S - Self.x * C + Self.x;
+  Y := -Self.x * S - Self.y * C + Self.y;
+  Result.x := V.x * C - V.y * S + X;
+  Result.y := V.x * S + V.y * C + Y;
+end;
+
+{ TVec3 }
 
 class operator TVec3.Implicit(const Value: Single): TVec3;
 begin
@@ -2616,6 +2928,86 @@ begin
   Result := [V.x, V.y, V.z];
 end;
 
+class operator TVec3.Negative(const A: TVec3): TVec3;
+begin
+  Result.x := -A.x;
+  Result.y := -A.y;
+  Result.z := -A.z;
+end;
+
+class operator TVec3.Equal(const A, B: TVec3): Boolean;
+begin
+  Result := FloatEqual(A.x, B.x) and FloatEqual(A.y, B.y) and FloatEqual(A.z, B.z);
+end;
+
+class operator TVec3.NotEqual(const A, B: TVec3): Boolean;
+begin
+  Result := not (FloatEqual(A.x, B.x) and FloatEqual(A.y, B.y) and FloatEqual(A.z, B.z));
+end;
+
+class operator TVec3.Add(const A, B: TVec3): TVec3;
+begin
+  Result.x := A.x + B.x;
+  Result.y := A.y + B.y;
+  Result.z := A.z + B.z;
+end;
+
+class operator TVec3.Subtract(const A, B: TVec3): TVec3;
+begin
+  Result.x := A.x - B.x;
+  Result.y := A.y - B.y;
+  Result.z := A.z - B.z;
+end;
+
+class operator TVec3.Multiply(const A, B: TVec3): TVec3;
+begin
+  Result.x := A.x * B.x;
+  Result.y := A.y * B.y;
+  Result.z := A.z * B.z;
+end;
+
+class operator TVec3.Divide(const A, B: TVec3): TVec3;
+begin
+  Result.x := A.x / B.x;
+  Result.y := A.y / B.y;
+  Result.z := A.z / B.z;
+end;
+
+function TVec3.Equals(const Value: TVec3): Boolean;
+begin
+  Result := Self = Value;
+end;
+
+function TVec3.Cross(const V: TVec3): TVec3;
+begin
+  Result.x := (y * V.z) - (V.y * z);
+  Result.y := (z * V.x) - (V.z * x);
+  Result.z := (x * V.y) - (V.x * y);
+end;
+
+function TVec3.Dot(const V: TVec3): Single;
+begin
+  Result := x * V.x + y * V.y + z * V.z;
+end;
+
+function TVec3.Distance: Single;
+begin
+  Result := Sqrt(x * x + y * y + z * z);
+end;
+
+procedure TVec3.Normalize;
+var
+  N: Single;
+begin
+  N := x * x + y * y + z * z;
+  if N = 0 then Exit;
+  if N = 1 then Exit;
+  N := 1 / Sqrt(N);
+  x := x * N; y := y * N; z := z * N;
+end;
+
+{ TVec4 }
+
 class operator TVec4.Implicit(const Value: Single): TVec4;
 begin
   Result.x := Value; Result.y := Value; Result.z := Value; Result.w := Value;
@@ -2638,6 +3030,63 @@ class operator TVec4.Implicit(const V: TVec4): TSingleArray;
 begin
   Result := [V.x, V.y, V.z, V.w];
 end;
+
+class operator TVec4.Negative(const A: TVec4): TVec4;
+begin
+  Result.X := -A.X;
+  Result.Y := -A.Y;
+  Result.Z := -A.Z;
+  Result.W := -A.W;
+end;
+
+class operator TVec4.Equal(const A, B: TVec4): Boolean;
+begin
+  Result := FloatEqual(A.X, B.X) and FloatEqual(A.Y, B.Y) and FloatEqual(A.Z, B.Z) and FloatEqual(A.W, B.W);
+end;
+
+class operator TVec4.NotEqual(const A, B: TVec4): Boolean;
+begin
+  Result := not (FloatEqual(A.X, B.X) and FloatEqual(A.Y, B.Y) and FloatEqual(A.Z, B.Z) and FloatEqual(A.W, B.W));
+end;
+
+function TVec4.Equals(const Value: TVec4): Boolean;
+begin
+  Result := Self = Value;
+end;
+
+class operator TVec4.Multiply(const A, B: TVec4): TVec4;
+begin
+  Result.X := A.X * B.X;
+  Result.Y := A.Y * B.Y;
+  Result.Z := A.Z * B.Z;
+  Result.W := A.W * B.W;
+end;
+
+class operator TVec4.Divide(const A, B: TVec4): TVec4;
+begin
+  Result.X := A.X / B.X;
+  Result.Y := A.Y / B.Y;
+  Result.Z := A.Z / B.Z;
+  Result.W := A.W / B.W;
+end;
+
+function TVec4.Distance: Single;
+begin
+  Result := Sqrt(x * x + y * y + z * z + w * w);
+end;
+
+procedure TVec4.Normalize;
+var
+  N: Single;
+begin
+  N := x * x + y * y + z * z + w * w;
+  if N = 0 then Exit;
+  if N = 1 then Exit;
+  N := 1 / Sqrt(N);
+  x := x * N; y := y * N; z := z * N; ; w := w * N;
+end;
+
+{ TColorB }
 
 class operator TColorB.Implicit(const Value: LongWord): TColorB;
 begin
@@ -2679,6 +3128,389 @@ begin
   Result.a := Round(Clamp(Alpha) * $FF);
 end;
 
+{ TMat4 }
+
+class operator TMat4.Equal(const A, B: TMat4): Boolean;
+begin
+  Result := MemCompare(A, B, SizeOf(TMat4));
+end;
+
+class operator TMat4.NotEqual(const A, B: TMat4): Boolean;
+begin
+  Result := not MemCompare(A, B, SizeOf(TMat4));
+end;
+
+class operator TMat4.Add(const A, B: TMat4): TMat4;
+var
+  X, Y: Integer;
+begin
+  for Y := 0 to 3 do
+    for X := 0 to 3 do
+      Result.m[X, Y] := A.m[X, Y] + B.m[X, Y];
+end;
+
+class operator TMat4.Subtract(const A, B: TMat4): TMat4;
+var
+  X, Y: Integer;
+begin
+  for Y := 0 to 3 do
+    for X := 0 to 3 do
+      Result.m[X, Y] := A.m[X, Y] - B.m[X, Y];
+end;
+
+class operator TMat4.Multiply(const A: TMat4; const B: TVec2): TVec2;
+begin
+  Result.X := A.m[0, 0] * B.X + A.m[1, 0] * B.Y + A.m[3, 0];
+  Result.Y := A.m[0, 1] * B.X + A.m[1, 1] * B.Y + A.m[3, 1];
+end;
+
+class operator TMat4.Multiply(const A: TMat4; const B: TVec3): TVec3;
+begin
+  Result.X := A.m[0, 0] * B.X + A.m[1, 0] * B.Y + A.m[2, 0] * B.Z + A.m[3, 0];
+  Result.Y := A.m[0, 1] * B.X + A.m[1, 1] * B.Y + A.m[2, 1] * B.Z + A.m[3, 1];
+  Result.Z := A.m[0, 2] * B.X + A.m[1, 2] * B.Y + A.m[2, 2] * B.Z + A.m[3, 2];
+end;
+
+class operator TMat4.Multiply(const A, B: TMat4): TMat4;
+var
+  X, Y: Integer;
+begin
+  for Y := 0 to 3 do
+    for X := 0 to 3 do
+      Result.m[X, Y] := A.m[0, Y] * B.m[X, 0] + A.m[1, Y] * B.m[X, 1] + A.m[2, Y] *
+        B.m[X, 2] + A.m[3, Y] * B.m[X, 3];
+end;
+
+class operator TMat4.Divide(const A, B: TMat4): TMat4;
+var
+  X, Y: Integer;
+begin
+  for Y := 0 to 3 do
+    for X := 0 to 3 do
+      Result.m[X, Y] := A.m[0, Y] / B.m[X, 0] + A.m[1, Y] / B.m[X, 1] + A.m[2, Y] /
+        B.m[X, 2];
+end;
+
+function TMat4.Equals(const Value: TMat4): Boolean;
+begin
+  Result := Self = Value;
+end;
+
+procedure TMat4.Identity;
+begin
+  Self := StockMatrix;
+end;
+
+function TMat4.IsIdentity: Boolean;
+begin
+  Result := Self = StockMatrix;
+end;
+
+function TMat4.CanInvert: Boolean;
+var
+  A0, A1, A2, A3, A4, A5, B0, B1, B2, B3, B4, B5: Single;
+begin
+  A0 := v[0] * v[5] - v[1] * v[4];
+  A1 := v[0] * v[6] - v[2] * v[4];
+  A2 := v[0] * v[7] - v[3] * v[4];
+  A3 := v[1] * v[6] - v[2] * v[5];
+  A4 := v[1] * v[7] - v[3] * v[5];
+  A5 := v[2] * v[7] - v[3] * v[6];
+  B0 := v[8] * v[13] - v[9] * v[12];
+  B1 := v[8] * v[14] - v[10] * v[12];
+  B2 := v[8] * v[15] - v[11] * v[12];
+  B3 := v[9] * v[14] - v[10] * v[13];
+  B4 := v[9] * v[15] - v[11] * v[13];
+  B5 := v[10] * v[15] - v[11] * v[14];
+  Result := A0 * B5 - A1 * B4 + A2 * B3 + A3 * B2 - A4 * B1 + A5 * B0 <> 0;
+end;
+
+function TMat4.Invert: Boolean;
+var
+  M: TMat4;
+  A0, A1, A2, A3, A4, A5, B0, B1, B2, B3, B4, B5, D: Single;
+begin
+  A0 := v[0] * v[5] - v[1] * v[4];
+  A1 := v[0] * v[6] - v[2] * v[4];
+  A2 := v[0] * v[7] - v[3] * v[4];
+  A3 := v[1] * v[6] - v[2] * v[5];
+  A4 := v[1] * v[7] - v[3] * v[5];
+  A5 := v[2] * v[7] - v[3] * v[6];
+  B0 := v[8] * v[13] - v[9] * v[12];
+  B1 := v[8] * v[14] - v[10] * v[12];
+  B2 := v[8] * v[15] - v[11] * v[12];
+  B3 := v[9] * v[14] - v[10] * v[13];
+  B4 := v[9] * v[15] - v[11] * v[13];
+  B5 := v[10] * v[15] - v[11] * v[14];
+  D := A0 * B5 - A1 * B4 + A2 * B3 + A3 * B2 - A4 * B1 + A5 * B0;
+  if D = 0 then
+    Exit(False);
+  M := Self;
+  v[0] := M.v[5] * B5 - M.v[6] * B4 + M.v[7] * B3;
+  v[4] := -M.v[4] * B5 + M.v[6] * B2 - M.v[7] * B1;
+  v[8] := M.v[4] * B4 - M.v[5] * B2 + M.v[7] * B0;
+  v[12] := -M.v[4] * B3 + M.v[5] * B1 - M.v[6] * B0;
+  v[1] := -M.v[1] * B5 + M.v[2] * B4 - M.v[3] * B3;
+  v[5] := M.v[0] * B5 - M.v[2] * B2 + M.v[3] * B1;
+  v[9] := -M.v[0] * B4 + M.v[1] * B2 - M.v[3] * B0;
+  v[13] := M.v[0] * B3 - M.v[1] * B1 + M.v[2] * B0;
+  v[2] := M.v[13] * A5 - M.v[14] * A4 + M.v[15] * A3;
+  v[6] := -M.v[12] * A5 + M.v[14] * A2 - M.v[15] * A1;
+  v[10] := M.v[12] * A4 - M.v[13] * A2 + M.v[15] * A0;
+  v[14] := -M.v[12] * A3 + M.v[13] * A1 - M.v[14] * A0;
+  v[3] := -M.v[9] * A5 + M.v[10] * A4 - M.v[11] * A3;
+  v[7] := M.v[8] * A5 - M.v[10] * A2 + M.v[11] * A1;
+  v[11] := -M.v[8] * A4 + M.v[9] * A2 - M.v[11] * A0;
+  v[15] := M.v[8] * A3 - M.v[9] * A1 + M.v[10] * A0;
+  D := 1 / D;
+  v[0] := v[0] * D;
+  v[1] := v[1] * D;
+  v[2] := v[2] * D;
+  v[3] := v[3] * D;
+  v[4] := v[4] * D;
+  v[5] := v[5] * D;
+  v[6] := v[6] * D;
+  v[7] := v[7] * D;
+  v[8] := v[8] * D;
+  v[9] := v[9] * D;
+  v[10] := v[10] * D;
+  v[11] := v[11] * D;
+  v[12] := v[12] * D;
+  v[13] := v[13] * D;
+  v[14] := v[14] * D;
+  v[15] := v[15] * D;
+  Result := True;
+end;
+
+procedure TMat4.Transpose;
+var
+  F: Single;
+begin
+  F := m[0, 1]; m[0, 1] := m[1, 0]; m[1, 0] := F;
+  F := m[0, 2]; m[0, 2] := m[2, 0]; m[2, 0] := F;
+  F := m[0, 3]; m[0, 3] := m[3, 0]; m[3, 0] := F;
+  F := m[1, 2]; m[1, 2] := m[2, 1]; m[2, 1] := F;
+  F := m[1, 3]; m[1, 3] := m[3, 1]; m[3, 1] := F;
+  F := m[2, 3]; m[2, 3] := m[3, 2]; m[3, 2] := F;
+end;
+
+procedure TMat4.Rotate(X, Y, Z: Single);
+begin
+  Rotate(X, Y, Z, DefaultRotationOrder);
+end;
+
+procedure TMat4.Rotate(X, Y, Z: Single; Order: TRotationOrder);
+var
+  A, B: TMatrix;
+
+  procedure RotateX;
+  begin
+    if X <> 0 then
+    begin
+      B := StockMatrix;
+      B.m[1, 1] := Cos(X);
+      B.m[1, 2] := Sin(X);
+      B.m[2, 1] := -B.m[1, 2];
+      B.m[2, 2] := B.m[1, 1];
+      A := A * B;
+    end;
+  end;
+
+  procedure RotateY;
+  begin
+    if Y <> 0 then
+    begin
+      B := StockMatrix;
+      B.m[0, 0] := Cos(Y);
+      B.m[2, 0] := Sin(Y);
+      B.m[0, 2] := -B.m[2, 0];
+      B.m[2, 2] := B.m[0, 0];
+      A := A * B;
+    end;
+  end;
+
+  procedure RotateZ;
+  begin
+    if Z <> 0 then
+    begin
+      B := StockMatrix;
+      B.m[0, 0] := Cos(Z);
+      B.m[1, 0] := Sin(Z);
+      B.m[0, 1] := -B.m[1, 0];
+      B.m[1, 1] := B.m[0, 0];
+      A := A * B;
+    end;
+  end;
+
+begin
+  A := Self;
+  X := X * (PI / 180);
+  Y := Y * (PI / 180);
+  Z := Z * (PI / 180);
+  case Order of
+    roXYZ:
+      begin
+        RotateX;
+        RotateY;
+        RotateZ;
+      end;
+    roYZX:
+      begin
+        RotateY;
+        RotateZ;
+        RotateX;
+      end;
+    roZXY:
+      begin
+        RotateZ;
+        RotateX;
+        RotateY;
+      end;
+    roXZY:
+      begin
+        RotateX;
+        RotateZ;
+        RotateY;
+      end;
+    roZYX:
+      begin
+        RotateZ;
+        RotateY;
+        RotateX;
+      end;
+    roYXZ:
+      begin
+        RotateY;
+        RotateX;
+        RotateZ;
+      end;
+  end;
+  Self := A;
+end;
+
+procedure TMat4.RotateAt(X, Y, Z: Single; const Pivot: TVec3);
+begin
+  RotateAt(X, Y, Z, Pivot, DefaultRotationOrder)
+end;
+
+procedure TMat4.RotateAt(X, Y, Z: Single; const Pivot: TVec3; Order: TRotationOrder);
+begin
+  Translate(Pivot.X, Pivot.Y, Pivot.Z);
+  Rotate(X, Y, Z, Order);
+  Translate(-Pivot.X, -Pivot.Y, -Pivot.Z);
+end;
+
+procedure TMat4.Scale(X, Y, Z: Single);
+var
+  S: TMatrix;
+begin
+  S := StockMatrix;
+  S.m[0, 0] := X;
+  S.m[1, 1] := Y;
+  S.m[2, 2] := Z;
+  Self := Self * S;
+end;
+
+procedure TMat4.ScaleAt(X, Y, Z: Single; const Pivot: TVec3);
+begin
+  Translate(Pivot.X, Pivot.Y, Pivot.Z);
+  Scale(X, Y, Z);
+  Translate(-Pivot.X, -Pivot.Y, -Pivot.Z);
+end;
+
+procedure TMat4.Translate(X, Y, Z: Single);
+var
+  T: TMatrix;
+begin
+  T := StockMatrix;
+  T.m[3, 0] := X;
+  T.m[3, 1] := Y;
+  T.m[3, 2] := Z;
+  Self := Self * T;
+end;
+
+function TMat4.Transform(const V: TVec2): TVec2;
+begin
+  Result := Self * V;
+end;
+
+function TMat4.Transform(const V: TVec3): TVec3;
+begin
+  Result := Self * V;
+end;
+
+function TMat4.Transform(const M: TMat4): TMat4;
+begin
+  Result := Self * M;
+end;
+
+procedure TMat4.Perspective(FoV, AspectRatio, NearPlane, FarPlane: Single);
+var
+  XMax, YMax: Single;
+begin
+  YMax := NearPlane * Tan(FoV * PI / 360);
+  XMax := YMax * AspectRatio;
+  Frustum(-XMax, XMax, YMax, -YMax, NearPlane, FarPlane);
+end;
+
+procedure TMat4.Frustum(Left, Right, Top, Bottom, NearPlane, FarPlane: Single);
+var
+  F1, F2, F3, F4: Single;
+begin
+  F1 := 2.0 * NearPlane;
+  F2 := Right - Left;
+  F3 := Top - Bottom;
+  F4 := FarPlane - NearPlane;
+  v[0] := F1 / F2;
+  v[1] := 0;
+  v[2] := 0;
+  v[3] := 0;
+  v[4] := 0;
+  v[5] := F1 / F3;
+  v[6] := 0;
+  v[7] := 0;
+  v[8] := (Right + Left) / F2;
+  v[9] := (Top + Bottom) / F3;
+  v[10] := (-FarPlane - NearPlane) / F4;
+  v[11] := -1;
+  v[12] := 0;
+  v[13] := 0;
+  v[14] := (-F1 * FarPlane) / F4;
+  v[15] := 0;
+end;
+
+{ from https://developer.tizen.org/community/code-snippet/native-code-snippet/set-lookat-matrix-opengl-es-2.0 }
+
+procedure TMat4.LookAt(Eye, Center, Up: TVec3);
+var
+  F, S, U: TVec3;
+begin
+  F := Center - Eye;
+  F.Normalize;
+  S := F.Cross(Up);
+  S.Normalize;
+  if (S.x = 0) and (S.y = 0) and (S.z = 0) then
+    Exit;
+  U := S.Cross(F);
+  v[0] := S.X;
+  v[1] := U.X;
+  v[2] := -F.X;
+  v[3] := 0;
+  v[4] := S.Y;
+  v[5] := U.Y;
+  v[6] := -F.Y;
+  v[7] := 0;
+  v[8] := S.Z;
+  v[9] := U.Z;
+  v[10] := -F.Z;
+  v[11] := 0;
+  v[12] := 0;
+  v[13] := 0;
+  v[14] := 0;
+  v[15] := 1;
+  Translate(-Eye.X, -Eye.Y, -Eye.Z);
+end;
+
 class operator TRect.Implicit(const Value: Single): TRect;
 begin
   Result.x := Value; Result.y := Value; Result.width := Value; Result.height := Value;
@@ -2705,12 +3537,6 @@ end;
 class operator TRect.Implicit(const R: TRect): TSingleArray;
 begin
   Result := [R.x, R.y, R.width, r.height];
-end;
-
-procedure TMat4.Identity;
-begin
-  FillChar(Self, SizeOf(Self), 0);
-  m0 := 1; m5 := 1; m10 := 1; m15 := 1;
 end;
 
 function Clamp(Value: Single; Min: Single = 0; Max: Single = 1): Single;
