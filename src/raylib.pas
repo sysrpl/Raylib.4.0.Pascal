@@ -108,9 +108,7 @@
 
 unit Raylib;
 
-{$mode delphi}
-{$a8}
-{$warn 5060 off}
+{$i raylib.inc}
 
 interface
 
@@ -125,6 +123,8 @@ const
   RAD2DEG = 180 / PI;
 
 type
+  TGetProcAddress = function(ProcName: PChar): Pointer; cdecl;
+
   TSingleArray = array of Single;
   TByteArray = array of Byte;
 
@@ -132,7 +132,6 @@ type
 
   TVec2 = record
     x, y: Single;
-    class operator Implicit(const Value: Single): TVec2;
     class operator Implicit(const A: TSingleArray): TVec2;
     class operator Implicit(const V: TVec2): TSingleArray;
     class operator Negative(const A: TVec2): TVec2;
@@ -153,6 +152,7 @@ type
     procedure Offset(const V: TVec2); overload;
     function Move(X, Y: Single): TVec2; overload;
     function Move(const V: TVec2): TVec2; overload;
+    function Mix(const V: TVec2; Value: Single): TVec2;
     procedure Normalize;
     function Normal: TVec2;
     function Binormal: TVec2;
@@ -169,7 +169,6 @@ type
 
   TVec3 = record
     x, y, z: Single;
-    class operator Implicit(const Value: Single): TVec3;
     class operator Implicit(const A: TSingleArray): TVec3;
     class operator Implicit(const V: TVec3): TSingleArray;
     class operator Negative(const A: TVec3): TVec3;
@@ -193,7 +192,6 @@ type
 
   TVec4 = record
     x, y, z, w: Single;
-    class operator Implicit(const Value: Single): TVec4;
     class operator Implicit(const A: TSingleArray): TVec4;
     class operator Implicit(const V: TVec4): TSingleArray;
     class operator Negative(const A: TVec4): TVec4;
@@ -275,10 +273,13 @@ type
 
   TRect = record
     x, y, width, height: Single;
-    class operator Implicit(const Value: Single): TRect;
     class operator Implicit(const Value: TVec2): TRect;
     class operator Implicit(const A: TSingleArray): TRect;
     class operator Implicit(const R: TRect): TSingleArray;
+    procedure Inflate(DX, DY: Single);
+    procedure Move(DX, DY: Single);
+    procedure Resize(W, H: Single);
+    function IsEmpty: Boolean;
   end;
   PRect = ^TRect;
   TRectangle = TRect;
@@ -2650,8 +2651,12 @@ implementation
   {$linklib m}
   {$linklib dl}
   {$linklib pthread}
-  {$linklib glfw3-linux}
-  {$linklib raylib-linux}
+  {.$linklib glfw3-linux}
+  {$ifdef gl2}
+    {$linklib raylib-gl2-linux}
+  {$else}
+    {$linklib raylib-gl3-linux}
+  {$endif}
 {$endif}
 {$ifdef windows}
   {$linklib raylib-win64}
@@ -2696,11 +2701,6 @@ begin
 end;
 
 { TVec2 }
-
-class operator TVec2.Implicit(const Value: Single): TVec2;
-begin
-  Result.x := Value; Result.y := Value;
-end;
 
 class operator TVec2.Implicit(const A: TSingleArray): TVec2;
 begin
@@ -2831,6 +2831,16 @@ begin
   Result.y := y + V.y;
 end;
 
+function TVec2.Mix(const V: TVec2; Value: Single): TVec2;
+var
+  C: Single;
+begin
+  Value := Clamp(Value);
+  C := 1 - Value;
+  Result.x := x * C + V.x * Value;
+  Result.y := y * C + V.y * Value;
+end;
+
 procedure TVec2.Normalize;
 var
   N: Single;
@@ -2905,11 +2915,6 @@ begin
 end;
 
 { TVec3 }
-
-class operator TVec3.Implicit(const Value: Single): TVec3;
-begin
-  Result.x := Value; Result.y := Value; Result.z := Value;
-end;
 
 class operator TVec3.Implicit(const A: TSingleArray): TVec3;
 begin
@@ -3007,11 +3012,6 @@ begin
 end;
 
 { TVec4 }
-
-class operator TVec4.Implicit(const Value: Single): TVec4;
-begin
-  Result.x := Value; Result.y := Value; Result.z := Value; Result.w := Value;
-end;
 
 class operator TVec4.Implicit(const A: TSingleArray): TVec4;
 begin
@@ -3511,11 +3511,6 @@ begin
   Translate(-Eye.X, -Eye.Y, -Eye.Z);
 end;
 
-class operator TRect.Implicit(const Value: Single): TRect;
-begin
-  Result.x := Value; Result.y := Value; Result.width := Value; Result.height := Value;
-end;
-
 class operator TRect.Implicit(const Value: TVec2): TRect;
 begin
   Result.x := 0; Result.y := 0; Result.width := Value.x; Result.height := Value.y;
@@ -3526,8 +3521,8 @@ begin
   FillChar(Result, SizeOf(Result), 0);
   case Length(A) of
     0: ;
-    1: Result.x := A[0];
-    2: begin Result.x := A[0]; Result.y := A[1]; end;
+    1: Result.width := A[0];
+    2: begin Result.width := A[0]; Result.height := A[1]; end;
     3: begin Result.x := A[0]; Result.x := A[1]; Result.width := A[2]; end;
   else
     Result.x := A[0]; Result.y := A[1]; Result.width := A[2]; Result.height := A[3];
@@ -3537,6 +3532,33 @@ end;
 class operator TRect.Implicit(const R: TRect): TSingleArray;
 begin
   Result := [R.x, R.y, R.width, r.height];
+end;
+
+procedure TRect.Inflate(DX, DY: Single);
+begin
+  x := x - DX;
+  y := y - DX;
+  width := width + DX * 2;
+  height := height + DX * 2;
+end;
+
+procedure TRect.Move(DX, DY: Single);
+begin
+  x := x + DX;
+  y := y + DY;
+end;
+
+procedure TRect.Resize(W, H: Single);
+begin
+  x := x + width / 2; x := x - W / 2;
+  y := y + height / 2; y := y - H / 2;
+  width := W;
+  height := H;
+end;
+
+function TRect.IsEmpty: Boolean;
+begin
+  Result := (width <= 0) or (height <= 0);
 end;
 
 function Clamp(Value: Single; Min: Single = 0; Max: Single = 1): Single;

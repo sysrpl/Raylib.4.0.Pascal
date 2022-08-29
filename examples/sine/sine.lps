@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <Version Value="12"/>
+    <BuildModes Active="Default"/>
+    <Units>
+      <Unit>
+        <Filename Value="sine.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Sine"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="258"/>
+        <CursorPos Y="287"/>
+        <UsageCount Value="68"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../src/raylib.pas"/>
+        <UnitName Value="Raylib"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="3003"/>
+        <CursorPos X="18" Y="3018"/>
+        <UsageCount Value="25"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../src/raylib.app.pas"/>
+        <UnitName Value="Raylib.App"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="93"/>
+        <CursorPos X="33" Y="120"/>
+        <UsageCount Value="20"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../src/raylib.glfw.pas"/>
+        <UnitName Value="Raylib.Glfw"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="416"/>
+        <CursorPos X="31" Y="442"/>
+        <UsageCount Value="25"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../src/raylib.gl.pas"/>
+        <UnitName Value="RayLib.Gl"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="703"/>
+        <CursorPos Y="734"/>
+        <UsageCount Value="33"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../fpc/rtl/objpas/objpas.pp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="20"/>
+        <CursorPos X="8" Y="35"/>
+        <UsageCount Value="6"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../src/raylib.nanovg.pas"/>
+        <UnitName Value="Raylib.NanoVG"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="786"/>
+        <CursorPos X="24" Y="799"/>
+        <UsageCount Value="25"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../src/raylib.graphics.pas"/>
+        <UnitName Value="Raylib.Graphics"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="2873"/>
+        <CursorPos X="5" Y="2903"/>
+        <UsageCount Value="33"/>
+        <Bookmarks Count="1">
+          <Item0 X="23" Y="923" ID="1"/>
+        </Bookmarks>
+      </Unit>
+      <Unit>
+        <Filename Value="../src/raylib.system.pas"/>
+        <UnitName Value="RayLib.System"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="3020"/>
+        <CursorPos X="23" Y="3044"/>
+        <UsageCount Value="21"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../src/raylib.core.pas"/>
+        <UnitName Value="RayLib.Core"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="6"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../src/raylib.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="8"/>
+        <CursorPos X="76" Y="34"/>
+        <UsageCount Value="25"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../src/raylib.collections.pas"/>
+        <UnitName Value="RayLib.Collections"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="694"/>
+        <CursorPos Y="714"/>
+        <UsageCount Value="22"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../src/raylib.constants.pas"/>
+        <UnitName Value="RayLib.Constants"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="11" Y="3"/>
+        <UsageCount Value="6"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../fpc/rtl/inc/objpas.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1043"/>
+        <CursorPos Y="1059"/>
+        <UsageCount Value="25"/>
+      </Unit>
+    </Units>
+    <JumpHistory HistoryIndex="1">
+      <Position>
+        <Filename Value="sine.lpr"/>
+        <Caret Line="275" Column="17" TopLine="259"/>
+      </Position>
+      <Position>
+        <Filename Value="sine.lpr"/>
+        <Caret Line="287" TopLine="259"/>
+      </Position>
+    </JumpHistory>
+    <RunParams>
+      <FormatVersion Value="2"/>
+      <Modes ActiveMode=""/>
+    </RunParams>
+  </ProjectSession>
+</CONFIG>

@@ -1,617 +1,739 @@
-{ Raylib 4.0 Pascal bindings for Windows, macOS, Linux, and Raspberry Pi
-  Git repository https://www.github.com/sysrpl/Raylib.4.0.Pascal
-  By Anthony Walter <admim@getlazarus.org>
-  Modified August 2022
-
-  This package includes complete pascal bindings of the following packages:
-
-    Raylib (raylib.pas)
-    Raylib GL (raylib.gl.pas)
-    Raylib GUI (raylib.gui.pas)
-
-  A BIG NOTE ON COMPILING AND RUNNING
-
-  Windows:
-    The file dlls/raylib.dll must be copied to a folder in your path.
-    You can do this by copying raylib.dll to your program folder, or
-    by copying raylib.dll to C:\Windows\System32 one time.
-
-  Linux, MacOS, and Raspberry Pi:
-    Static libaries are used and everything is built into your programs.
-
-  When compiling from the command line, make sure the src folder is included
-  in your unit path.
-
-  Example:
-
-  fpc helloworld.pas -Fu../src  }
-
-(**********************************************************************************************
-*
-*   rlgl v4.0 - A multi-OpenGL abstraction layer with an immediate-mode style API
-*
-*   An abstraction layer for multiple OpenGL versions (1.1, 2.1, 3.3 Core, 4.3 Core, ES 2.0)
-*   that provides a pseudo-OpenGL 1.1 immediate-mode style API (rlVertex, rlTranslate, rlRotate...)
-*
-*   When chosing an OpenGL backend different than OpenGL 1.1, some internal buffer are
-*   initialized on rlglInit() to accumulate vertex data.
-*
-*   When an internal state change is required all the stored vertex data is renderer in batch,
-*   additioanlly, rlDrawRenderBatchActive() could be called to force flushing of the batch.
-*
-*   Some additional resources are also loaded for convenience, here the complete list:
-*      - Default batch (RLGL.defaultBatch): RenderBatch system to accumulate vertex data
-*      - Default texture (RLGL.defaultTextureId): 1x1 white pixel R8G8B8A8
-*      - Default shader (RLGL.State.defaultShaderId, RLGL.State.defaultShaderLocs)
-*
-*   Internal buffer (and additional resources) must be manually unloaded calling rlglClose().
-*
-*
-*   CONFIGURATION:
-*
-*   #define GRAPHICS_API_OPENGL_11
-*   #define GRAPHICS_API_OPENGL_21
-*   #define GRAPHICS_API_OPENGL_33
-*   #define GRAPHICS_API_OPENGL_43
-*   #define GRAPHICS_API_OPENGL_ES2
-*       Use selected OpenGL graphics backend, should be supported by platform
-*       Those preprocessor defines are only used on rlgl module, if OpenGL version is
-*       required by any other module, use rlGetVersion() to check it
-*
-*   #define RLGL_IMPLEMENTATION
-*       Generates the implementation of the library into the included file.
-*       If not defined, the library is in header only mode and can be included in other headers
-*       or source files without problems. But only ONE file should hold the implementation.
-*
-*   #define RLGL_RENDER_TEXTURES_HINT
-*       Enable framebuffer objects (fbo) support (enabled by default)
-*       Some GPUs could not support them despite the OpenGL version
-*
-*   #define RLGL_SHOW_GL_DETAILS_INFO
-*       Show OpenGL extensions and capabilities detailed logs on init
-*
-*   #define RLGL_ENABLE_OPENGL_DEBUG_CONTEXT
-*       Enable debug context (only available on OpenGL 4.3)
-*
-*   rlgl capabilities could be customized just defining some internal
-*   values before library inclusion (default values listed):
-*
-*   #define RL_DEFAULT_BATCH_BUFFER_ELEMENTS   8192    // Default internal render batch elements limits
-*   #define RL_DEFAULT_BATCH_BUFFERS              1    // Default number of batch buffers (multi-buffering)
-*   #define RL_DEFAULT_BATCH_DRAWCALLS          256    // Default number of batch draw calls (by state changes: mode, texture)
-*   #define RL_DEFAULT_BATCH_MAX_TEXTURE_UNITS    4    // Maximum number of textures units that can be activated on batch drawing (SetShaderValueTexture())
-*
-*   #define RL_MAX_MATRIX_STACK_SIZE             32    // Maximum size of internal Matrix stack
-*   #define RL_MAX_SHADER_LOCATIONS              32    // Maximum number of shader locations supported
-*   #define RL_CULL_DISTANCE_NEAR              0.01    // Default projection matrix near cull distance
-*   #define RL_CULL_DISTANCE_FAR             1000.0    // Default projection matrix far cull distance
-*
-*   When loading a shader, the following vertex attribute and uniform
-*   location names are tried to be set automatically:
-*
-*   #define RL_DEFAULT_SHADER_ATTRIB_NAME_POSITION     "vertexPosition"    // Binded by default to shader location: 0
-*   #define RL_DEFAULT_SHADER_ATTRIB_NAME_TEXCOORD     "vertexTexCoord"    // Binded by default to shader location: 1
-*   #define RL_DEFAULT_SHADER_ATTRIB_NAME_NORMAL       "vertexNormal"      // Binded by default to shader location: 2
-*   #define RL_DEFAULT_SHADER_ATTRIB_NAME_COLOR        "vertexColor"       // Binded by default to shader location: 3
-*   #define RL_DEFAULT_SHADER_ATTRIB_NAME_TANGENT      "vertexTangent"     // Binded by default to shader location: 4
-*   #define RL_DEFAULT_SHADER_ATTRIB_NAME_TEXCOORD2    "vertexTexCoord2"   // Binded by default to shader location: 5
-*   #define RL_DEFAULT_SHADER_UNIFORM_NAME_MVP         "mvp"               // model-view-projection matrix
-*   #define RL_DEFAULT_SHADER_UNIFORM_NAME_VIEW        "matView"           // view matrix
-*   #define RL_DEFAULT_SHADER_UNIFORM_NAME_PROJECTION  "matProjection"     // projection matrix
-*   #define RL_DEFAULT_SHADER_UNIFORM_NAME_MODEL       "matModel"          // model matrix
-*   #define RL_DEFAULT_SHADER_UNIFORM_NAME_NORMAL      "matNormal"         // normal matrix (transpose(inverse(matModelView))
-*   #define RL_DEFAULT_SHADER_UNIFORM_NAME_COLOR       "colDiffuse"        // color diffuse (base tint color, multiplied by texture color)
-*   #define RL_DEFAULT_SHADER_SAMPLER2D_NAME_TEXTURE0  "texture0"          // texture0 (texture slot active 0)
-*   #define RL_DEFAULT_SHADER_SAMPLER2D_NAME_TEXTURE1  "texture1"          // texture1 (texture slot active 1)
-*   #define RL_DEFAULT_SHADER_SAMPLER2D_NAME_TEXTURE2  "texture2"          // texture2 (texture slot active 2)
-*
-*   DEPENDENCIES:
-*
-*      - OpenGL libraries (depending on platform and OpenGL version selected)
-*      - GLAD OpenGL extensions loading library (only for OpenGL 3.3 Core, 4.3 Core)
-*
-*
-*   LICENSE: zlib/libpng
-*
-*   Copyright (c) 2014-2021 Ramon Santamaria (@raysan5)
-*
-*   This software is provided "as-is", without any express or implied warranty. In no event
-*   will the authors be held liable for any damages arising from the use of this software.
-*
-*   Permission is granted to anyone to use this software for any purpose, including commercial
-*   applications, and to alter it and redistribute it freely, subject to the following restrictions:
-*
-*     1. The origin of this software must not be misrepresented; you must not claim that you
-*     wrote the original software. If you use this software in a product, an acknowledgment
-*     in the product documentation would be appreciated but is not required.
-*
-*     2. Altered source versions must be plainly marked as such, and must not be misrepresented
-*     as being the original software.
-*
-*     3. This notice may not be removed or altered from any source distribution.
-*
-**********************************************************************************************)
-
-unit Raylib.Gl;
+unit RayLib.Gl;
 
 {$mode delphi}
+{$minenumsize 4}
 {$a8}
 
 interface
 
-uses
-  Raylib;
+type
+  GLvoid = Pointer;
+  GLenum = DWord;
+  GLboolean = Byte;
+  GLbitfield = DWord;
+  GLbyte = ShortInt;
+  GLshort = SmallInt;
+  GLint = LongInt;
+  GLsizei = LongInt;
+  GLubyte = Byte;
+  GLushort = Word;
+  GLuint = LongWord;
+  GLfloat = Single;
+  GLclampf = Single;
+  GLfixed = LongInt;
+  GLintptr = PtrInt;
+  GLsizeiptr = PtrInt;
+  GLchar = Char;
+  PGLchar = PChar;
+  PGLvoid = ^GLvoid;
+  PGLenum = ^GLenum;
+  PGLboolean = ^GLboolean;
+  PGLbitfield = ^GLbitfield;
+  PGLbyte = ^GLbyte;
+  PGLshort = ^GLshort;
+  PGLint = ^GLint;
+  PGLsizei = ^GLsizei;
+  PGLubyte = ^GLubyte;
+  PGLushort = ^GLushort;
+  PGLuint = ^GLuint;
+  PGLfloat = ^GLfloat;
+  PGLclampf = ^GLclampf;
+  PGLfixed = ^GLfixed;
+  PGLintptr = ^GLintptr;
+  PGLsizeiptr = ^GLsizeiptr;
 
 const
-  RLGL_VERSION = '4.0';
+  GL_ES_VERSION_2_0 = 1;
+  { ClearBufferMask }
+  GL_DEPTH_BUFFER_BIT = $00000100;
+  GL_STENCIL_BUFFER_BIT = $00000400;
+  GL_COLOR_BUFFER_BIT = $00004000;
+  { Boolean }
+  GL_FALSE = 0;
+  GL_TRUE = 1;
+  { BeginMode }
+  GL_POINTS = $0000;
+  GL_LINES = $0001;
+  GL_LINE_LOOP = $0002;
+  GL_LINE_STRIP = $0003;
+  GL_TRIANGLES = $0004;
+  GL_TRIANGLE_STRIP = $0005;
+  GL_TRIANGLE_FAN = $0006;
+  { AlphaFunction (not supported in ES20) }
+  { GL_NEVER }
+  { GL_LESS }
+  { GL_EQUAL }
+  { GL_LEQUAL }
+  { GL_GREATER }
+  { GL_NOTEQUAL }
+  { GL_GEQUAL }
+  { GL_ALWAYS }
+  { BlendingFactorDest }
+  GL_ZERO = 0;
+  GL_ONE = 1;
+  GL_SRC_COLOR = $0300;
+  GL_ONE_MINUS_SRC_COLOR = $0301;
+  GL_SRC_ALPHA = $0302;
+  GL_ONE_MINUS_SRC_ALPHA = $0303;
+  GL_DST_ALPHA = $0304;
+  GL_ONE_MINUS_DST_ALPHA = $0305;
+  { BlendingFactorSrc }
+  { GL_ZERO }
+  { GL_ONE }
+  GL_DST_COLOR = $0306;
+  GL_ONE_MINUS_DST_COLOR = $0307;
+  GL_SRC_ALPHA_SATURATE = $0308;
+  { GL_SRC_ALPHA }
+  { GL_ONE_MINUS_SRC_ALPHA }
+  { GL_DST_ALPHA }
+  { GL_ONE_MINUS_DST_ALPHA }
+  { BlendEquationSeparate }
+  GL_FUNC_ADD = $8006;
+  GL_BLEND_EQUATION = $8009;
+  { Same as BLEND_EQUATION }
+  GL_BLEND_EQUATION_RGB = $8009;
+  GL_BLEND_EQUATION_ALPHA = $883D;
+  { BlendSubtract }
+  GL_FUNC_SUBTRACT = $800A;
+  GL_FUNC_REVERSE_SUBTRACT = $800B;
+  { Separate Blend Functions }
+  GL_BLEND_DST_RGB = $80C8;
+  GL_BLEND_SRC_RGB = $80C9;
+  GL_BLEND_DST_ALPHA = $80CA;
+  GL_BLEND_SRC_ALPHA = $80CB;
+  GL_CONSTANT_COLOR = $8001;
+  GL_ONE_MINUS_CONSTANT_COLOR = $8002;
+  GL_CONSTANT_ALPHA = $8003;
+  GL_ONE_MINUS_CONSTANT_ALPHA = $8004;
+  GL_BLEND_COLOR = $8005;
+  { Buffer Objects }
+  GL_ARRAY_BUFFER = $8892;
+  GL_ELEMENT_ARRAY_BUFFER = $8893;
+  GL_ARRAY_BUFFER_BINDING = $8894;
+  GL_ELEMENT_ARRAY_BUFFER_BINDING = $8895;
+  GL_STREAM_DRAW = $88E0;
+  GL_STATIC_DRAW = $88E4;
+  GL_DYNAMIC_DRAW = $88E8;
+  GL_BUFFER_SIZE = $8764;
+  GL_BUFFER_USAGE = $8765;
+  GL_CURRENT_VERTEX_ATTRIB = $8626;
+  { CullFaceMode }
+  GL_FRONT = $0404;
+  GL_BACK = $0405;
+  GL_FRONT_AND_BACK = $0408;
+  { DepthFunction }
+  { GL_NEVER }
+  { GL_LESS }
+  { GL_EQUAL }
+  { GL_LEQUAL }
+  { GL_GREATER }
+  { GL_NOTEQUAL }
+  { GL_GEQUAL }
+  { GL_ALWAYS }
+  { EnableCap }
+  GL_TEXTURE_2D = $0DE1;
+  GL_CULL_FACE = $0B44;
+  GL_BLEND = $0BE2;
+  GL_DITHER = $0BD0;
+  GL_STENCIL_TEST = $0B90;
+  GL_DEPTH_TEST = $0B71;
+  GL_SCISSOR_TEST = $0C11;
+  GL_POLYGON_OFFSET_FILL = $8037;
+  GL_SAMPLE_ALPHA_TO_COVERAGE = $809E;
+  GL_SAMPLE_COVERAGE = $80A0;
+  { ErrorCode }
+  GL_NO_ERROR = 0;
+  GL_INVALID_ENUM = $0500;
+  GL_INVALID_VALUE = $0501;
+  GL_INVALID_OPERATION = $0502;
+  GL_OUT_OF_MEMORY = $0505;
+  { FrontFaceDirection }
+  GL_CW = $0900;
+  GL_CCW = $0901;
+  { GetPName }
+  GL_LINE_WIDTH = $0B21;
+  GL_ALIASED_POINT_SIZE_RANGE = $846D;
+  GL_ALIASED_LINE_WIDTH_RANGE = $846E;
+  GL_CULL_FACE_MODE = $0B45;
+  GL_FRONT_FACE = $0B46;
+  GL_DEPTH_RANGE = $0B70;
+  GL_DEPTH_WRITEMASK = $0B72;
+  GL_DEPTH_CLEAR_VALUE = $0B73;
+  GL_DEPTH_FUNC = $0B74;
+  GL_STENCIL_CLEAR_VALUE = $0B91;
+  GL_STENCIL_FUNC = $0B92;
+  GL_STENCIL_FAIL = $0B94;
+  GL_STENCIL_PASS_DEPTH_FAIL = $0B95;
+  GL_STENCIL_PASS_DEPTH_PASS = $0B96;
+  GL_STENCIL_REF = $0B97;
+  GL_STENCIL_VALUE_MASK = $0B93;
+  GL_STENCIL_WRITEMASK = $0B98;
+  GL_STENCIL_BACK_FUNC = $8800;
+  GL_STENCIL_BACK_FAIL = $8801;
+  GL_STENCIL_BACK_PASS_DEPTH_FAIL = $8802;
+  GL_STENCIL_BACK_PASS_DEPTH_PASS = $8803;
+  GL_STENCIL_BACK_REF = $8CA3;
+  GL_STENCIL_BACK_VALUE_MASK = $8CA4;
+  GL_STENCIL_BACK_WRITEMASK = $8CA5;
+  GL_VIEWPORT = $0BA2;
+  GL_SCISSOR_BOX = $0C10;
+  { GL_SCISSOR_TEST }
+  GL_COLOR_CLEAR_VALUE = $0C22;
+  GL_COLOR_WRITEMASK = $0C23;
+  GL_UNPACK_ALIGNMENT = $0CF5;
+  GL_PACK_ALIGNMENT = $0D05;
+  GL_MAX_TEXTURE_SIZE = $0D33;
+  GL_MAX_VIEWPORT_DIMS = $0D3A;
+  GL_SUBPIXEL_BITS = $0D50;
+  GL_RED_BITS = $0D52;
+  GL_GREEN_BITS = $0D53;
+  GL_BLUE_BITS = $0D54;
+  GL_ALPHA_BITS = $0D55;
+  GL_DEPTH_BITS = $0D56;
+  GL_STENCIL_BITS = $0D57;
+  GL_POLYGON_OFFSET_UNITS = $2A00;
+  { GL_POLYGON_OFFSET_FILL }
+  GL_POLYGON_OFFSET_FACTOR = $8038;
+  GL_TEXTURE_BINDING_2D = $8069;
+  GL_SAMPLE_BUFFERS = $80A8;
+  GL_SAMPLES = $80A9;
+  GL_SAMPLE_COVERAGE_VALUE = $80AA;
+  GL_SAMPLE_COVERAGE_INVERT = $80AB;
+  { GetTextureParameter }
+  { GL_TEXTURE_MAG_FILTER }
+  { GL_TEXTURE_MIN_FILTER }
+  { GL_TEXTURE_WRAP_S }
+  { GL_TEXTURE_WRAP_T }
+  GL_NUM_COMPRESSED_TEXTURE_FORMATS = $86A2;
+  GL_COMPRESSED_TEXTURE_FORMATS = $86A3;
+  { HintMode }
+  GL_DONT_CARE = $1100;
+  GL_FASTEST = $1101;
+  GL_NICEST = $1102;
+  { HintTarget }
+  GL_GENERATE_MIPMAP_HINT = $8192;
+  { DataType }
+  GL_BYTE = $1400;
+  GL_UNSIGNED_BYTE = $1401;
+  GL_SHORT = $1402;
+  GL_UNSIGNED_SHORT = $1403;
+  GL_INT = $1404;
+  GL_UNSIGNED_INT = $1405;
+  GL_FLOAT = $1406;
+  GL_FIXED = $140C;
+  { PixelFormat }
+  GL_DEPTH_COMPONENT = $1902;
+  GL_ALPHA = $1906;
+  GL_RGB = $1907;
+  GL_RGBA = $1908;
+  GL_LUMINANCE = $1909;
+  GL_LUMINANCE_ALPHA = $190A;
+  { PixelType }
+  { GL_UNSIGNED_BYTE }
+  GL_UNSIGNED_SHORT_4_4_4_4 = $8033;
+  GL_UNSIGNED_SHORT_5_5_5_1 = $8034;
+  GL_UNSIGNED_SHORT_5_6_5 = $8363;
+  { Shaders }
+  GL_FRAGMENT_SHADER = $8B30;
+  GL_VERTEX_SHADER = $8B31;
+  GL_MAX_VERTEX_ATTRIBS = $8869;
+  GL_MAX_VERTEX_UNIFORM_VECTORS = $8DFB;
+  GL_MAX_VARYING_VECTORS = $8DFC;
+  GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS = $8B4D;
+  GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS = $8B4C;
+  GL_MAX_TEXTURE_IMAGE_UNITS = $8872;
+  GL_MAX_FRAGMENT_UNIFORM_VECTORS = $8DFD;
+  GL_SHADER_TYPE = $8B4F;
+  GL_DELETE_STATUS = $8B80;
+  GL_LINK_STATUS = $8B82;
+  GL_VALIDATE_STATUS = $8B83;
+  GL_ATTACHED_SHADERS = $8B85;
+  GL_ACTIVE_UNIFORMS = $8B86;
+  GL_ACTIVE_UNIFORM_MAX_LENGTH = $8B87;
+  GL_ACTIVE_ATTRIBUTES = $8B89;
+  GL_ACTIVE_ATTRIBUTE_MAX_LENGTH = $8B8A;
+  GL_CURRENT_PROGRAM = $8B8D;
+  { StencilFunction }
+  GL_NEVER = $0200;
+  GL_LESS = $0201;
+  GL_EQUAL = $0202;
+  GL_LEQUAL = $0203;
+  GL_GREATER = $0204;
+  GL_NOTEQUAL = $0205;
+  GL_GEQUAL = $0206;
+  GL_ALWAYS = $0207;
+  { StencilOp }
+  { GL_ZERO }
+  GL_KEEP = $1E00;
+  GL_REPLACE = $1E01;
+  GL_INCR = $1E02;
+  GL_DECR = $1E03;
+  GL_INVERT = $150A;
+  GL_INCR_WRAP = $8507;
+  GL_DECR_WRAP = $8508;
+  { StringName }
+  GL_VENDOR = $1F00;
+  GL_RENDERER = $1F01;
+  GL_VERSION = $1F02;
+  GL_EXTENSIONS = $1F03;
+  GL_SHADING_LANGUAGE_VERSION = $8B8C;
+  { TextureMagFilter }
+  GL_NEAREST = $2600;
+  GL_LINEAR = $2601;
+  { TextureMinFilter }
+  { GL_NEAREST }
+  { GL_LINEAR }
+  GL_NEAREST_MIPMAP_NEAREST = $2700;
+  GL_LINEAR_MIPMAP_NEAREST = $2701;
+  GL_NEAREST_MIPMAP_LINEAR = $2702;
+  GL_LINEAR_MIPMAP_LINEAR = $2703;
+  { TextureParameterName }
+  GL_TEXTURE_MAG_FILTER = $2800;
+  GL_TEXTURE_MIN_FILTER = $2801;
+  GL_TEXTURE_WRAP_S = $2802;
+  GL_TEXTURE_WRAP_T = $2803;
+  { TextureTarget }
+  { GL_TEXTURE_2D }
+  GL_TEXTURE = $1702;
+  GL_TEXTURE_CUBE_MAP = $8513;
+  GL_TEXTURE_BINDING_CUBE_MAP = $8514;
+  GL_TEXTURE_CUBE_MAP_POSITIVE_X = $8515;
+  GL_TEXTURE_CUBE_MAP_NEGATIVE_X = $8516;
+  GL_TEXTURE_CUBE_MAP_POSITIVE_Y = $8517;
+  GL_TEXTURE_CUBE_MAP_NEGATIVE_Y = $8518;
+  GL_TEXTURE_CUBE_MAP_POSITIVE_Z = $8519;
+  GL_TEXTURE_CUBE_MAP_NEGATIVE_Z = $851A;
+  GL_MAX_CUBE_MAP_TEXTURE_SIZE = $851C;
+  { TextureUnit }
+  GL_TEXTURE0 = $84C0;
+  GL_TEXTURE1 = $84C1;
+  GL_TEXTURE2 = $84C2;
+  GL_TEXTURE3 = $84C3;
+  GL_TEXTURE4 = $84C4;
+  GL_TEXTURE5 = $84C5;
+  GL_TEXTURE6 = $84C6;
+  GL_TEXTURE7 = $84C7;
+  GL_TEXTURE8 = $84C8;
+  GL_TEXTURE9 = $84C9;
+  GL_TEXTURE10 = $84CA;
+  GL_TEXTURE11 = $84CB;
+  GL_TEXTURE12 = $84CC;
+  GL_TEXTURE13 = $84CD;
+  GL_TEXTURE14 = $84CE;
+  GL_TEXTURE15 = $84CF;
+  GL_TEXTURE16 = $84D0;
+  GL_TEXTURE17 = $84D1;
+  GL_TEXTURE18 = $84D2;
+  GL_TEXTURE19 = $84D3;
+  GL_TEXTURE20 = $84D4;
+  GL_TEXTURE21 = $84D5;
+  GL_TEXTURE22 = $84D6;
+  GL_TEXTURE23 = $84D7;
+  GL_TEXTURE24 = $84D8;
+  GL_TEXTURE25 = $84D9;
+  GL_TEXTURE26 = $84DA;
+  GL_TEXTURE27 = $84DB;
+  GL_TEXTURE28 = $84DC;
+  GL_TEXTURE29 = $84DD;
+  GL_TEXTURE30 = $84DE;
+  GL_TEXTURE31 = $84DF;
+  GL_ACTIVE_TEXTURE = $84E0;
+  { TextureWrapMode }
+  GL_REPEAT = $2901;
+  GL_CLAMP_TO_EDGE = $812F;
+  GL_MIRRORED_REPEAT = $8370;
+  { Uniform Types }
+  GL_FLOAT_VEC2 = $8B50;
+  GL_FLOAT_VEC3 = $8B51;
+  GL_FLOAT_VEC4 = $8B52;
+  GL_INT_VEC2 = $8B53;
+  GL_INT_VEC3 = $8B54;
+  GL_INT_VEC4 = $8B55;
+  GL_BOOL = $8B56;
+  GL_BOOL_VEC2 = $8B57;
+  GL_BOOL_VEC3 = $8B58;
+  GL_BOOL_VEC4 = $8B59;
+  GL_FLOAT_MAT2 = $8B5A;
+  GL_FLOAT_MAT3 = $8B5B;
+  GL_FLOAT_MAT4 = $8B5C;
+  GL_SAMPLER_2D = $8B5E;
+  GL_SAMPLER_CUBE = $8B60;
+  { Vertex Arrays }
+  GL_VERTEX_ATTRIB_ARRAY_ENABLED = $8622;
+  GL_VERTEX_ATTRIB_ARRAY_SIZE = $8623;
+  GL_VERTEX_ATTRIB_ARRAY_STRIDE = $8624;
+  GL_VERTEX_ATTRIB_ARRAY_TYPE = $8625;
+  GL_VERTEX_ATTRIB_ARRAY_NORMALIZED = $886A;
+  GL_VERTEX_ATTRIB_ARRAY_Pointer = $8645;
+  GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING = $889F;
+  { Read Format }
+  GL_IMPLEMENTATION_COLOR_READ_TYPE = $8B9A;
+  GL_IMPLEMENTATION_COLOR_READ_FORMAT = $8B9B;
+  { Shader Source }
+  GL_COMPILE_STATUS = $8B81;
+  GL_INFO_LOG_LENGTH = $8B84;
+  GL_SHADER_SOURCE_LENGTH = $8B88;
+  GL_SHADER_COMPILER = $8DFA;
+  { Shader Binary }
+  GL_SHADER_BINARY_FORMATS = $8DF8;
+  GL_NUM_SHADER_BINARY_FORMATS = $8DF9;
+  { Shader Precision-Specified Types }
+  GL_LOW_FLOAT = $8DF0;
+  GL_MEDIUM_FLOAT = $8DF1;
+  GL_HIGH_FLOAT = $8DF2;
+  GL_LOW_INT = $8DF3;
+  GL_MEDIUM_INT = $8DF4;
+  GL_HIGH_INT = $8DF5;
+  { Framebuffer Object. }
+  GL_FRAMEBUFFER = $8D40;
+  GL_RENDERBUFFER = $8D41;
+  GL_RGBA4 = $8056;
+  GL_RGB5_A1 = $8057;
+  GL_RGB565 = $8D62;
+  GL_DEPTH_COMPONENT16 = $81A5;
+  GL_STENCIL_INDEX = $1901;
+  GL_STENCIL_INDEX8 = $8D48;
+  GL_RENDERBUFFER_WIDTH = $8D42;
+  GL_RENDERBUFFER_HEIGHT = $8D43;
+  GL_RENDERBUFFER_INTERNAL_FORMAT = $8D44;
+  GL_RENDERBUFFER_RED_SIZE = $8D50;
+  GL_RENDERBUFFER_GREEN_SIZE = $8D51;
+  GL_RENDERBUFFER_BLUE_SIZE = $8D52;
+  GL_RENDERBUFFER_ALPHA_SIZE = $8D53;
+  GL_RENDERBUFFER_DEPTH_SIZE = $8D54;
+  GL_RENDERBUFFER_STENCIL_SIZE = $8D55;
+  GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE = $8CD0;
+  GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME = $8CD1;
+  GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL = $8CD2;
+  GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE = $8CD3;
+  GL_COLOR_ATTACHMENT0 = $8CE0;
+  GL_DEPTH_ATTACHMENT = $8D00;
+  GL_STENCIL_ATTACHMENT = $8D20;
+  GL_NONE = 0;
+  GL_FRAMEBUFFER_COMPLETE = $8CD5;
+  GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT = $8CD6;
+  GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT = $8CD7;
+  GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS = $8CD9;
+  GL_FRAMEBUFFER_UNSUPPORTED = $8CDD;
+  GL_FRAMEBUFFER_BINDING = $8CA6;
+  GL_RENDERBUFFER_BINDING = $8CA7;
+  GL_MAX_RENDERBUFFER_SIZE = $84E8;
+  GL_INVALID_FRAMEBUFFER_OPERATION = $0506;
 
-{ Default internal render batch elements limits }
-const
-  { Default number of batch buffers (multi-buffering) }
-  RL_DEFAULT_BATCH_BUFFERS                = 1;
-  { Default number of batch draw calls (by state changes: mode, texture) }
-  RL_DEFAULT_BATCH_DRAWCALLS            = 256;
-  { Maximum number of textures units that can be activated on batch drawing (SetShaderValueTexture()) }
-  RL_DEFAULT_BATCH_MAX_TEXTURE_UNITS      = 4;
-  { Maximum size of Matrix stack }
-  RL_MAX_MATRIX_STACK_SIZE               = 32;
-  { Maximum number of shader locations supported }
-  RL_MAX_SHADER_LOCATIONS                = 32;
-  { Projection matrix culling }
-  { Default near cull distance }
-  RL_CULL_DISTANCE_NEAR                = 0.01;
-  { Default far cull distance }
-  RL_CULL_DISTANCE_FAR               = 1000.0;
-  { Texture parameters (equivalent to OpenGL defines) }
-  RL_TEXTURE_WRAP_S                      = $2802;
-  RL_TEXTURE_WRAP_T                      = $2803;
-  RL_TEXTURE_MAG_FILTER                  = $2800;
-  RL_TEXTURE_MIN_FILTER                  = $2801;
-  RL_TEXTURE_FILTER_NEAREST              = $2600;
-  RL_TEXTURE_FILTER_LINEAR               = $2601;
-  RL_TEXTURE_FILTER_MIP_NEAREST          = $2700;
-  RL_TEXTURE_FILTER_NEAREST_MIP_LINEAR   = $2702;
-  RL_TEXTURE_FILTER_LINEAR_MIP_NEAREST   = $2701;
-  RL_TEXTURE_FILTER_MIP_LINEAR           = $2703;
-  { Anisotropic filter (custom identifier) }
-  RL_TEXTURE_FILTER_ANISOTROPIC          = $3000;
-  RL_TEXTURE_WRAP_REPEAT                 = $2901;
-  RL_TEXTURE_WRAP_CLAMP                  = $812F;
-  RL_TEXTURE_WRAP_MIRROR_REPEAT          = $8370;
-  RL_TEXTURE_WRAP_MIRROR_CLAMP           = $8742;
-  { Matrix modes (equivalent to OpenGL) }
-  RL_MODELVIEW                           = $1700;
-  RL_PROJECTION                          = $1701;
-  RL_TEXTURE                             = $1702;
-  { Primitive assembly draw modes }
-  RL_LINES                               = $0001;
-  RL_TRIANGLES                           = $0004;
-  RL_QUADS                               = $0007;
-  { GL equivalent data types }
-  RL_UNSIGNED_BYTE                       = $1401;
-  RL_FLOAT                               = $1406;
-  RL_STREAM_DRAW                         = $88E0;
-  RL_STREAM_READ                         = $88E1;
-  RL_STREAM_COPY                         = $88E2;
-  RL_STATIC_DRAW                         = $88E4;
-  RL_STATIC_READ                         = $88E5;
-  RL_STATIC_COPY                         = $88E6;
-  RL_DYNAMIC_DRAW                        = $88E8;
-  RL_DYNAMIC_READ                        = $88E9;
-  RL_DYNAMIC_COPY                        = $88EA;
-  { GL Shader type }
-  RL_FRAGMENT_SHADER                     = $8B30;
-  RL_VERTEX_SHADER                       = $8B31;
-  RL_COMPUTE_SHADER                      = $91B9;
+var
+  glActiveTexture: procedure(texture: GLenum); cdecl;
+  glAttachShader: procedure(_program: GLuint; shader: GLuint); cdecl;
+  glBindAttribLocation: procedure(_program: GLuint; index: GLuint; name: pchar); cdecl;
+  glBindBuffer: procedure(target: GLenum; buffer: GLuint); cdecl;
+  glBindFramebuffer: procedure(target: GLenum; framebuffer: GLuint); cdecl;
+  glBindRenderbuffer: procedure(target: GLenum; renderbuffer: GLuint); cdecl;
+  glBindTexture: procedure(target: GLenum; texture: GLuint); cdecl;
+  glBlendColor: procedure(red: GLclampf; green: GLclampf; blue: GLclampf; alpha: GLclampf); cdecl;
+  glBlendEquation: procedure(mode: GLenum); cdecl;
+  glBlendEquationSeparate: procedure(modeRGB: GLenum; modeAlpha: GLenum); cdecl;
+  glBlendFunc: procedure(sfactor: GLenum; dfactor: GLenum); cdecl;
+  glBlendFuncSeparate: procedure(srcRGB: GLenum; dstRGB: GLenum; srcAlpha: GLenum; dstAlpha: GLenum); cdecl;
+  glBufferData: procedure(target: GLenum; size: GLsizeiptr; data: Pointer; usage: GLenum); cdecl;
+  glBufferSubData: procedure(target: GLenum; offset: GLintptr; size: GLsizeiptr; data: Pointer); cdecl;
+  glCheckFramebufferStatus: function(target: GLenum): GLenum; cdecl;
+  glClear: procedure(mask: GLbitfield); cdecl;
+  glClearColor: procedure(red: GLclampf; green: GLclampf; blue: GLclampf; alpha: GLclampf); cdecl;
+  glClearDepthf: procedure(depth: GLclampf); cdecl;
+  glClearStencil: procedure(s: GLint); cdecl;
+  glColorMask: procedure(red: GLboolean; green: GLboolean; blue: GLboolean; alpha: GLboolean); cdecl;
+  glCompileShader: procedure(shader: GLuint); cdecl;
+  glCompressedTexImage2D: procedure(target: GLenum; level: GLint; internalformat: GLenum; width: GLsizei; height: GLsizei; border: GLint; imageSize: GLsizei; data: Pointer); cdecl;
+  glCompressedTexSubImage2D: procedure(target: GLenum; level: GLint; xoffset: GLint; yoffset: GLint; width: GLsizei; height: GLsizei; format: GLenum; imageSize: GLsizei; data: Pointer); cdecl;
+  glCopyTexImage2D: procedure(target: GLenum; level: GLint; internalformat: GLenum; x: GLint; y: GLint; width: GLsizei; height: GLsizei; border: GLint); cdecl;
+  glCopyTexSubImage2D: procedure(target: GLenum; level: GLint; xoffset: GLint; yoffset: GLint; x: GLint; y: GLint; width: GLsizei; height: GLsizei); cdecl;
+  glCreateProgram: function: GLuint; cdecl;
+  glCreateShader: function(_type: GLenum): GLuint; cdecl;
+  glCullFace: procedure(mode: GLenum); cdecl;
+  glDeleteBuffers: procedure(n: GLsizei; buffers: pGLuint); cdecl;
+  glDeleteFramebuffers: procedure(n: GLsizei; framebuffers: pGLuint); cdecl;
+  glDeleteProgram: procedure(_program: GLuint); cdecl;
+  glDeleteRenderbuffers: procedure(n: GLsizei; renderbuffers: pGLuint); cdecl;
+  glDeleteShader: procedure(shader: GLuint); cdecl;
+  glDeleteTextures: procedure(n: GLsizei; textures: pGLuint); cdecl;
+  glDepthFunc: procedure(func: GLenum); cdecl;
+  glDepthMask: procedure(flag: GLboolean); cdecl;
+  glDepthRangef: procedure(zNear: GLclampf; zFar: GLclampf); cdecl;
+  glDetachShader: procedure(_program: GLuint; shader: GLuint); cdecl;
+  glDisable: procedure(cap: GLenum); cdecl;
+  glDisableVertexAttribArray: procedure(index: GLuint); cdecl;
+  glDrawArrays: procedure(mode: GLenum; first: GLint; count: GLsizei); cdecl;
+  glDrawElements: procedure(mode: GLenum; count: GLsizei; _type: GLenum; indices: Pointer); cdecl;
+  glEnable: procedure(cap: GLenum); cdecl;
+  glEnableVertexAttribArray: procedure(index: GLuint); cdecl;
+  glFinish: procedure; cdecl;
+  glFlush: procedure; cdecl;
+  glFramebufferRenderbuffer: procedure(target: GLenum; attachment: GLenum; renderbuffertarget: GLenum; renderbuffer: GLuint); cdecl;
+  glFramebufferTexture2D: procedure(target: GLenum; attachment: GLenum; textarget: GLenum; texture: GLuint; level: GLint); cdecl;
+  glFrontFace: procedure(mode: GLenum); cdecl;
+  glGenBuffers: procedure(n: GLsizei; buffers: pGLuint); cdecl;
+  glGenerateMipmap: procedure(target: GLenum); cdecl;
+  glGenFramebuffers: procedure(n: GLsizei; framebuffers: pGLuint); cdecl;
+  glGenRenderbuffers: procedure(n: GLsizei; renderbuffers: pGLuint); cdecl;
+  glGenTextures: procedure(n: GLsizei; textures: pGLuint); cdecl;
+  glGetActiveAttrib: procedure(_program: GLuint; index: GLuint; bufsize: GLsizei; length: pGLsizei; size: pGLint; _type: pGLenum; name: pchar); cdecl;
+  glGetActiveUniform: procedure(_program: GLuint; index: GLuint; bufsize: GLsizei; length: pGLsizei; size: pGLint; _type: pGLenum; name: pchar); cdecl;
+  glGetAttachedShaders: procedure(_program: GLuint; maxcount: GLsizei; count: pGLsizei; shaders: pGLuint); cdecl;
+  glGetAttribLocation: function(_program: GLuint; name: pchar): GLint; cdecl;
+  glGetBooleanv: procedure(pname: GLenum; params: pGLboolean); cdecl;
+  glGetBufferParameteriv: procedure(target: GLenum; pname: GLenum; params: pGLint); cdecl;
+  glGetError: function: GLenum; cdecl;
+  glGetFloatv: procedure(pname: GLenum; params: pGLfloat); cdecl;
+  glGetFramebufferAttachmentParameteriv: procedure(target: GLenum; attachment: GLenum; pname: GLenum; params: pGLint); cdecl;
+  glGetIntegerv: procedure(pname: GLenum; params: pGLint); cdecl;
+  glGetProgramiv: procedure(_program: GLuint; pname: GLenum; params: pGLint); cdecl;
+  glGetProgramInfoLog: procedure(_program: GLuint; bufsize: GLsizei; length: pGLsizei; infolog: pchar); cdecl;
+  glGetRenderbufferParameteriv: procedure(target: GLenum; pname: GLenum; params: pGLint); cdecl;
+  glGetShaderiv: procedure(shader: GLuint; pname: GLenum; params: pGLint); cdecl;
+  glGetShaderInfoLog: procedure(shader: GLuint; bufsize: GLsizei; length: pGLsizei; infolog: pchar); cdecl;
+  glGetShaderPrecisionFormat: procedure(shadertype: GLenum; precisiontype: GLenum; range: pGLint; precision: pGLint); cdecl;
+  glGetShaderSource: procedure(shader: GLuint; bufsize: GLsizei; length: pGLsizei; source: pchar); cdecl;
+  glGetString: function(name: GLenum): PGLchar; cdecl;
+  glGetTexParameterfv: procedure(target: GLenum; pname: GLenum; params: pGLfloat); cdecl;
+  glGetTexParameteriv: procedure(target: GLenum; pname: GLenum; params: pGLint); cdecl;
+  glGetUniformfv: procedure(_program: GLuint; location: GLint; params: pGLfloat); cdecl;
+  glGetUniformiv: procedure(_program: GLuint; location: GLint; params: pGLint); cdecl;
+  glGetUniformLocation: function(_program: GLuint; name: pchar): GLint; cdecl;
+  glGetVertexAttribfv: procedure(index: GLuint; pname: GLenum; params: pGLfloat); cdecl;
+  glGetVertexAttribiv: procedure(index: GLuint; pname: GLenum; params: pGLint); cdecl;
+  glGetVertexAttribPointerv: procedure(index: GLuint; pname: GLenum; Pointer: PPointer); cdecl;
+  glHint: procedure(target: GLenum; mode: GLenum); cdecl;
+  glIsBuffer: function(buffer: GLuint): GLboolean; cdecl;
+  glIsEnabled: function(cap: GLenum): GLboolean; cdecl;
+  glIsFramebuffer: function(framebuffer: GLuint): GLboolean; cdecl;
+  glIsProgram: function(_program: GLuint): GLboolean; cdecl;
+  glIsRenderbuffer: function(renderbuffer: GLuint): GLboolean; cdecl;
+  glIsShader: function(shader: GLuint): GLboolean; cdecl;
+  glIsTexture: function(texture: GLuint): GLboolean; cdecl;
+  glLineWidth: procedure(width: GLfloat); cdecl;
+  glLinkProgram: procedure(_program: GLuint); cdecl;
+  glPixelStorei: procedure(pname: GLenum; param: GLint); cdecl;
+  glPolygonOffset: procedure(factor: GLfloat; units: GLfloat); cdecl;
+  glReadPixels: procedure(x: GLint; y: GLint; width: GLsizei; height: GLsizei; format: GLenum;  _type: GLenum; pixels: Pointer); cdecl;
+  glReleaseShaderCompiler: procedure; cdecl;
+  glRenderbufferStorage: procedure(target: GLenum; internalformat: GLenum; width: GLsizei; height: GLsizei); cdecl;
+  glSampleCoverage: procedure(value: GLclampf; invert: GLboolean); cdecl;
+  glScissor: procedure(x: GLint; y: GLint; width: GLsizei; height: GLsizei); cdecl;
+  glShaderBinary: procedure(n: GLsizei; shaders: pGLuint; binaryformat: GLenum; binary: Pointer; length: GLsizei); cdecl;
+  glShaderSource: procedure(shader: GLuint; count: GLsizei; _string: Ppchar; length: pGLint); cdecl;
+  glStencilFunc: procedure(func: GLenum; ref: GLint; mask: GLuint); cdecl;
+  glStencilFuncSeparate: procedure(face: GLenum; func: GLenum; ref: GLint; mask: GLuint); cdecl;
+  glStencilMask: procedure(mask: GLuint); cdecl;
+  glStencilMaskSeparate: procedure(face: GLenum; mask: GLuint); cdecl;
+  glStencilOp: procedure(fail: GLenum; zfail: GLenum; zpass: GLenum); cdecl;
+  glStencilOpSeparate: procedure(face: GLenum; fail: GLenum; zfail: GLenum; zpass: GLenum); cdecl;
+  glTexImage2D: procedure(target: GLenum; level: GLint; internalformat: GLenum; width: GLsizei; height: GLsizei; border: GLint; format: GLenum; _type: GLenum; pixels: Pointer); cdecl;
+  glTexParameterf: procedure(target: GLenum; pname: GLenum; param: GLfloat); cdecl;
+  glTexParameterfv: procedure(target: GLenum; pname: GLenum; params: pGLfloat); cdecl;
+  glTexParameteri: procedure(target: GLenum; pname: GLenum; param: GLint); cdecl;
+  glTexParameteriv: procedure(target: GLenum; pname: GLenum; params: pGLint); cdecl;
+  glTexSubImage2D: procedure(target: GLenum; level: GLint; xoffset: GLint; yoffset: GLint; width: GLsizei; height: GLsizei; format: GLenum; _type: GLenum; pixels: Pointer); cdecl;
+  glUniform1f: procedure(location: GLint; x: GLfloat); cdecl;
+  glUniform1fv: procedure(location: GLint; count: GLsizei; v: pGLfloat); cdecl;
+  glUniform1i: procedure(location: GLint; x: GLint); cdecl;
+  glUniform1iv: procedure(location: GLint; count: GLsizei; v: pGLint); cdecl;
+  glUniform2f: procedure(location: GLint; x: GLfloat; y: GLfloat); cdecl;
+  glUniform2fv: procedure(location: GLint; count: GLsizei; v: pGLfloat); cdecl;
+  glUniform2i: procedure(location: GLint; x: GLint; y: GLint); cdecl;
+  glUniform2iv: procedure(location: GLint; count: GLsizei; v: pGLint); cdecl;
+  glUniform3f: procedure(location: GLint; x: GLfloat; y: GLfloat; z: GLfloat); cdecl;
+  glUniform3fv: procedure(location: GLint; count: GLsizei; v: pGLfloat); cdecl;
+  glUniform3i: procedure(location: GLint; x: GLint; y: GLint; z: GLint); cdecl;
+  glUniform3iv: procedure(location: GLint; count: GLsizei; v: pGLint); cdecl;
+  glUniform4f: procedure(location: GLint; x: GLfloat; y: GLfloat; z: GLfloat; w: GLfloat); cdecl;
+  glUniform4fv: procedure(location: GLint; count: GLsizei; v: pGLfloat); cdecl;
+  glUniform4i: procedure(location: GLint; x: GLint; y: GLint; z: GLint; w: GLint); cdecl;
+  glUniform4iv: procedure(location: GLint; count: GLsizei; v: pGLint); cdecl;
+  glUniformMatrix2fv: procedure(location: GLint; count: GLsizei; transpose: GLboolean; value: pGLfloat); cdecl;
+  glUniformMatrix3fv: procedure(location: GLint; count: GLsizei; transpose: GLboolean; value: pGLfloat); cdecl;
+  glUniformMatrix4fv: procedure(location: GLint; count: GLsizei; transpose: GLboolean; value: pGLfloat); cdecl;
+  glUseProgram: procedure(_program: GLuint); cdecl;
+  glValidateProgram: procedure(_program: GLuint); cdecl;
+  glVertexAttrib1f: procedure(index: GLuint; x: GLfloat); cdecl;
+  glVertexAttrib1fv: procedure(index: GLuint; values: pGLfloat); cdecl;
+  glVertexAttrib2f: procedure(index: GLuint; x: GLfloat; y: GLfloat); cdecl;
+  glVertexAttrib2fv: procedure(index: GLuint; values: pGLfloat); cdecl;
+  glVertexAttrib3f: procedure(index: GLuint; x: GLfloat; y: GLfloat; z: GLfloat); cdecl;
+  glVertexAttrib3fv: procedure(index: GLuint; values: pGLfloat); cdecl;
+  glVertexAttrib4f: procedure(index: GLuint; x: GLfloat; y: GLfloat; z: GLfloat; w: GLfloat); cdecl;
+  glVertexAttrib4fv: procedure(index: GLuint; values: pGLfloat); cdecl;
+  glVertexAttribPointer: procedure(index: GLuint; size: GLint; _type: GLenum; normalized: GLboolean; stride: GLsizei; offset: GLvoid); cdecl;
+  glViewport: procedure(x: GLint; y: GLint; width: GLsizei; height: GLsizei); cdecl;
 
 type
-  TFramebufferAttachType = Integer;
+  TGetProcAddress = function (const ProcName: PChar): Pointer; cdecl;
 
-const
-  RL_ATTACHMENT_COLOR_CHANNEL0 = 0;
-  RL_ATTACHMENT_COLOR_CHANNEL1 = RL_ATTACHMENT_COLOR_CHANNEL0 + 1;
-  RL_ATTACHMENT_COLOR_CHANNEL2 = RL_ATTACHMENT_COLOR_CHANNEL1 + 1;
-  RL_ATTACHMENT_COLOR_CHANNEL3 = RL_ATTACHMENT_COLOR_CHANNEL2 + 1;
-  RL_ATTACHMENT_COLOR_CHANNEL4 = RL_ATTACHMENT_COLOR_CHANNEL3 + 1;
-  RL_ATTACHMENT_COLOR_CHANNEL5 = RL_ATTACHMENT_COLOR_CHANNEL4 + 1;
-  RL_ATTACHMENT_COLOR_CHANNEL6 = RL_ATTACHMENT_COLOR_CHANNEL5 + 1;
-  RL_ATTACHMENT_COLOR_CHANNEL7 = RL_ATTACHMENT_COLOR_CHANNEL6 + 1;
-  RL_ATTACHMENT_DEPTH = 100;
-  RL_ATTACHMENT_STENCIL = 200;
-
-
-type
-  TFramebufferAttachTextureType = Integer;
-
-const
-  RL_ATTACHMENT_CUBEMAP_POSITIVE_X = 0;
-  RL_ATTACHMENT_CUBEMAP_NEGATIVE_X = RL_ATTACHMENT_CUBEMAP_POSITIVE_X + 1;
-  RL_ATTACHMENT_CUBEMAP_POSITIVE_Y = RL_ATTACHMENT_CUBEMAP_NEGATIVE_X + 1;
-  RL_ATTACHMENT_CUBEMAP_NEGATIVE_Y = RL_ATTACHMENT_CUBEMAP_POSITIVE_Y + 1;
-  RL_ATTACHMENT_CUBEMAP_POSITIVE_Z = RL_ATTACHMENT_CUBEMAP_NEGATIVE_Y + 1;
-  RL_ATTACHMENT_CUBEMAP_NEGATIVE_Z = RL_ATTACHMENT_CUBEMAP_POSITIVE_Z + 1;
-  RL_ATTACHMENT_TEXTURE2D = 100;
-  RL_ATTACHMENT_RENDERBUFFER = 200;
-
-
-{ TVertexBuffer
-  Dynamic vertex buffers (position + texcoords + colors + indices arrays) }
-
-type
-  TVertexBuffer = record
-    { Vertex position (XYZ - 3 components per vertex) (shader-location = 0) }
-    vertices: PSingle;
-    { Vertex texture coordinates (UV - 2 components per vertex) (shader-location = 1) }
-    texcoords: PSingle;
-    { Vertex colors (RGBA - 4 components per vertex) (shader-location = 3) }
-    colors: PByte;
-    { Vertex indices (in case vertex data comes indexed) (6 indices per quad) }
-    indices: PLongWord;
-    { OpenGL Vertex Array Object id }
-    vaoId: LongWord;
-    { OpenGL Vertex Buffer Objects id (4 types of vertex data) }
-    vboId: array[0..3] of LongWord;
-  end;
-  PVertexBuffer = TVertexBuffer;
-
-{ TDrawCall
-  NOTE: Only texture changes register a new draw, other state-change-related elements are not
-  used at this moment (vaoId, shaderId, matrices), raylib just forces a batch draw call if any
-  of those state-change happens (this is done in core module) }
-
-  TDrawCall = record
-    { Drawing mode: LINES, TRIANGLES, QUADS }
-    mode: Integer;
-    { Number of vertex of the draw }
-    vertexCount: Integer;
-    { Number of vertex required for index alignment (LINES, TRIANGLES) }
-    vertexAlignment: Integer;
-    { Texture id to be used on the draw -> Use to create new draw call if changes }
-    textureId: LongWord;
-  end;
-  PDrawCall = ^TDrawCall;
-
-{ TRenderBatch }
-
-  TRenderBatch = record
-    { Number of vertex buffers (multi-buffering support) }
-    bufferCount: Integer;
-    { Current buffer tracking in case of multi-buffering }
-    currentBuffer: Integer;
-    { Dynamic buffer(s) for vertex data }
-    vertexBuffer: PVertexBuffer;
-    { Draw calls array, depends on textureId }
-    drawCall: PDrawCall;
-    { Draw calls counter }
-    drawCounter: Integer;
-    { Current depth value for next draw }
-    currentDepth: Single;
-  end;
-  PRenderBatch = ^TRenderBatch;
-
-{ Choose the current matrix to be transformed }
-procedure rlMatrixMode(mode: Integer); cdecl; external;
-{ Push the current matrix to stack }
-procedure rlPushMatrix; cdecl; external;
-{ Pop lattest inserted matrix from stack }
-procedure rlPopMatrix; cdecl; external;
-{ Reset current matrix to identity matrix }
-procedure rlLoadIdentity; cdecl; external;
-{ Multiply the current matrix by a translation matrix }
-procedure rlTranslatef(x, y, z: Single); cdecl; external;
-{ Multiply the current matrix by a rotation matrix }
-procedure rlRotatef(angle, x, y, z: Single); cdecl; external;
-{ Multiply the current matrix by a scaling matrix }
-procedure rlScalef(x, y, z: Single); cdecl; external;
-{ Multiply the current matrix by another matrix }
-procedure rlMultMatrixf(matf: PSingle); cdecl; external;
-procedure rlFrustum(left, right, bottom, top, znear, zfar: Double); cdecl; external;
-procedure rlOrtho(left, right, bottom, top, znear, zfar: Double); cdecl; external;
-{ Set the viewport area }
-procedure rlViewport(x, y, width, height: Integer); cdecl; external;
-
-{ Initialize drawing mode (how to organize vertex) }
-procedure rlBegin(mode: Integer); cdecl; external;
-{ Finish vertex providing }
-procedure rlEnd; cdecl; external;
-{ Define one vertex (position) - 2 Integer }
-procedure rlVertex2i(x, y: Integer); cdecl; external;
-{ Define one vertex (position) - 2 Single }
-procedure rlVertex2f(x, y: Single); cdecl; external;
-{ Define one vertex (position) - 3 Single }
-procedure rlVertex3f(x, y, z: Single); cdecl; external;
-{ Define one vertex (texture coordinate) - 2 Single }
-procedure rlTexCoord2f(x, y: Single); cdecl; external;
-{ Define one vertex (normal) - 3 Single }
-procedure rlNormal3f(x, y, z: Single); cdecl; external;
-{ Define one vertex (color) - 4 byte }
-procedure rlColor4ub(r, g, b, a: Byte); cdecl; external;
-{ Define one vertex (color) - 3 Single }
-procedure rlColor3f(x, y, z: Single); cdecl; external;
-{ Define one vertex (color) - 4 Single }
-procedure rlColor4f(x, y, z, w: Single); cdecl; external;
-
-{ Functions Declaration - OpenGL style functions (common to 1: 1; 3+: 3; ES2)
-  NOTE: This functions are used to completely abstract raylib code from layer: OpenGL;
-  some of them are direct wrappers over calls: OpenGL; some others are custom }
-
-{ Vertex buffers state }
-
-{ Enable vertex VAO: array ; if supported) }
-procedure rlEnableVertexArray(vaoId: LongWord); cdecl; external;
-{ Disable vertex VAO: array ; if supported) }
-procedure rlDisableVertexArray; cdecl; external;
-{ Enable vertex buffer (VBO) }
-procedure rlEnableVertexBuffer(id: LongWord); cdecl; external;
-{ Disable vertex buffer (VBO) }
-procedure rlDisableVertexBuffer; cdecl; external;
-{ Enable vertex buffer element (VBO element) }
-procedure rlEnableVertexBufferElement(id: LongWord); cdecl; external;
-{ Disable vertex buffer element (VBO element) }
-procedure rlDisableVertexBufferElement; cdecl; external;
-{ Enable vertex attribute index }
-procedure rlEnableVertexAttribute(index: LongWord); cdecl; external;
-{ Disable vertex attribute index }
-procedure rlDisableVertexAttribute(index: LongWord); cdecl; external;
-{ Enable attribute state pointer }
-procedure rlEnableStatePointer(vertexAttribType: Integer; buffer: Pointer); cdecl; external;
-{ Disable attribute state pointer }
-procedure rlDisableStatePointer(vertexAttribType: Integer); cdecl; external;
-
-{ Select and active a texture slot }
-procedure rlActiveTextureSlot(slot: Integer); cdecl; external;
-{ Enable texture }
-procedure rlEnableTexture(id: LongWord); cdecl; external;
-{ Disable texture }
-procedure rlDisableTexture; cdecl; external;
-{ Enable texture cubemap }
-procedure rlEnableTextureCubemap(id: LongWord); cdecl; external;
-{ Disable texture cubemap }
-procedure rlDisableTextureCubemap; cdecl; external;
-{ Set texture filter: parameters, wrap) }
-procedure rlTextureParameters(id, param, value: Integer); cdecl; external;
-{Enable shader program }
-procedure rlEnableShader(id: LongWord); cdecl; external;
-{ Disable shader program }
-procedure rlDisableShader; cdecl; external;
-
-{ Enable render texture (fbo) }
-procedure rlEnableFramebuffer(id: LongWord); cdecl; external;
-{ Disable render fbo): texture ; return to default framebuffer }
-procedure rlDisableFramebuffer; cdecl; external;
-{ Activate multiple draw color buffers }
-procedure rlActiveDrawBuffers(count: Integer); cdecl; external;
-
-{ General render state }
-
-{ Enable color blending }
-procedure rlEnableColorBlend; cdecl; external;
-{ Disable color blending }
-procedure rlDisableColorBlend; cdecl; external;
-{ Enable depth test }
-procedure rlEnableDepthTest; cdecl; external;
-{ Disable depth test }
-procedure rlDisableDepthTest; cdecl; external;
-{ Enable depth write }
-procedure rlEnableDepthMask; cdecl; external;
-{ Disable depth write }
-procedure rlDisableDepthMask; cdecl; external;
-{ Enable backface culling }
-procedure rlEnableBackfaceCulling; cdecl; external;
-{ Disable backface culling }
-procedure rlDisableBackfaceCulling; cdecl; external;
-{ Enable scissor test }
-procedure rlEnableScissorTest; cdecl; external;
-{ Disable scissor test }
-procedure rlDisableScissorTest; cdecl; external;
-{ Scissor test }
-procedure rlScissor(x, y, width, height: Integer); cdecl; external;
-{ Enable wire mode }
-procedure rlEnableWireMode; cdecl; external;
-{ Disable wire mode }
-procedure rlDisableWireMode; cdecl; external;
-{ Set the line drawing width }
-procedure rlSetLineWidth(width: Single); cdecl; external;
-{ Get the line drawing width }
-function rlGetLineWidth: Single; cdecl; external;
-{ Enable line aliasing }
-procedure rlEnableSmoothLines; cdecl; external;
-{ Disable line aliasing }
-procedure rlDisableSmoothLines; cdecl; external;
-{ Enable stereo rendering }
-procedure rlEnableStereoRender; cdecl; external;
-{ Disable stereo rendering }
-procedure rlDisableStereoRender; cdecl; external;
-{ Check if stereo render is enabled }
-function rlIsStereoRenderEnabled: Boolean; cdecl; external;
-
-{ Clear color buffer with color }
-procedure rlClearColor(r, g, b, a: Byte); cdecl; external;
-{ Clear used screen buffers (color and depth) }
-procedure rlClearScreenBuffers; cdecl; external;
-{ Check and log OpenGL error codes }
-procedure rlCheckErrors; cdecl; external;
-{ Set blending mode }
-procedure rlSetBlendMode(mode: Integer); cdecl; external;
-{ Set blending mode factor and equation (using OpenGL factors) }
-procedure rlSetBlendFactors(glSrcFactor, glDstFactor, glEquation: Integer); cdecl; external;
-
-{ rlgl initialization functions }
-
-{ Initialize buffers, shaders, textures, rlgl states) }
-procedure rlglInit(width, height: Integer); cdecl; external;
-{ De-inititialize buffers, shaders, textures, rlgl states) }
-procedure rlglClose; cdecl; external;
-{ Load OpenGL extensions (loader function required) }
-procedure rlLoadExtensions(loader: Pointer); cdecl; external;
-{ Get current OpenGL version }
-function rlGetVersion: Integer; cdecl; external;
-{ Get default framebuffer width }
-function rlGetFramebufferWidth: Integer; cdecl; external;
-{ Get default framebuffer height }
-function rlGetFramebufferHeight: Integer; cdecl; external;
-
-{ Get default texture id }
-function rlGetTextureIdDefault: LongWord; cdecl; external;
-{ Get default shader id }
-function rlGetShaderIdDefault: LongWord; cdecl; external;
-{ Get default shader locations }
-function rlGetShaderLocsDefault: PInteger; cdecl; external;
-
-{ Render batch management
-  NOTE: rlgl provides a default render batch to behave like OpenGL 1.1 immediate mode
-  but this render batch API is exposed in case of custom batches are required }
-
-{ Load a render batch system }
-function rlLoadRenderBatch(numBuffers: Integer; bufferElements: Integer): TRenderBatch; cdecl; external;
-{ Unload render batch system }
-procedure rlUnloadRenderBatch(batch: TRenderBatch); cdecl; external;
-{ Draw render batch data (Update->Draw->Reset) }
-procedure rlDrawRenderBatch(var batch: TRenderBatch); cdecl; external;
-{ Set the active render batch for rlgl (NULL for default internal) }
-procedure rlSetRenderBatchActive(var batch: TRenderBatch); cdecl; external;
-{ Update and draw internal render batch }
-procedure rlDrawRenderBatchActive; cdecl; external;
-{ Check internal buffer overflow for a given number of vertex }
-function rlCheckRenderBatchLimit(vCount: Integer): Boolean; cdecl; external;
-{ Set current texture for render batch and check buffers limits }
-procedure rlSetTexture(id: LongWord); cdecl; external;
-
-{ Vertex buffers management }
-
-{ Load vertex array (vao) if supported }
-function rlLoadVertexArray: LongWord; cdecl; external;
-{ Load a vertex buffer attribute }
-function rlLoadVertexBuffer(buffer: Pointer; size: Integer; _dynamic: Boolean): LongWord; cdecl; external;
-{ Load a new attributes element buffer }
-function rlLoadVertexBufferElement(buffer: Pointer; size: Integer; _dynamic: Boolean): LongWord; cdecl; external;
-{ Update GPU buffer with new data }
-procedure rlUpdateVertexBuffer(bufferId: LongWord; data: Pointer; dataSize, offset: Integer); cdecl; external;
-procedure rlUnloadVertexArray(vaoId: LongWord); cdecl; external;
-procedure rlUnloadVertexBuffer(vboId: LongWord); cdecl; external;
-procedure rlSetVertexAttribute(index: LongWord; compSize, _type: Integer; normalized: Boolean; stride: Integer; data: Pointer); cdecl; external;
-procedure rlSetVertexAttributeDivisor(index, divisor: Integer); cdecl; external;
-{ Set vertex attribute default value }
-procedure rlSetVertexAttributeDefault(locIndex: Integer; value: Pointer; attribType: Integer; count: Integer); cdecl; external;
-procedure rlDrawVertexArray(offset: Integer; count: Integer); cdecl; external;
-procedure rlDrawVertexArrayElements(offset, count: Integer; buffer: Pointer); cdecl; external;
-procedure rlDrawVertexArrayInstanced(offset, count: Integer; instances: Integer); cdecl; external;
-procedure rlDrawVertexArrayElementsInstanced(offset, count: Integer; buffer: Pointer; instances: Integer); cdecl; external;
-
-{ Textures management }
-
-{ Load texture in GPU }
-function rlLoadTexture(data: Pointer; width, height, format, mipmapCount: Integer): LongWord; cdecl; external;
-{ Load depth texture/renderbuffer (to be attached to fbo) }
-function rlLoadTextureDepth(width, height: Integer; useRenderBuffer: Boolean): LongWord; cdecl; external;
-{ Load texture cubemap }
-function rlLoadTextureCubemap(data: Pointer; size, format: Integer): LongWord; cdecl; external;
-{ Update GPU texture with new data }
-procedure rlUpdateTexture(id: LongWord; offsetX, offsetY, width, height, format: Integer; data: Pointer); cdecl; external;
-{ Get OpenGL internal formats }
-procedure rlGetGlTextureFormats(format: Integer; out glInternalFormat, glFormat, glType: PInteger); cdecl; external;
-{ Get name string for pixel format }
-function rlGetPixelFormatName(format: LongWord): PChar; cdecl; external;
-{ Unload texture from GPU memory }
-procedure rlUnloadTexture(id: LongWord); cdecl; external;
-{ Generate mipmap data for selected texture }
-procedure rlGenTextureMipmaps(id: LongWord; width, height, format: Integer; mipmaps: PInteger); cdecl; external;
-{ Read texture pixel data }
-function rlReadTexturePixels(id: LongWord; width, height, format: Integer): Pointer; cdecl; external;
-{ Read screen pixel data (color buffer) }
-function rlReadScreenPixels(width, height: Integer): PByte; cdecl; external;
-
-{ Framebuffer management (fbo) }
-
-{ Load an empty framebuffer }
-function rlLoadFramebuffer(width: Integer; height: Integer): LongWord; cdecl; external;
-{ Attach texture/renderbuffer to a framebuffer }
-procedure rlFramebufferAttach(fboId, texId: LongWord; attachType, texType, mipLevel: Integer); cdecl; external;
-{ Verify framebuffer is complete }
-function rlFramebufferComplete(id: LongWord): Boolean; cdecl; external;
-{ Delete framebuffer from GPU }
-procedure rlUnloadFramebuffer(id: LongWord); cdecl; external;
-
-{ Shaders management }
-
-{ Load shader from code strings }
-function rlLoadShaderCode(vsCode: PChar; fsCode: PChar): LongWord; cdecl; external;
-{ Compile custom shader and return shader id (RL_VERTEX_SHADER: RL_FRAGMENT_SHADER: type:;; RL_COMPUTE_SHADER) }
-function rlCompileShader(shaderCode: PChar; _type: Integer): LongWord; cdecl; external;
-{ Load custom shader program }
-function rlLoadShaderProgram(vShaderId: LongWord; fShaderId: LongWord): LongWord; cdecl; external;
-{ Unload shader program }
-procedure rlUnloadShaderProgram(id: LongWord); cdecl; external;
-{ Get shader location uniform }
-function rlGetLocationUniform(shaderId: LongWord; uniformName: PChar): Integer; cdecl; external;
-{ Get shader location attribute }
-function rlGetLocationAttrib(shaderId: LongWord; attribName: PChar): Integer; cdecl; external;
-{ Set shader value uniform }
-procedure rlSetUniform(locIndex: Integer; value: Pointer; uniformType: Integer; count: Integer); cdecl; external;
-{ Set shader value matrix }
-procedure rlSetUniformMatrix(locIndex: Integer; mat: TMat4); cdecl; external;
-{ Set shader value sampler }
-procedure rlSetUniformSampler(locIndex: Integer; textureId: LongWord); cdecl; external;
-{ Set shader currently active (id and locations) }
-procedure rlSetShader(id: LongWord; locs: PInteger); cdecl; external;
-
-{ Compute shader management }
-
-{ Load compute shader program }
-function rlLoadComputeShaderProgram(shaderId: LongWord): LongWord; cdecl; external;
-{ Dispatch compute shader (equivalent to *draw* for graphics pilepine) }
-procedure rlComputeShaderDispatch(groupX, groupY, groupZ: LongWord); cdecl; external;
-
-{ Shader buffer storage object management (ssbo) }
-
-{ Load shader storage buffer object (SSBO) }
-function rlLoadShaderBuffer(size: QWord; data: Pointer; usageHint: Integer): LongWord; cdecl; external;
-{ Unload shader storage buffer object (SSBO) }
-procedure rlUnloadShaderBuffer(ssboId: LongWord); cdecl; external;
-{ Update SSBO buffer data }
-procedure rlUpdateShaderBufferElements(id: LongWord; data: Pointer; dataSize, offset: QWord); cdecl; external;
-{ Get SSBO buffer size }
-function rlGetShaderBufferSize(id: LongWord): QWord; cdecl; external;
-{ Bind SSBO buffer }
-procedure rlReadShaderBufferElements(id: LongWord; dest: Pointer; count, offset: QWord); cdecl; external;
-{ Copy SSBO buffer data }
-procedure rlBindShaderBuffer(id, index: LongWord); cdecl; external;
-
-{ Buffer management }
-
-{ Copy SSBO buffer data }
-procedure rlCopyBuffersElements(destId, srcId: LongWord; destOffset, srcOffset, count: QWord); cdecl; external;
-{ Bind image texture }
-procedure rlBindImageTexture(id, index, format, readonly: Integer); cdecl; external;
-
-{ Matrix state management }
-
-{ Get internal modelview matrix }
-function rlGetMatrixModelview: TMat4; cdecl; external;
-{ Get internal projection matrix }
-function rlGetMatrixProjection: TMat4; cdecl; external;
-{ Get internal accumulated transform matrix }
-function rlGetMatrixTransform: TMat4; cdecl; external;
-{ Get internal projection matrix for stereo render (selected eye) }
-function rlGetMatrixProjectionStereo(eye: Integer): TMat4; cdecl; external;
-{ Get internal view offset matrix for stereo render (selected eye) }
-function rlGetMatrixViewOffsetStereo(eye: Integer): TMat4; cdecl; external;
-{ Set a custom projection matrix (replaces internal projection matrix) }
-procedure rlSetMatrixProjection(proj: TMat4); cdecl; external;
-{ Set a custom modelview matrix (replaces internal modelview matrix) }
-procedure rlSetMatrixModelview(view: TMat4); cdecl; external;
-{ Set eyes projection matrices for stereo rendering }
-procedure rlSetMatrixProjectionStereo(right, left: TMat4); cdecl; external;
-{ Set eyes view offsets matrices for stereo rendering }
-procedure rlSetMatrixViewOffsetStereo(right, left: TMat4); cdecl; external;
-
-{ Quick and dirty cube/quad buffers load->draw->unload }
-
-{ Load and draw a cube }
-procedure rlLoadDrawCube; cdecl; external;
-{ Load and draw a quad }
-procedure rlLoadDrawQuad; cdecl; external;
+function LoadGL(GetProc: TGetProcAddress): Boolean;
 
 implementation
 
+var
+  Loaded: Boolean;
+  Success: Boolean;
+
+function LoadGL(GetProc: TGetProcAddress): Boolean;
+
+  procedure Load(var P: Pointer; Name: PChar);
+  begin
+    P := GetProc(Name);
+    Success := Success and (P <> nil);
+  end;
+
+begin
+  Result := Success;
+  if Loaded then
+    Exit;
+  Loaded := True;
+  Success := True;
+  Load(@glActiveTexture, 'glActiveTexture');
+  Load(@glAttachShader, 'glAttachShader');
+  Load(@glBindAttribLocation, 'glBindAttribLocation');
+  Load(@glBindBuffer, 'glBindBuffer');
+  Load(@glBindFramebuffer, 'glBindFramebuffer');
+  Load(@glBindRenderbuffer, 'glBindRenderbuffer');
+  Load(@glBindTexture, 'glBindTexture');
+  Load(@glBlendColor, 'glBlendColor');
+  Load(@glBlendEquation, 'glBlendEquation');
+  Load(@glBlendEquationSeparate, 'glBlendEquationSeparate');
+  Load(@glBlendFunc, 'glBlendFunc');
+  Load(@glBlendFuncSeparate, 'glBlendFuncSeparate');
+  Load(@glBufferData, 'glBufferData');
+  Load(@glBufferSubData, 'glBufferSubData');
+  Load(@glCheckFramebufferStatus, 'glCheckFramebufferStatus');
+  Load(@glClear, 'glClear');
+  Load(@glClearColor, 'glClearColor');
+  Load(@glClearDepthf, 'glClearDepthf');
+  Load(@glClearStencil, 'glClearStencil');
+  Load(@glColorMask, 'glColorMask');
+  Load(@glCompileShader, 'glCompileShader');
+  Load(@glCompressedTexImage2D, 'glCompressedTexImage2D');
+  Load(@glCompressedTexSubImage2D, 'glCompressedTexSubImage2D');
+  Load(@glCopyTexImage2D, 'glCopyTexImage2D');
+  Load(@glCopyTexSubImage2D, 'glCopyTexSubImage2D');
+  Load(@glCreateProgram, 'glCreateProgram');
+  Load(@glCreateShader, 'glCreateShader');
+  Load(@glCullFace, 'glCullFace');
+  Load(@glDeleteBuffers, 'glDeleteBuffers');
+  Load(@glDeleteFramebuffers, 'glDeleteFramebuffers');
+  Load(@glDeleteProgram, 'glDeleteProgram');
+  Load(@glDeleteRenderbuffers, 'glDeleteRenderbuffers');
+  Load(@glDeleteShader, 'glDeleteShader');
+  Load(@glDeleteTextures, 'glDeleteTextures');
+  Load(@glDepthFunc, 'glDepthFunc');
+  Load(@glDepthMask, 'glDepthMask');
+  Load(@glDepthRangef, 'glDepthRangef');
+  Load(@glDetachShader, 'glDetachShader');
+  Load(@glDisable, 'glDisable');
+  Load(@glDisableVertexAttribArray, 'glDisableVertexAttribArray');
+  Load(@glDrawArrays, 'glDrawArrays');
+  Load(@glDrawElements, 'glDrawElements');
+  Load(@glEnable, 'glEnable');
+  Load(@glEnableVertexAttribArray, 'glEnableVertexAttribArray');
+  Load(@glFinish, 'glFinish');
+  Load(@glFlush, 'glFlush');
+  Load(@glFramebufferRenderbuffer, 'glFramebufferRenderbuffer');
+  Load(@glFramebufferTexture2D, 'glFramebufferTexture2D');
+  Load(@glFrontFace, 'glFrontFace');
+  Load(@glGenBuffers, 'glGenBuffers');
+  Load(@glGenerateMipmap, 'glGenerateMipmap');
+  Load(@glGenFramebuffers, 'glGenFramebuffers');
+  Load(@glGenRenderbuffers, 'glGenRenderbuffers');
+  Load(@glGenTextures, 'glGenTextures');
+  Load(@glGetActiveAttrib, 'glGetActiveAttrib');
+  Load(@glGetActiveUniform, 'glGetActiveUniform');
+  Load(@glGetAttachedShaders, 'glGetAttachedShaders');
+  Load(@glGetAttribLocation, 'glGetAttribLocation');
+  Load(@glGetBooleanv, 'glGetBooleanv');
+  Load(@glGetBufferParameteriv, 'glGetBufferParameteriv');
+  Load(@glGetError, 'glGetError');
+  Load(@glGetFloatv, 'glGetFloatv');
+  Load(@glGetFramebufferAttachmentParameteriv, 'glGetFramebufferAttachmentParameteriv');
+  Load(@glGetIntegerv, 'glGetIntegerv');
+  Load(@glGetProgramiv, 'glGetProgramiv');
+  Load(@glGetProgramInfoLog, 'glGetProgramInfoLog');
+  Load(@glGetRenderbufferParameteriv, 'glGetRenderbufferParameteriv');
+  Load(@glGetShaderiv, 'glGetShaderiv');
+  Load(@glGetShaderInfoLog, 'glGetShaderInfoLog');
+  Load(@glGetShaderPrecisionFormat, 'glGetShaderPrecisionFormat');
+  Load(@glGetShaderSource, 'glGetShaderSource');
+  Load(@glGetString, 'glGetString');
+  Load(@glGetTexParameterfv, 'glGetTexParameterfv');
+  Load(@glGetTexParameteriv, 'glGetTexParameteriv');
+  Load(@glGetUniformfv, 'glGetUniformfv');
+  Load(@glGetUniformiv, 'glGetUniformiv');
+  Load(@glGetUniformLocation, 'glGetUniformLocation');
+  Load(@glGetVertexAttribfv, 'glGetVertexAttribfv');
+  Load(@glGetVertexAttribiv, 'glGetVertexAttribiv');
+  Load(@glGetVertexAttribPointerv, 'glGetVertexAttribPointerv');
+  Load(@glHint, 'glHint');
+  Load(@glIsBuffer, 'glIsBuffer');
+  Load(@glIsEnabled, 'glIsEnabled');
+  Load(@glIsFramebuffer, 'glIsFramebuffer');
+  Load(@glIsProgram, 'glIsProgram');
+  Load(@glIsRenderbuffer, 'glIsRenderbuffer');
+  Load(@glIsShader, 'glIsShader');
+  Load(@glIsTexture, 'glIsTexture');
+  Load(@glLineWidth, 'glLineWidth');
+  Load(@glLinkProgram, 'glLinkProgram');
+  Load(@glPixelStorei, 'glPixelStorei');
+  Load(@glPolygonOffset, 'glPolygonOffset');
+  Load(@glReadPixels, 'glReadPixels');
+  Load(@glReleaseShaderCompiler, 'glReleaseShaderCompiler');
+  Load(@glRenderbufferStorage, 'glRenderbufferStorage');
+  Load(@glSampleCoverage, 'glSampleCoverage');
+  Load(@glScissor, 'glScissor');
+  Load(@glShaderBinary, 'glShaderBinary');
+  Load(@glShaderSource, 'glShaderSource');
+  Load(@glStencilFunc, 'glStencilFunc');
+  Load(@glStencilFuncSeparate, 'glStencilFuncSeparate');
+  Load(@glStencilMask, 'glStencilMask');
+  Load(@glStencilMaskSeparate, 'glStencilMaskSeparate');
+  Load(@glStencilOp, 'glStencilOp');
+  Load(@glStencilOpSeparate, 'glStencilOpSeparate');
+  Load(@glTexImage2D, 'glTexImage2D');
+  Load(@glTexParameterf, 'glTexParameterf');
+  Load(@glTexParameterfv, 'glTexParameterfv');
+  Load(@glTexParameteri, 'glTexParameteri');
+  Load(@glTexParameteriv, 'glTexParameteriv');
+  Load(@glTexSubImage2D, 'glTexSubImage2D');
+  Load(@glUniform1f, 'glUniform1f');
+  Load(@glUniform1fv, 'glUniform1fv');
+  Load(@glUniform1i, 'glUniform1i');
+  Load(@glUniform1iv, 'glUniform1iv');
+  Load(@glUniform2f, 'glUniform2f');
+  Load(@glUniform2fv, 'glUniform2fv');
+  Load(@glUniform2i, 'glUniform2i');
+  Load(@glUniform2iv, 'glUniform2iv');
+  Load(@glUniform3f, 'glUniform3f');
+  Load(@glUniform3fv, 'glUniform3fv');
+  Load(@glUniform3i, 'glUniform3i');
+  Load(@glUniform3iv, 'glUniform3iv');
+  Load(@glUniform4f, 'glUniform4f');
+  Load(@glUniform4fv, 'glUniform4fv');
+  Load(@glUniform4i, 'glUniform4i');
+  Load(@glUniform4iv, 'glUniform4iv');
+  Load(@glUniformMatrix2fv, 'glUniformMatrix2fv');
+  Load(@glUniformMatrix3fv, 'glUniformMatrix3fv');
+  Load(@glUniformMatrix4fv, 'glUniformMatrix4fv');
+  Load(@glUseProgram, 'glUseProgram');
+  Load(@glValidateProgram, 'glValidateProgram');
+  Load(@glVertexAttrib1f, 'glVertexAttrib1f');
+  Load(@glVertexAttrib1fv, 'glVertexAttrib1fv');
+  Load(@glVertexAttrib2f, 'glVertexAttrib2f');
+  Load(@glVertexAttrib2fv, 'glVertexAttrib2fv');
+  Load(@glVertexAttrib3f, 'glVertexAttrib3f');
+  Load(@glVertexAttrib3fv, 'glVertexAttrib3fv');
+  Load(@glVertexAttrib4f, 'glVertexAttrib4f');
+  Load(@glVertexAttrib4fv, 'glVertexAttrib4fv');
+  Load(@glVertexAttribPointer, 'glVertexAttribPointer');
+  Load(@glViewport, 'glViewport');
+  Result :=  Success;
+end;
+
 end.
+
+
