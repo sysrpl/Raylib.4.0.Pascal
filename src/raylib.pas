@@ -140,11 +140,14 @@ type
     class operator Add(const A, B: TVec2): TVec2;
     class operator Subtract(const A, B: TVec2): TVec2;
     class operator Multiply(const A, B: TVec2): TVec2;
+    class operator Multiply(const A: TVec2; B: Single): TVec2;
     class operator Divide(const A, B: TVec2): TVec2;
+    class operator Divide(const A: TVec2; B: Single): TVec2;
     function Equals(const Value: TVec2): Boolean;
     function Angle: Single; overload;
     function Angle(X, Y: Single): Single; overload;
     function Angle(const V: TVec2): Single; overload;
+    function Dot(const V: TVec2): Single; overload;
     function Distance: Single; overload;
     function Distance(X, Y: Single): Single; overload;
     function Distance(const V: TVec2): Single; overload;
@@ -158,6 +161,7 @@ type
     function Binormal: TVec2;
     function Mid(const V: TVec2): TVec2;
     function Extend(const V: TVec2; Dist: Single): TVec2;
+    function Reflect(N: TVec2): TVec2;
     function Rotate(Angle: Single): TVec2; overload;
     function Rotate(const V: TVec2; Angle: Single): TVec2; overload;
   end;
@@ -466,6 +470,38 @@ type
   end;
   PMesh = ^TMesh;
 
+{ TUniformInt }
+
+  TUniformInt = record
+    location: Integer;
+    value: Integer;
+  end;
+
+  TUniformSingle = record
+    location: Integer;
+    value: Single;
+  end;
+
+  TUniformVec2 = record
+    location: Integer;
+    value: TVec2;
+  end;
+
+  TUniformVec3 = record
+    location: Integer;
+    value: TVec3;
+  end;
+
+  TUniformVec4 = record
+    location: Integer;
+    value: TVec4;
+  end;
+
+  TUniformSampler2d = record
+    location: Integer;
+    value: Integer;
+  end;
+
 { Shader }
 
   TShader = record
@@ -473,6 +509,21 @@ type
     id: LongWord;
     { Shader locations array (RL_MAX_SHADER_LOCATIONS) }
     locs: PInteger;
+    procedure Load(vertFile, fragFile: PChar);
+    procedure Unload;
+    function GetUniformLocation(name: PChar): Integer;
+    procedure GetUniform(name: PChar; out uniform: TUniformInt); overload;
+    procedure GetUniform(name: PChar; out uniform: TUniformSingle); overload;
+    procedure GetUniform(name: PChar; out uniform: TUniformVec2); overload;
+    procedure GetUniform(name: PChar; out uniform: TUniformVec3); overload;
+    procedure GetUniform(name: PChar; out uniform: TUniformVec4); overload;
+    procedure GetUniform(name: PChar; out uniform: TUniformSampler2d); overload;
+    procedure SetUniform(const uniform: TUniformInt); overload;
+    procedure SetUniform(const uniform: TUniformSingle); overload;
+    procedure SetUniform(const uniform: TUniformVec2); overload;
+    procedure SetUniform(const uniform: TUniformVec3); overload;
+    procedure SetUniform(const uniform: TUniformVec4); overload;
+    procedure SetUniform(const uniform: TUniformSampler2d); overload;
   end;
   PShader = ^TShader;
 
@@ -2176,7 +2227,7 @@ procedure UpdateTextureRec(texture: TTexture2D; rec: TRect; pixels: Pointer); cd
 { Texture configuration functions }
 
 { Generate GPU mipmaps for a texture }
-procedure GenTextureMipmaps(texture: PTexture2D); cdecl; external;
+procedure GenTextureMipmaps(var texture: TTexture2D); cdecl; external;
 { Set texture scaling filter mode }
 procedure SetTextureFilter(texture: TTexture2D; filter: Integer); cdecl; external;
 { Set texture wrapping mode }
@@ -2752,17 +2803,28 @@ begin
   Result.y := A.y * B.y;
 end;
 
+class operator TVec2.Multiply(const A: TVec2; B: Single): TVec2;
+begin
+  Result.x := A.x * B;
+  Result.y := A.y * B;
+end;
+
 class operator TVec2.Divide(const A, B: TVec2): TVec2;
 begin
   Result.x := A.x / B.x;
   Result.y := A.y / B.y;
 end;
 
+class operator TVec2.Divide(const A: TVec2; B: Single): TVec2;
+begin
+  Result.x := A.x / B;
+  Result.y := A.y / B;
+end;
+
 function TVec2.Equals(const Value: TVec2): Boolean;
 begin
   Result := Self = Value;
 end;
-
 
 function TVec2.Angle: Single;
 const
@@ -2790,6 +2852,11 @@ begin
   Result := Arctan(Y / X) + Pi / 2;
   if X > 0 then
     Result := Result + Pi;
+end;
+
+function TVec2.Dot(const V: TVec2): Single;
+begin
+  Result := x * V.x + y * V.y;
 end;
 
 function TVec2.Distance: Single;
@@ -2886,6 +2953,15 @@ begin
   R := 1 / R;
   Result.x := Self.x - X * R * Dist;
   Result.y := Self.y - Y * R * Dist;
+end;
+
+function TVec2.Reflect(N: TVec2): TVec2;
+var
+  D: Single;
+begin
+  D := x * N.x + y * N.y;
+  Result.x := x - 2 * D * N.x;
+  Result.y := y - 2 * D * N.y;
 end;
 
 function TVec2.Rotate(Angle: Single): TVec2;
@@ -3614,6 +3690,83 @@ end;
 function Rect(x, y, width, height: Single): TRect;
 begin
   Result.x := x; Result.y := y; Result.width := width; Result.height := height;
+end;
+
+{ TShader }
+
+procedure TShader.Load(vertFile, fragFile: PChar);
+begin
+  Self := LoadShader(vertFile, fragFile);
+end;
+
+procedure TShader.Unload;
+begin
+  UnloadShader(Self);
+end;
+
+function TShader.GetUniformLocation(name: PChar): Integer;
+begin
+  Result := GetShaderLocation(Self, name);
+end;
+
+procedure TShader.GetUniform(name: PChar; out uniform: TUniformInt);
+begin
+  uniform.location := GetShaderLocation(Self, name);
+end;
+
+procedure TShader.GetUniform(name: PChar; out uniform: TUniformSingle);
+begin
+  uniform.location := GetShaderLocation(Self, name);
+end;
+
+procedure TShader.GetUniform(name: PChar; out uniform: TUniformVec2);
+begin
+  uniform.location := GetShaderLocation(Self, name);
+end;
+
+procedure TShader.GetUniform(name: PChar; out uniform: TUniformVec3);
+begin
+  uniform.location := GetShaderLocation(Self, name);
+end;
+
+procedure TShader.GetUniform(name: PChar; out uniform: TUniformVec4);
+begin
+  uniform.location := GetShaderLocation(Self, name);
+end;
+
+procedure TShader.GetUniform(name: PChar; out uniform: TUniformSampler2d);
+begin
+  uniform.location := GetShaderLocation(Self, name);
+end;
+
+procedure TShader.SetUniform(const uniform: TUniformInt);
+begin
+  SetShaderValue(Self, uniform.location, @uniform.value, SHADER_UNIFORM_INT);
+end;
+
+procedure TShader.SetUniform(const uniform: TUniformSingle);
+begin
+  SetShaderValue(Self, uniform.location, @uniform.value, SHADER_UNIFORM_FLOAT);
+end;
+
+procedure TShader.SetUniform(const uniform: TUniformVec2);
+begin
+  SetShaderValue(Self, uniform.location, @uniform.value, SHADER_UNIFORM_VEC2);
+end;
+
+procedure TShader.SetUniform(const uniform: TUniformVec3);
+begin
+  SetShaderValue(Self, uniform.location, @uniform.value, SHADER_UNIFORM_VEC3);
+end;
+
+procedure TShader.SetUniform(const uniform: TUniformVec4);
+begin
+  SetShaderValue(Self, uniform.location, @uniform.value, SHADER_UNIFORM_VEC4);
+end;
+
+procedure TShader.SetUniform(const uniform: TUniformSampler2d);
+begin
+  SetShaderValue(Self, uniform.location, @uniform.value, SHADER_UNIFORM_VEC4);
 end;
 
 end.

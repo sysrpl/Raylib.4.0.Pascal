@@ -1,0 +1,6 @@
+{"version":1,"strings":[
+{"hash":24444769,"name":"raylib.system.sstacksize","sourcebytes":[67,97,110,110,111,116,32,99,114,101,97,116,101,32,97,32,115,116,97,99,107,32,111,102,32,115,105,122,101,32,108,101,115,115,32,116,104,97,110,32,49],"value":"Cannot create a stack of size less than 1"},
+{"hash":119844103,"name":"raylib.system.sstackpush","sourcebytes":[83,116,97,99,107,32,112,117,115,104,32,119,111,117,108,100,32,111,118,101,114,102,108,111,119],"value":"Stack push would overflow"},
+{"hash":220949095,"name":"raylib.system.sstackpop","sourcebytes":[83,116,97,99,107,32,112,111,112,32,119,111,117,108,100,32,117,110,100,101,114,102,108,111,119],"value":"Stack pop would underflow"},
+{"hash":90595779,"name":"raylib.system.sstackempty","sourcebytes":[83,116,97,99,107,32,100,111,101,115,32,110,111,116,32,99,111,110,116,97,105,110,32,97,110,121,32,105,116,101,109,115],"value":"Stack does not contain any items"}
+]}

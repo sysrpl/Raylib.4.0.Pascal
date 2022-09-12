@@ -532,6 +532,7 @@ const
   colorBlue                    = TColorB($FF0000FF);
   colorBlueViolet              = TColorB($FF8A2BE2);
   colorBrown                   = TColorB($FF964B00);
+  colorBurgundy                = TColorB($FF8C001A);
   colorBurlyWood               = TColorB($FFDEB887);
   colorCadetBlue               = TColorB($FF5F9EA0);
   colorChartreuse              = TColorB($FF7FFF00);
@@ -679,7 +680,7 @@ const
 { Note: Repeat X and Y do not work with the GLESv2 path }
 
 const
-  NVG_IMAGE_DEFAULT = NVG_IMAGE_REPEATX or NVG_IMAGE_REPEATY;
+  NVG_IMAGE_DEFAULT = NVG_IMAGE_REPEATX or NVG_IMAGE_REPEATY or NVG_IMAGE_GENERATE_MIPMAPS;
 
 { TColorF }
 
@@ -1872,8 +1873,8 @@ end;
 
 procedure TSprite.SetPivot(Value: TVec2);
 begin
-  Value.x := Clamp(Value.x);
-  Value.y := Clamp(Value.y);
+  Value.x := Value.x;
+  Value.y := Value.y;
   Pivot := Value;
 end;
 
@@ -2918,6 +2919,11 @@ begin
   Result.Color := Color;
   Result.Width := Width;
   Result.LineCap := Cap;
+  case Cap of
+    capButt, capSquare: Result.LineJoin := joinMiter;
+  else
+    Result.LineJoin := joinRound;
+  end;
 end;
 
 function NewBrush(const Color: TColorF): ISolidBrush;

@@ -3033,7 +3033,7 @@ var
   I: Integer;
 begin
   I := Stream.Size;
-  SetLength(Result, I);
+  SetLength(Result{%H-}, I);
   if I > 0 then
     Stream.Read(PChar(Result)^, I);
 end;

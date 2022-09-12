@@ -1,8 +1,6 @@
 unit RayLib.Gl;
 
-{$mode delphi}
-{$minenumsize 4}
-{$a8}
+{$i raylib.inc}
 
 interface
 
@@ -43,7 +41,6 @@ type
   PGLsizeiptr = ^GLsizeiptr;
 
 const
-  GL_ES_VERSION_2_0 = 1;
   { ClearBufferMask }
   GL_DEPTH_BUFFER_BIT = $00000100;
   GL_STENCIL_BUFFER_BIT = $00000400;

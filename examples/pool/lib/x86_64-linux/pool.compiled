@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Compiler Value="/home/gigauser/Development/Pascal/fpc/bin/fpc" Date="1581412235"/>
+  <Params Value=" -MObjFPC -Scghi -Cg -O1 -g -gl -l -vewnhibq -vm5028,5024 -Fi/home/gigauser/Development/Pascal/Libraries/Raylib.4.0.Pascal/examples/pool/lib/x86_64-linux -Fu/home/gigauser/Development/Pascal/Libraries/Raylib.4.0.Pascal/src -Fu/home/gigauser/Development/Pascal/Libraries/Raylib.4.0.Pascal/examples/pool/ -FU/home/gigauser/Development/Pascal/Libraries/Raylib.4.0.Pascal/examples/pool/lib/x86_64-linux/ -FE/home/gigauser/Development/Pascal/Libraries/Raylib.4.0.Pascal/examples/pool/ -o/home/gigauser/Development/Pascal/Libraries/Raylib.4.0.Pascal/examples/pool/pool pool.lpr"/>
+</CONFIG>
