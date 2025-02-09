@@ -50,7 +50,7 @@ procedure TTableStick.Draw(Camera: TCamera3D; Light: TVec3);
 var
   M: TMat4;
 begin
-  if State.Moving then
+  if State.Moving or State.Sinking then
     Exit;
   BeginMode3D(Camera);
   M.Identity;

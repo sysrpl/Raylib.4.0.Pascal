@@ -221,6 +221,11 @@
         <Filename Value="shaders/shapes.vert"/>
         <IsPartOfProject Value="True"/>
       </Unit>
+      <Unit>
+        <Filename Value="tablehelp.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TableHelp"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

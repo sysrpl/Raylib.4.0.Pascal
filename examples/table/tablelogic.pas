@@ -90,7 +90,6 @@ begin
   FTap[3] := LoadSound('assets/tap3.ogg');
   FPocket[0] := LoadSound('assets/pocket0.mp3');
   FPocket[1] := LoadSound('assets/pocket1.mp3');
-  PlaySoundMulti(FPocket[0]);
 end;
 
 procedure TableSounds.Unload;
@@ -111,6 +110,8 @@ end;
 
 procedure TableSounds.Rack;
 begin
+  if State.Help then
+    Exit;
   PlaySoundMulti(FRack[Random(4)]);
 end;
 
@@ -190,10 +191,6 @@ var
   V: TVec2;
   I: Integer;
 begin
-  if not State.Aiming then
-    Exit;
-  if not IsKeyDown(KEY_W) then
-    Exit;
   for I := Low(FPockets) to High(FPockets) do
     Circle(C, FPockets[I].Pos, FPockets[I].Radius);
   Stroke(C, colorYellow);
@@ -384,7 +381,9 @@ begin
     FBalls.Items[I].Matrix := M;
   end;
   FBalls.Items[0].Pocketed := False;
+  FBalls.Items[0].Sinking := 0;
   FBalls.Items[0].Pos := Vec(SlateX / 4, 0);
+  State.Sinking := False;
   case Index of
     2:
       begin
@@ -734,7 +733,6 @@ var
   Slow: Single;
   I: Integer;
 begin
-  State.TimeNow := TimeQuery;
   if State.Moving then
     Exit;
   if IsKeyPressed(KEY_SPACE) then
@@ -892,6 +890,7 @@ begin
     B.Pos := [SlateZ * 0.5, 0];
     State.StickDir := [-1, 0];
     State.Collides := ShortestDistance(State.CollidePoint, State.CollideIndex);
+    State.Sinking := False;
   end;
   { Animate sinking balls outside our simulation loop }
   for I := Low(FBalls.Items) to High(FBalls.Items) do
@@ -1010,6 +1009,7 @@ end;
 procedure TTableLogic.Think;
 begin
   Update;
+  State.Sinking := FBalls.Items[0].Pocketed or (FBalls.Items[0].Sinking > 0);
 end;
 
 end.

@@ -56,6 +56,8 @@ const
 
 var
   State: record
+    { Help is true when help is being displayed }
+    Help: Boolean;
     { The number of triangles drawn }
     Triangles: Integer;
     { The seconds since the last frame }
@@ -88,10 +90,18 @@ var
     Aiming: Boolean;
     { Moving is true if balls are moving }
     Moving: Boolean;
+    { The cue ball is sinking }
+    Sinking: Boolean;
   end;
 
-  MouseAt: TVec2;
-  ToRail: Single;
+  RenderOptions: record
+    { Turn shadows on or off }
+    Shadows: Boolean;
+    { Apply smooth modes for vector graphics [0..2] }
+    Smoothing: Integer;
+    { Assist level for pool shots [0..2] }
+    Assist: Integer;
+  end;
 
 const
   CenterX = WindowWidth / 2;

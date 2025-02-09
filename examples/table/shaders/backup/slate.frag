@@ -21,6 +21,7 @@ uniform bool collides;
 uniform vec2 collidepoint;
 uniform int collideindex;
 uniform bool moving;
+uniform bool errorcorrect;
 
 out vec4 finalColor;
 
@@ -57,6 +58,17 @@ vec3 edgeblend(vec3 colorout, vec3 colorin, float position, float edge)
 {
     float dist = distance(eye, vertex);
     float m = dist / 1000;
+
+    if (errorcorrect)
+    {
+      vec3 n = normalize(normal);
+      vec3 v = normalize(eye - vertex);
+      float d = dot(n, v);
+      if (d < 0.0001)
+        return colorout;
+      m = m * (1 + 1 / d);
+    }
+
     if (position + m < edge)
       return colorin;
     if (position - m > edge)
@@ -73,6 +85,17 @@ float floatblend(float position, float edge)
 {
     float dist = distance(eye, vertex);
     float m = dist / 1000;
+
+    if (errorcorrect)
+    {
+      vec3 n = normalize(normal);
+      vec3 v = normalize(eye - vertex);
+      float d = dot(n, v);
+      if (d < 0.0001)
+        return 0.0;
+      m = m * (1 + 1 / d);
+    }
+
     if (position + m < edge)
       return 1.0;
     if (position - m > edge)
@@ -172,8 +195,9 @@ void main()
     }
 
     // black line
-    if (vertex.x > 0.632 && vertex.x < 0.638)
-      color = mix(color, vec3(0), 0.1);
+    if (vertex.x > 0.58 && vertex.x < 0.69S)
+        color = mix(color, mix(vec3(0), color, 0.8), line(vec2(0.635, -4), vec2(0.635, 4), 0.005));
+
     // cue marker spot
     float spot = distance(vertex.xz, vec2(0.635, 0));
     color = edgeblend(color, vec3(1), spot, 0.01);
@@ -233,11 +257,6 @@ void main()
     color = mix(color, green, dashedline(pb, pa, 0.0065, 0.025, time * 0.07));
     // draw an depart point from the cue ball
     color = mix(color, green, circle(pb, 0.01));
-
-    // pockets
-    //color = mix(color, green, ring(vec2(0, 0.711), 0.146 / 2, 0.02));
-    //color = mix(color, green, ring(vec2(1.295, 0.660), 0.165 / 2, 0.02));
-
 
     finalColor = vec4(color, 1);
 }

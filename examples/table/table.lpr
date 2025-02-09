@@ -14,13 +14,15 @@ uses
   TableModel,
   TableStick,
   TableVars,
-  TableLogic;
+  TableLogic,
+  TableHelp;
 
 type
   TTableScene = class(TScene)
   private
     FBackground: IBrush;
     FView: TTableView;
+    FHelp: TTableHelp;
     FRenderer: TTableRender;
     FStick: TTableStick;
     FBalls: TTableBalls;
@@ -35,10 +37,15 @@ type
 procedure TTableScene.Load;
 begin
   inherited Load;
+  State.Help := True;
+  RenderOptions.Shadows := True;
+  RenderOptions.Smoothing := 2;
+  RenderOptions.Assist := 1;
   Font := Canvas.LoadFont('assets/contrail_one_regular.ttf');
   Font.Color := colorWhite;
   Font.Size := 20;
   FView.Init;
+  FHelp.Load(Canvas);
   FRenderer.Load;
   FBalls.Load;
   FStick.Load;
@@ -52,17 +59,25 @@ begin
   FStick.Unload;
   FBalls.Unload;
   FRenderer.Unload;
+  FHelp.Unload;
   inherited Unload;
 end;
 
 procedure TTableScene.Logic(Width, Height: Integer; StopWatch: TStopWatch);
 begin
   State.TimeFrame := StopWatch.TimeFrame;
-  FLogic.Track;
+  State.TimeNow := StopWatch.Time;
+  if IsKeyPressed(KEY_F1) then
+    State.Help := True;
+  if IsMouseButtonPressed(MOUSE_BUTTON_LEFT) then
+    State.Help := False;
+  if not State.Help then
+    FLogic.Track;
   FLogic.Think;
 end;
 
 procedure TTableScene.Render(Width, Height: Integer; StopWatch: TStopWatch);
+{.$define debug}
 {$ifdef debug}
 const
   CameraModes: array[TCameraMode] of string = ('Orbit', 'Overhead', 'Free');
@@ -87,21 +102,30 @@ begin
     FStick.Draw(FView.Camera, FView.Light);
   end;
   BeginCanvas(Width, Height);
-  FRenderer.Draw(Canvas);
-  { Optional debug information }
-  {$ifdef debug}
-  with FView.Camera.position do
-    S := StrFormat('Mode: %s | Camera: %.2f %.2f %.2f',
-      [CameraModes[FView.Mode], X, Y, Z]);
-  with FView.Light do
-    S := S + StrFormat(' | Light: %.2f %.2f %.2f', [X, Y, Z]);
-  S := S + StrFormat(' | Zoom: %.2f', [FView.Zoom]);
-  WriteLine(S);
-  S := StrFormat('Framerate: %d | Triangles: %d', [StopWatch.Fps, State.Triangles]);
-  S := S + StrFormat(' | Angle: %.2f | %.3f %.3f', [State.StickAngle, MouseAt.X, MouseAt.Y]);
-  FLogic.Debug(Canvas);
-  WriteLine(S);
-  {$endif}
+  if State.Help then
+  begin
+    FHelp.Draw(Canvas);
+  end
+  else
+  begin
+    FRenderer.Draw(Canvas);
+    if IsKeyDown(KEY_P) then
+      FLogic.Debug(Canvas);
+    { Optional debug information }
+    {$ifdef debug}
+    with FView.Camera.position do
+      S := StrFormat('Mode: %s | Camera: %.2f %.2f %.2f',
+        [CameraModes[FView.Mode], X, Y, Z]);
+    with FView.Light do
+      S := S + StrFormat(' | Light: %.2f %.2f %.2f', [X, Y, Z]);
+    S := S + StrFormat(' | Zoom: %.2f', [FView.Zoom]);
+    WriteLine(S);
+    S := StrFormat('Framerate: %d | Triangles: %d', [StopWatch.Fps, State.Triangles]);
+    if IsKeyDown(KEY_P) then
+      FLogic.Debug(Canvas);
+    WriteLine(S);
+    {$endif}
+  end;
   EndCanvas;
 end;
 

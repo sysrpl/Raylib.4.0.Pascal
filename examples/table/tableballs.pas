@@ -52,6 +52,7 @@ type
     FIndex: TUniformInt;
     FStick0: TUniformVec3;
     FStick1: TUniformVec3;
+    FBallError: TUniformBool;
   public
     Items: array[0..15] of TBall;
     procedure Load;
@@ -123,6 +124,8 @@ begin
     Items[I].Dir := [1, 0];
     Items[I].Matrix.Identity;
   end;
+
+  FBall.Shader.GetUniform('errorcorrect', FBallError);
 end;
 
 procedure TTableBalls.Unload;
@@ -141,6 +144,8 @@ var
   V, B: TVec3;
   I: Integer;
 begin
+  if IsKeyPressed(KEY_E) then
+    FBallError.Update(not FBallError.value);
   V := Camera.target - Camera.position;
   V.Normalize;
   B.Y := BallRadius;

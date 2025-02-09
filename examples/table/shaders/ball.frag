@@ -15,6 +15,7 @@ uniform int index;
 uniform vec3 stick[2];
 uniform sampler2D probe;
 uniform sampler2D numbers;
+uniform bool errorcorrect;
 
 out vec4 finalColor;
 
@@ -84,7 +85,18 @@ vec3 colors[8] = vec3[](
 vec3 edgeblend(vec3 colorout, vec3 colorin, float position, float edge)
 {
     float dist = distance(eye, vertex);
-    float m = dist / 15; // modified for angles
+    float m = dist / 15;
+
+    if (errorcorrect)
+    {
+      vec3 n = normalize(normal);
+      vec3 v = normalize(eye - vertex);
+      float d = dot(n, v);
+      if (d < 0.0001)
+        return colorout;
+      m = m * (1 + 1 / d / 2);
+    }
+
     if (position + m < edge)
       return colorin;
     if (position - m > edge)

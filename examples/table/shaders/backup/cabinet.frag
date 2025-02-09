@@ -8,6 +8,8 @@ in vec3 normal;
 uniform vec3 eye;
 uniform vec3 light;
 uniform vec3 stick[2];
+uniform bool moving;
+uniform bool errorcorrect;
 
 out vec4 finalColor;
 
@@ -134,6 +136,17 @@ vec3 edgeblend(vec3 colorout, vec3 colorin, float position, float edge)
 {
     float dist = distance(eye, vertex);
     float m = dist / 1000;
+
+    if (errorcorrect)
+    {
+      vec3 n = normalize(normal);
+      vec3 v = normalize(eye - vertex);
+      float d = dot(n, v);
+      if (d < 0.0001)
+        return colorout;
+      m = m * (1 + 1 / d);
+    }
+
     if (position + m < edge)
       return colorin;
     if (position - m > edge)
@@ -237,7 +250,8 @@ void main()
     {
 
         color = findPip(color);
-        color = stickShadow(color, 0);
+        if (!moving)
+            color = stickShadow(color, 0);
     }
 
     finalColor = vec4(color * diff + spec * specmix, 1);
