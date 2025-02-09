@@ -4,8 +4,6 @@
 
 This package includes a complete set of Pascal bindings for [Raylib](https://www.raylib.com/) version 4.0. Raylib is a popular game development toolkit in the computer programming education space. This package supports the following Raylib modules:
 
-
-
 * Raylib Core (raylib.pas)
   * Shapes
   * Text
@@ -86,3 +84,15 @@ Here are a few notes you should be aware of when using the Pascal bindings in th
 **Example**
 
 > fpc helloworld.pas -Fu../src 
+
+## Screenshots and Videos
+
+Pool Table Simulator (table.lpr)
+
+Screen
+
+![Alt text](/screenshots/table.png?raw=true "Pool Table Simulator")
+
+Video 
+
+https://cache.getlazarus.org/videos/linux-pool.mp4
