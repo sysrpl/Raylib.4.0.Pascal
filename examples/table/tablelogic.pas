@@ -72,6 +72,9 @@ type
 
 implementation
 
+var
+  Breaking: Boolean;
+
 procedure TableSounds.Load;
 begin
   Randomize;
@@ -146,7 +149,7 @@ const
   Slice = 0.0001;
   LowLimit = 0.005;
   SpeedLossRail = 0.5;
-  SpeedLossHit = 0.95;
+  SpeedLossHit = 0.975;
   SpeedLossFixed = 0.05;
 
 function Clamp(Value, Min, Max: Double): Double;
@@ -215,18 +218,6 @@ begin
 end;
 
 {$region loading}
-function RoR(const V: TVec2): TVec2;
-begin
-  Result.x := -V.y;
-  Result.y := V.x;
-end;
-
-function RoL(const V: TVec2): TVec2;
-begin
-  Result.x := V.y;
-  Result.y := -V.x;
-end;
-
 procedure TTableLogic.Load(var Balls: TTableBalls; var Stick: TTableStick);
 
   procedure RailInit(var R: TRail; Index: Integer);
@@ -235,9 +226,9 @@ procedure TTableLogic.Load(var Balls: TTableBalls; var Stick: TTableStick);
     R.Normal := R.B - R.A;
     R.Normal.Normalize;
     case Index of
-      4..7, 12..16: R.Normal := RoL(R.Normal);
+      4..7, 12..16: R.Normal := R.Normal.RoL;
     else
-      R.Normal := RoR(R.Normal);
+      R.Normal := R.Normal.RoR;
     end;
     case Index of
       1..3, 13..15: R.Side := SideTop;
@@ -349,6 +340,7 @@ var
   M: TMat4;
   I: Integer;
 begin
+  Breaking := False;
   for I := Low(FBalls.Items) to High(FBalls.Items) do
   begin
     FBalls.Items[I].Reset;
@@ -376,11 +368,14 @@ end;
 procedure TTableLogic.Rack(Index: Integer);
 const
   S = 0.0001;
+  RackX = 1.732050808 * BallRadius + 0.001;
+  RackY = BallDiameter / 2 + 0.001;
 var
   A, B: TVec2;
   M: TMat4;
   I: Integer;
 begin
+  Breaking := False;
   for I := Low(FBalls.Items) to High(FBalls.Items) do
   begin
     FBalls.Items[I].Reset;
@@ -475,6 +470,8 @@ begin
         FBalls.Items[6].Pos := [-0.78998,  0.02983];
         FBalls.Items[7].Pos := [-0.84163,  0.00000];
         FBalls.Items[8].Pos := [-0.78998, -0.02983];
+        { Give the breaks a bit of extra power }
+        Breaking := True;
       end;
     9:
       begin
@@ -493,22 +490,23 @@ begin
         FBalls.Items[13].Pocketed := False;
         FBalls.Items[14].Pocketed := False;
         FBalls.Items[15].Pocketed := False;
-
-        FBalls.Items[1].Pos := [-0.63500,  0.00000];
-        FBalls.Items[14].Pos := [-0.68667,  0.02983];
-        FBalls.Items[12].Pos := [-0.68667, -0.02983];
-        FBalls.Items[4].Pos := [-0.73833,  0.05965];
-        FBalls.Items[8].Pos := [-0.73833,  0.00000];
-        FBalls.Items[6].Pos := [-0.73833, -0.05965];
-        FBalls.Items[7].Pos := [-0.78998,  0.02983];
-        FBalls.Items[5].Pos := [-0.84163,  0.00000];
-        FBalls.Items[9].Pos := [-0.78998, -0.02983];
-        FBalls.Items[10].Pos := [-0.78998, 0.02983 + BallDiameter + 0.002];
-        FBalls.Items[11].Pos := [-0.78998, -(0.02983 + BallDiameter + 0.002)];
-        FBalls.Items[3].Pos := [-0.84163, 0.05965 + BallDiameter + 0.002];
-        FBalls.Items[2].Pos := [-0.84163, -(0.05965 + BallDiameter + 0.002)];
-        FBalls.Items[13].Pos := [-0.84163, 0.05965];
-        FBalls.Items[15].Pos := [-0.84163, -0.05965];
+        A := [-SlateHalfX / 2,  0.00000];
+        FBalls.Items[1].Pos := A;
+        FBalls.Items[2].Pos := [A.X - RackX * 2, RackY * 2];
+        FBalls.Items[3].Pos := [A.X - RackX * 4, RackY * 4];
+        FBalls.Items[4].Pos := [A.X - RackX * 2, RackY * -2];
+        FBalls.Items[5].Pos := [A.X - RackX * 3, RackY * -1];
+        FBalls.Items[6].Pos := [A.X - RackX * 4, RackY * -4];
+        FBalls.Items[7].Pos := [A.X - RackX * 4, 0];
+        FBalls.Items[8].Pos := [A.X - RackX * 2, 0];
+        FBalls.Items[9].Pos := [A.X - RackX, RackY];
+        FBalls.Items[10].Pos := [A.X - RackX * 4, RackY * 2];
+        FBalls.Items[11].Pos := [A.X - RackX, -RackY];
+        FBalls.Items[12].Pos := [A.X - RackX * 3, RackY * 1];
+        FBalls.Items[13].Pos := [A.X - RackX * 3, RackY * 3];
+        FBalls.Items[14].Pos := [A.X - RackX * 4, RackY * -2];
+        FBalls.Items[15].Pos := [A.X - RackX * 3, RackY * -3];
+        Breaking := True;
       end;
   end;
   State.StickDir := [-1, 0];
@@ -547,6 +545,9 @@ begin
     D := A.Dir.DotClamp(BH.Dir);
     { Energy transfer to B }
     BH.Speed := A.Speed * D * SpeedLossHit;
+    if Breaking then
+      BH.Speed := BH.Speed * 2;
+    Breaking := False;
     { The wrong way: A.Speed * (1 - D) * SpeedLossHit;
       Instead we need the angle to calculate percentage retained by A }
     D := ArcCos(D);
@@ -718,7 +719,7 @@ begin
   FSounds.Shot(State.StickPower > 0.5);
   { Computer the cue ball vector and speed }
   FBalls.Items[0].Dir := State.StickDir;
-  FBalls.Items[0].Speed := Power(State.StickPower, 4) * SlateX * 2;
+  FBalls.Items[0].Speed := Power(State.StickPower, 2) * SlateX * 2;
   { Reset the prior shot tracking nodes }
   for I := Low(FBalls.Items) to High(FBalls.Items) do
   begin
@@ -941,7 +942,7 @@ begin
       V := B.Pos;
       B.Pos := B.Pos + B.Dir * B.Speed * Slice;
       { Apply rolling rotation }
-      R := RoL(B.Dir);
+      R := B.Dir.RoL;
       B.Matrix := B.Matrix * RotateAxis(V.Distance(B.Pos) / BallRadius, Vec(R.X, 0, R.Y));
       { Apply dampening / friction / air resistance }
       B.Speed := B.Speed - SpeedLossFixed * Slice;

@@ -166,6 +166,9 @@ type
     function Reflect(N: TVec2): TVec2;
     function Rotate(Angle: Single): TVec2; overload;
     function Rotate(const V: TVec2; Angle: Single): TVec2; overload;
+    { Rotate left and right }
+    function RoL: TVec2;
+    function RoR: TVec2;
   end;
   PVec2 = ^TVec2;
   TVector2 = TVec2;
@@ -3047,6 +3050,18 @@ begin
   Y := -Self.x * S - Self.y * C + Self.y;
   Result.x := V.x * C - V.y * S + X;
   Result.y := V.x * S + V.y * C + Y;
+end;
+
+function TVec2.RoL: TVec2;
+begin
+  Result.x := y;
+  Result.y := -x;
+end;
+
+function TVec2.RoR: TVec2;
+begin
+  Result.x := -y;
+  Result.y := x;
 end;
 
 { TVec3 }
