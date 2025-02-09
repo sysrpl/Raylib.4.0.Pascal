@@ -9,7 +9,8 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="Sine"/>
         <IsVisibleTab Value="True"/>
-        <CursorPos X="27" Y="12"/>
+        <TopLine Value="16"/>
+        <CursorPos X="3" Y="16"/>
         <UsageCount Value="73"/>
         <Loaded Value="True"/>
       </Unit>
@@ -134,7 +135,8 @@
         <Filename Value="../../src/raylib.app.pas"/>
         <UnitName Value="Raylib.App"/>
         <EditorIndex Value="1"/>
-        <CursorPos Y="19"/>
+        <TopLine Value="87"/>
+        <CursorPos Y="114"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit>
@@ -147,7 +149,7 @@
         <Loaded Value="True"/>
       </Unit>
     </Units>
-    <JumpHistory HistoryIndex="7">
+    <JumpHistory HistoryIndex="15">
       <Position>
         <Filename Value="sine.lpr"/>
         <Caret Line="275" Column="17" TopLine="259"/>
@@ -179,6 +181,37 @@
       <Position>
         <Filename Value="../../src/raylib.gl.pas"/>
         <Caret Line="44"/>
+      </Position>
+      <Position>
+        <Filename Value="sine.lpr"/>
+        <Caret Line="286" Column="3" TopLine="256"/>
+      </Position>
+      <Position>
+        <Filename Value="../../src/raylib.app.pas"/>
+        <Caret Line="110" Column="10" TopLine="93"/>
+      </Position>
+      <Position>
+        <Filename Value="../../src/raylib.app.pas"/>
+        <Caret Line="26" Column="16" TopLine="7"/>
+      </Position>
+      <Position>
+        <Filename Value="../../src/raylib.app.pas"/>
+      </Position>
+      <Position>
+        <Filename Value="../../src/raylib.app.pas"/>
+        <Caret Line="24" Column="16"/>
+      </Position>
+      <Position>
+        <Filename Value="../../src/raylib.app.pas"/>
+        <Caret Line="26" Column="16"/>
+      </Position>
+      <Position>
+        <Filename Value="../../src/raylib.app.pas"/>
+        <Caret Line="63" Column="53" TopLine="35"/>
+      </Position>
+      <Position>
+        <Filename Value="sine.lpr"/>
+        <Caret Line="286" TopLine="256"/>
       </Position>
     </JumpHistory>
     <RunParams>

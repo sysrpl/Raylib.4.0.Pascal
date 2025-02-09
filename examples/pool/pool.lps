@@ -2,15 +2,14 @@
 <CONFIG>
   <ProjectSession>
     <Version Value="12"/>
-    <BuildModes Active="Default"/>
+    <BuildModes Active="Debug"/>
     <Units>
       <Unit>
         <Filename Value="pool.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Pool"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="200"/>
-        <CursorPos Y="214"/>
+        <TopLine Value="14"/>
+        <CursorPos Y="32"/>
         <UsageCount Value="200"/>
         <Loaded Value="True"/>
       </Unit>
@@ -18,135 +17,70 @@
         <Filename Value="poolobjs.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="PoolObjs"/>
-        <EditorIndex Value="2"/>
-        <TopLine Value="1061"/>
-        <CursorPos Y="1078"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="136"/>
+        <CursorPos X="3" Y="73"/>
         <UsageCount Value="200"/>
-        <Bookmarks Count="1">
-          <Item0 X="44" Y="1082" ID="1"/>
-        </Bookmarks>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="../src/raylib.pas"/>
-        <UnitName Value="Raylib"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="3003"/>
-        <CursorPos X="18" Y="3018"/>
-        <UsageCount Value="4"/>
-      </Unit>
-      <Unit>
-        <Filename Value="../src/raylib.app.pas"/>
-        <UnitName Value="Raylib.App"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="93"/>
-        <CursorPos X="33" Y="120"/>
-        <UsageCount Value="9"/>
-      </Unit>
-      <Unit>
-        <Filename Value="../src/raylib.glfw.pas"/>
-        <UnitName Value="Raylib.Glfw"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="416"/>
-        <CursorPos X="31" Y="442"/>
-        <UsageCount Value="4"/>
-      </Unit>
-      <Unit>
-        <Filename Value="../src/raylib.gl.pas"/>
-        <UnitName Value="RayLib.Gl"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="703"/>
-        <CursorPos Y="734"/>
-        <UsageCount Value="12"/>
-      </Unit>
-      <Unit>
-        <Filename Value="../src/raylib.nanovg.pas"/>
-        <UnitName Value="Raylib.NanoVG"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="786"/>
-        <CursorPos X="24" Y="799"/>
-        <UsageCount Value="4"/>
-      </Unit>
-      <Unit>
-        <Filename Value="../src/raylib.graphics.pas"/>
-        <UnitName Value="Raylib.Graphics"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="2873"/>
-        <CursorPos X="5" Y="2903"/>
-        <UsageCount Value="12"/>
-        <Bookmarks Count="1">
-          <Item0 X="23" Y="923" ID="1"/>
-        </Bookmarks>
-      </Unit>
-      <Unit>
-        <Filename Value="../src/raylib.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="8"/>
-        <CursorPos X="76" Y="34"/>
-        <UsageCount Value="4"/>
-      </Unit>
-      <Unit>
-        <Filename Value="../src/raylib.collections.pas"/>
-        <UnitName Value="RayLib.Collections"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="694"/>
-        <CursorPos Y="714"/>
-        <UsageCount Value="1"/>
-      </Unit>
-      <Unit>
-        <Filename Value="../../../fpc/rtl/inc/objpas.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="1043"/>
-        <CursorPos Y="1059"/>
-        <UsageCount Value="4"/>
+        <Filename Value="poolballs.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="PoolBalls"/>
+        <EditorIndex Value="2"/>
+        <UsageCount Value="183"/>
+        <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="../../src/raylib.pas"/>
         <UnitName Value="Raylib"/>
-        <EditorIndex Value="3"/>
-        <TopLine Value="2495"/>
-        <CursorPos X="11" Y="2510"/>
-        <UsageCount Value="100"/>
+        <EditorIndex Value="5"/>
+        <TopLine Value="2601"/>
+        <CursorPos Y="2606"/>
+        <UsageCount Value="101"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="../../src/raylib.inc"/>
         <EditorIndex Value="-1"/>
-        <CursorPos Y="2"/>
-        <UsageCount Value="100"/>
+        <UsageCount Value="85"/>
       </Unit>
       <Unit>
         <Filename Value="../../src/raylib.app.pas"/>
         <UnitName Value="Raylib.App"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="322"/>
-        <CursorPos Y="334"/>
-        <UsageCount Value="100"/>
+        <TopLine Value="110"/>
+        <CursorPos Y="128"/>
+        <UsageCount Value="104"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="../../src/raylib.gl.pas"/>
         <UnitName Value="RayLib.Gl"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="13"/>
-        <CursorPos Y="44"/>
-        <UsageCount Value="98"/>
+        <UsageCount Value="104"/>
       </Unit>
       <Unit>
         <Filename Value="../../src/raylib.graphics.pas"/>
         <UnitName Value="Raylib.Graphics"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="2536"/>
-        <CursorPos X="22" Y="2552"/>
-        <UsageCount Value="98"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="2982"/>
+        <CursorPos X="32" Y="2998"/>
+        <UsageCount Value="101"/>
+        <Bookmarks Count="2">
+          <Item0 X="15" Y="983" ID="2"/>
+          <Item1 X="28" Y="933" ID="1"/>
+        </Bookmarks>
+        <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="../../src/raylib.nanovg.pas"/>
         <UnitName Value="Raylib.NanoVG"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="345"/>
-        <CursorPos X="28" Y="370"/>
-        <UsageCount Value="98"/>
+        <TopLine Value="401"/>
+        <CursorPos X="21" Y="421"/>
+        <UsageCount Value="96"/>
       </Unit>
       <Unit>
         <Filename Value="../../../../fpc/rtl/objpas/math.pp"/>
@@ -154,160 +88,218 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="369"/>
         <CursorPos X="10" Y="384"/>
-        <UsageCount Value="65"/>
+        <UsageCount Value="49"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../cross.codebot/source/codebot_controls/codebot.design.registration.pas"/>
-        <UnitName Value="Codebot.Design.Registration"/>
+        <Filename Value="../../src/raylib.system.pas"/>
+        <UnitName Value="Raylib.System"/>
         <EditorIndex Value="-1"/>
-        <CursorPos X="16" Y="12"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="44"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../cross.codebot/source/codebot_controls/codebot.design.editors.pas"/>
-        <UnitName Value="Codebot.Design.Editors"/>
+        <Filename Value="../../../../fpc/rtl/inc/systemh.inc"/>
         <EditorIndex Value="-1"/>
-        <CursorPos X="16" Y="12"/>
-        <UsageCount Value="8"/>
+        <TopLine Value="107"/>
+        <CursorPos X="9" Y="127"/>
+        <UsageCount Value="1"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../cross.codebot/source/codebot_controls/codebot.design.forms.pas"/>
-        <UnitName Value="Codebot.Design.Forms"/>
+        <Filename Value="../../../../fpc/rtl/inc/genmath.inc"/>
         <EditorIndex Value="-1"/>
-        <CursorPos X="16" Y="12"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="1"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../../lazarus/ide/lazarus.pp"/>
-        <UnitName Value="Lazarus"/>
+        <Filename Value="../../../../fpc/rtl/inc/varianth.inc"/>
         <EditorIndex Value="-1"/>
-        <CursorPos X="44" Y="10"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="1"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../cross.codebot/source/codebot_render/codebot.render.scenes.controller.pas"/>
-        <UnitName Value="Codebot.Render.Scenes.Controller"/>
+        <Filename Value="../../../../fpc/rtl/unix/sysfile.inc"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="10"/>
-        <CursorPos X="22" Y="25"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="1"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../../fpc/rtl/inc/threadh.inc"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="1"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../../fpc/rtl/inc/flt_conv.inc"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="1"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../../fpc/rtl/inc/variant.inc"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="1"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../../fpc/rtl/linux/ossysc.inc"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="1"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../../fpc/rtl/inc/thread.inc"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="1"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../../fpc/rtl/inc/text.inc"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="1"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../src/raylib.core.pas"/>
+        <UnitName Value="Raylib.Core"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="21" Y="20"/>
+        <UsageCount Value="4"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../src/raylib.rl.pas"/>
+        <UnitName Value="Raylib.Rl"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="37"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../src/raylib.glfw.pas"/>
+        <UnitName Value="Raylib.Glfw"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="416"/>
+        <UsageCount Value="4"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../src/raylib.collections.pas"/>
+        <UnitName Value="Raylib.Collections"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1052"/>
+        <CursorPos X="19" Y="1072"/>
+        <UsageCount Value="18"/>
+        <Bookmarks Count="1">
+          <Item0 X="41" Y="324" ID="3"/>
+        </Bookmarks>
       </Unit>
     </Units>
-    <JumpHistory HistoryIndex="28">
+    <JumpHistory HistoryIndex="29">
       <Position>
-        <Filename Value="poolobjs.pas"/>
-        <Caret Line="211" Column="33" TopLine="186"/>
+        <Filename Value="../../src/raylib.app.pas"/>
+        <Caret Line="129" TopLine="121"/>
       </Position>
       <Position>
-        <Filename Value="poolobjs.pas"/>
-        <Caret Line="212" Column="33" TopLine="187"/>
+        <Filename Value="../../src/raylib.app.pas"/>
+        <Caret Line="322" TopLine="304"/>
       </Position>
       <Position>
-        <Filename Value="poolobjs.pas"/>
-        <Caret Line="213" Column="33" TopLine="188"/>
+        <Filename Value="../../src/raylib.app.pas"/>
+        <Caret Line="323" TopLine="304"/>
       </Position>
       <Position>
-        <Filename Value="poolobjs.pas"/>
-        <Caret Line="409" Column="12" TopLine="384"/>
+        <Filename Value="../../src/raylib.app.pas"/>
+        <Caret Line="324" TopLine="304"/>
       </Position>
       <Position>
-        <Filename Value="poolobjs.pas"/>
-        <Caret Line="410" Column="62" TopLine="385"/>
+        <Filename Value="../../src/raylib.app.pas"/>
+        <Caret Line="325" TopLine="304"/>
       </Position>
       <Position>
-        <Filename Value="poolobjs.pas"/>
-        <Caret Line="645" Column="52" TopLine="620"/>
+        <Filename Value="../../src/raylib.app.pas"/>
+        <Caret Line="326" TopLine="304"/>
       </Position>
       <Position>
-        <Filename Value="poolobjs.pas"/>
-        <Caret Line="770" Column="61" TopLine="740"/>
+        <Filename Value="../../src/raylib.app.pas"/>
+        <Caret Line="328" TopLine="304"/>
       </Position>
       <Position>
-        <Filename Value="pool.lpr"/>
-        <Caret Line="28" TopLine="20"/>
+        <Filename Value="../../src/raylib.app.pas"/>
+        <Caret Line="329" TopLine="304"/>
       </Position>
       <Position>
-        <Filename Value="pool.lpr"/>
-        <Caret Line="142" Column="20" TopLine="117"/>
+        <Filename Value="../../src/raylib.app.pas"/>
+        <Caret Line="334" TopLine="305"/>
       </Position>
       <Position>
-        <Filename Value="pool.lpr"/>
-        <Caret Line="18" Column="21"/>
+        <Filename Value="../../src/raylib.app.pas"/>
+        <Caret Line="336" TopLine="307"/>
       </Position>
       <Position>
-        <Filename Value="pool.lpr"/>
-        <Caret Line="140" Column="70" TopLine="114"/>
-      </Position>
-      <Position>
-        <Filename Value="pool.lpr"/>
-        <Caret Line="131" Column="18" TopLine="116"/>
+        <Filename Value="../../src/raylib.app.pas"/>
+        <Caret Line="337" TopLine="308"/>
       </Position>
       <Position>
         <Filename Value="pool.lpr"/>
-        <Caret Line="18" Column="5" TopLine="3"/>
+        <Caret Line="30" TopLine="12"/>
       </Position>
       <Position>
         <Filename Value="pool.lpr"/>
-        <Caret Line="142" Column="26" TopLine="119"/>
+        <Caret Line="31" TopLine="12"/>
       </Position>
       <Position>
         <Filename Value="pool.lpr"/>
-        <Caret Line="131" Column="23" TopLine="113"/>
+        <Caret Line="32" TopLine="12"/>
       </Position>
       <Position>
         <Filename Value="pool.lpr"/>
-        <Caret Line="92" Column="18" TopLine="66"/>
+        <Caret Line="17" Column="23" TopLine="12"/>
       </Position>
       <Position>
         <Filename Value="pool.lpr"/>
-        <Caret Line="94" Column="18" TopLine="74"/>
+        <Caret Line="32" Column="17" TopLine="12"/>
       </Position>
       <Position>
         <Filename Value="pool.lpr"/>
-        <Caret Line="98" Column="32" TopLine="74"/>
+        <Caret Line="264" TopLine="234"/>
+      </Position>
+      <Position>
+        <Filename Value="../../src/raylib.app.pas"/>
+        <Caret Line="128" TopLine="110"/>
       </Position>
       <Position>
         <Filename Value="pool.lpr"/>
-        <Caret Line="92" Column="69" TopLine="75"/>
+        <Caret Line="32" TopLine="14"/>
       </Position>
       <Position>
         <Filename Value="pool.lpr"/>
-        <Caret Line="103" Column="63" TopLine="87"/>
+        <Caret Line="264" TopLine="234"/>
+      </Position>
+      <Position>
+        <Filename Value="../../src/raylib.app.pas"/>
+        <Caret Line="128" TopLine="110"/>
+      </Position>
+      <Position>
+        <Filename Value="../../src/raylib.app.pas"/>
+        <Caret Line="129" TopLine="110"/>
+      </Position>
+      <Position>
+        <Filename Value="../../src/raylib.app.pas"/>
+        <Caret Line="322" TopLine="304"/>
       </Position>
       <Position>
         <Filename Value="pool.lpr"/>
-        <Caret Line="54" Column="13" TopLine="40"/>
+        <Caret Line="32" TopLine="14"/>
+      </Position>
+      <Position>
+        <Filename Value="../../src/raylib.graphics.pas"/>
+        <Caret Line="3005" TopLine="2981"/>
+      </Position>
+      <Position>
+        <Filename Value="../../src/raylib.graphics.pas"/>
+        <Caret Line="1818" TopLine="1800"/>
       </Position>
       <Position>
         <Filename Value="pool.lpr"/>
-        <Caret Line="219" Column="18" TopLine="198"/>
-      </Position>
-      <Position>
-        <Filename Value="poolobjs.pas"/>
-        <Caret Line="273" TopLine="256"/>
-      </Position>
-      <Position>
-        <Filename Value="poolobjs.pas"/>
+        <Caret Line="32" Column="20" TopLine="14"/>
       </Position>
       <Position>
         <Filename Value="pool.lpr"/>
-        <Caret Line="24" Column="14" TopLine="5"/>
+        <Caret Line="264" TopLine="234"/>
       </Position>
       <Position>
-        <Filename Value="poolobjs.pas"/>
-        <Caret Line="1071" Column="24" TopLine="1052"/>
+        <Filename Value="../../src/raylib.app.pas"/>
+        <Caret Line="128" TopLine="110"/>
       </Position>
       <Position>
-        <Filename Value="poolobjs.pas"/>
-        <Caret Line="112" Column="14" TopLine="97"/>
-      </Position>
-      <Position>
-        <Filename Value="poolobjs.pas"/>
-        <Caret Line="1079" Column="28" TopLine="1062"/>
-      </Position>
-      <Position>
-        <Filename Value="poolobjs.pas"/>
-        <Caret Line="1082" Column="34" TopLine="1067"/>
+        <Filename Value="pool.lpr"/>
+        <Caret Line="32" TopLine="14"/>
       </Position>
     </JumpHistory>
     <RunParams>
@@ -315,4 +307,43 @@
       <Modes ActiveMode=""/>
     </RunParams>
   </ProjectSession>
+  <Debugging>
+    <BreakPoints>
+      <Item>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="poolobjs.pas"/>
+        <Line Value="285"/>
+      </Item>
+      <Item>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="pool.lpr"/>
+        <Line Value="264"/>
+      </Item>
+      <Item>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="../../src/raylib.app.pas"/>
+        <Line Value="128"/>
+      </Item>
+      <Item>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="poolobjs.pas"/>
+        <Line Value="419"/>
+      </Item>
+      <Item>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="pool.lpr"/>
+        <Line Value="32"/>
+      </Item>
+    </BreakPoints>
+  </Debugging>
 </CONFIG>

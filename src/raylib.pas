@@ -131,7 +131,7 @@ type
 { TVec2, 2 components }
 
   TVec2 = record
-    x, y: Single;
+    X, Y: Single;
     class operator Implicit(const A: TSingleArray): TVec2;
     class operator Implicit(const V: TVec2): TSingleArray;
     class operator Negative(const A: TVec2): TVec2;
@@ -141,13 +141,15 @@ type
     class operator Subtract(const A, B: TVec2): TVec2;
     class operator Multiply(const A, B: TVec2): TVec2;
     class operator Multiply(const A: TVec2; B: Single): TVec2;
+    class operator Multiply(A: Single; const B: TVec2): TVec2;
     class operator Divide(const A, B: TVec2): TVec2;
     class operator Divide(const A: TVec2; B: Single): TVec2;
     function Equals(const Value: TVec2): Boolean;
     function Angle: Single; overload;
     function Angle(X, Y: Single): Single; overload;
     function Angle(const V: TVec2): Single; overload;
-    function Dot(const V: TVec2): Single; overload;
+    function Dot(const V: TVec2): Single;
+    function DotClamp(const V: TVec2): Single;
     function Distance: Single; overload;
     function Distance(X, Y: Single): Single; overload;
     function Distance(const V: TVec2): Single; overload;
@@ -181,10 +183,13 @@ type
     class operator Add(const A, B: TVec3): TVec3;
     class operator Subtract(const A, B: TVec3): TVec3;
     class operator Multiply(const A, B: TVec3): TVec3;
+    class operator Multiply(const A: TVec3; B: Single): TVec3;
+    class operator Multiply(A: Single; const B: TVec3): TVec3;
     class operator Divide(const A, B: TVec3): TVec3;
     function Equals(const Value: TVec3): Boolean;
     function Cross(const V: TVec3): TVec3;
     function Dot(const V: TVec3): Single;
+    function DotClamp(const V: TVec3): Single;
     function Distance: Single;
     procedure Normalize;
   end;
@@ -242,6 +247,10 @@ type
     procedure Rotate(X, Y, Z: Single; Order: TRotationOrder); overload;
     procedure RotateAt(X, Y, Z: Single; const Pivot: TVec3); overload;
     procedure RotateAt(X, Y, Z: Single; const Pivot: TVec3; Order: TRotationOrder); overload;
+    procedure RotateRad(X, Y, Z: Single); overload;
+    procedure RotateRad(X, Y, Z: Single; Order: TRotationOrder); overload;
+    procedure RotateRadAt(X, Y, Z: Single; const Pivot: TVec3); overload;
+    procedure RotateRadAt(X, Y, Z: Single; const Pivot: TVec3; Order: TRotationOrder); overload;
     procedure Scale(X, Y, Z: Single);
     procedure ScaleAt(X, Y, Z: Single; const Pivot: TVec3);
     procedure Translate(X, Y, Z: Single);
@@ -276,7 +285,7 @@ type
 { TRect, 4 components }
 
   TRect = record
-    x, y, width, height: Single;
+    X, Y, Width, Height: Single;
     class operator Implicit(const Value: TVec2): TRect;
     class operator Implicit(const A: TSingleArray): TRect;
     class operator Implicit(const R: TRect): TSingleArray;
@@ -284,6 +293,10 @@ type
     procedure Move(DX, DY: Single);
     procedure Resize(W, H: Single);
     function IsEmpty: Boolean;
+    function Left: Single;
+    function Top: Single;
+    function Right: Single;
+    function Bottom: Single;
   end;
   PRect = ^TRect;
   TRectangle = TRect;
@@ -470,36 +483,60 @@ type
   end;
   PMesh = ^TMesh;
 
-{ TUniformInt }
-
-  TUniformInt = record
+  TUniformBool = record
+    shader: PInteger;
     location: Integer;
-    value: Integer;
+    value: Boolean;
+    procedure Update; overload;
+    procedure Update(V: Boolean); overload;
   end;
 
-  TUniformSingle = record
+  TUniformInt = record
+    shader: PInteger;
+    location: Integer;
+    value: Integer;
+    procedure Update; overload;
+    procedure Update(V: Integer); overload;
+  end;
+
+  TUniformFloat = record
+    shader: PInteger;
     location: Integer;
     value: Single;
+    procedure Update; overload;
+    procedure Update(V: Single);
   end;
 
   TUniformVec2 = record
+    shader: PInteger;
     location: Integer;
     value: TVec2;
+    procedure Update; overload;
+    procedure Update(V: TVec2);
   end;
 
   TUniformVec3 = record
+    shader: PInteger;
     location: Integer;
     value: TVec3;
+    procedure Update; overload;
+    procedure Update(V: TVec3);
   end;
 
   TUniformVec4 = record
+    shader: PInteger;
     location: Integer;
     value: TVec4;
+    procedure Update; overload;
+    procedure Update(V: TVec4);
   end;
 
   TUniformSampler2d = record
+    shader: PInteger;
     location: Integer;
     value: Integer;
+    procedure Update; overload;
+    procedure Update(V: Integer);
   end;
 
 { Shader }
@@ -512,14 +549,16 @@ type
     procedure Load(vertFile, fragFile: PChar);
     procedure Unload;
     function GetUniformLocation(name: PChar): Integer;
+    procedure GetUniform(name: PChar; out uniform: TUniformBool); overload;
     procedure GetUniform(name: PChar; out uniform: TUniformInt); overload;
-    procedure GetUniform(name: PChar; out uniform: TUniformSingle); overload;
+    procedure GetUniform(name: PChar; out uniform: TUniformFloat); overload;
     procedure GetUniform(name: PChar; out uniform: TUniformVec2); overload;
     procedure GetUniform(name: PChar; out uniform: TUniformVec3); overload;
     procedure GetUniform(name: PChar; out uniform: TUniformVec4); overload;
     procedure GetUniform(name: PChar; out uniform: TUniformSampler2d); overload;
+    procedure SetUniform(const uniform: TUniformBool); overload;
     procedure SetUniform(const uniform: TUniformInt); overload;
-    procedure SetUniform(const uniform: TUniformSingle); overload;
+    procedure SetUniform(const uniform: TUniformFloat); overload;
     procedure SetUniform(const uniform: TUniformVec2); overload;
     procedure SetUniform(const uniform: TUniformVec3); overload;
     procedure SetUniform(const uniform: TUniformVec4); overload;
@@ -538,6 +577,7 @@ type
     value: Single;
   end;
   PMaterialMap = ^TMaterialMap;
+  PPMaterialMap = ^PMaterialMap;
 
 { TMaterial, includes shader and maps }
 
@@ -545,7 +585,7 @@ type
     { TMaterial shader }
     shader: TShader;
     { TMaterial maps array (MAX_MATERIAL_MAPS) }
-    maps: PMaterialMap;
+    maps: PPMaterialMap;
     { TMaterial generic parameters (if required) }
     params: array[0..3] of Single;
   end;
@@ -2674,7 +2714,8 @@ procedure SetAudioStreamPitch(stream: TAudioStream; pitch: Single); cdecl; exter
 { Default size for new audio streams }
 procedure SetAudioStreamBufferSizeDefault(size: Integer); cdecl; external;
 
-function Clamp(Value: Single; Min: Single = 0; Max: Single = 1): Single;
+function Clamp(Value: Double; Min: Double = 0; Max: Double = 1): Double;
+
 function Vec2: TVec2;
 function Vec3: TVec3;
 function Vec4: TVec4;
@@ -2684,6 +2725,8 @@ function Vec(x, y, z, w: Single): TVec4; overload;
 function Rgba(r, g, b: Byte; a: Byte = $FF): TColorB; overload;
 function Rect(width, height: Single): TRect; overload;
 function Rect(x, y, width, height: Single): TRect; overload;
+
+function RotateAxis(Radians: Single; const A: TVec3): TMatrix;
 
 const
   StockMatrix: TMatrix = (M: (
@@ -2809,6 +2852,12 @@ begin
   Result.y := A.y * B;
 end;
 
+class operator TVec2.Multiply(A: Single; const B: TVec2): TVec2;
+begin
+  Result.x := B.x * A;
+  Result.y := B.y * A;
+end;
+
 class operator TVec2.Divide(const A, B: TVec2): TVec2;
 begin
   Result.x := A.x / B.x;
@@ -2851,12 +2900,22 @@ begin
       Exit(0);
   Result := Arctan(Y / X) + Pi / 2;
   if X > 0 then
-    Result := Result + Pi;
+    Result := Result + 2 * Pi;
+  Result := Result * 2;
 end;
 
 function TVec2.Dot(const V: TVec2): Single;
 begin
   Result := x * V.x + y * V.y;
+end;
+
+function TVec2.DotClamp(const V: TVec2): Single;
+begin
+  Result := x * V.x + y * V.y;
+  if Result < -1 then
+    Result := -1;
+  if Result > 1 then
+    Result := 1;
 end;
 
 function TVec2.Distance: Single;
@@ -3047,6 +3106,20 @@ begin
   Result.z := A.z * B.z;
 end;
 
+class operator TVec3.Multiply(const A: TVec3; B: Single): TVec3;
+begin
+  Result.x := A.x * B;
+  Result.y := A.y * B;
+  Result.z := A.z * B;
+end;
+
+class operator TVec3.Multiply(A: Single; const B: TVec3): TVec3;
+begin
+  Result.x := B.x * A;
+  Result.y := B.y * A;
+  Result.z := B.z * A;
+end;
+
 class operator TVec3.Divide(const A, B: TVec3): TVec3;
 begin
   Result.x := A.x / B.x;
@@ -3069,6 +3142,15 @@ end;
 function TVec3.Dot(const V: TVec3): Single;
 begin
   Result := x * V.x + y * V.y + z * V.z;
+end;
+
+function TVec3.DotClamp(const V: TVec3): Single;
+begin
+  Result := x * V.x + y * V.y + z * V.z;
+  if Result < -1 then
+    Result := -1;
+  if Result > 1 then
+    Result := 1;
 end;
 
 function TVec3.Distance: Single;
@@ -3235,16 +3317,33 @@ begin
 end;
 
 class operator TMat4.Multiply(const A: TMat4; const B: TVec2): TVec2;
+var
+  W: Single;
 begin
-  Result.X := A.m[0, 0] * B.X + A.m[1, 0] * B.Y + A.m[3, 0];
-  Result.Y := A.m[0, 1] * B.X + A.m[1, 1] * B.Y + A.m[3, 1];
+  Result.X := B.X * A.m[0, 0] + B.Y * A.m[0, 1] + A.m[0, 3];
+  Result.Y := B.X * A.m[1, 0] + B.Y * A.m[1, 1] + A.m[1, 3];
+  W := B.X * A.m[3, 0] + B.Y * A.m[3, 1] + A.m[3, 3];
+  if W <> 0 then
+  begin
+    Result.X := Result.X / W;
+    Result.Y := Result.Y / W;
+  end;
 end;
 
 class operator TMat4.Multiply(const A: TMat4; const B: TVec3): TVec3;
+var
+  W: Single;
 begin
-  Result.X := A.m[0, 0] * B.X + A.m[1, 0] * B.Y + A.m[2, 0] * B.Z + A.m[3, 0];
-  Result.Y := A.m[0, 1] * B.X + A.m[1, 1] * B.Y + A.m[2, 1] * B.Z + A.m[3, 1];
-  Result.Z := A.m[0, 2] * B.X + A.m[1, 2] * B.Y + A.m[2, 2] * B.Z + A.m[3, 2];
+  Result.X := B.X * A.m[0, 0] + B.Y * A.m[0, 1] + B.Z * A.m[0, 2] + A.m[0, 3];
+  Result.Y := B.X * A.m[1, 0] + B.Y * A.m[1, 1] + B.Z * A.m[1, 2] + A.m[1, 3];
+  Result.Z := B.X * A.m[2, 0] + B.Y * A.m[2, 1] + B.Z * A.m[2, 2] + A.m[2, 3];
+  W := B.X * A.m[3, 0] + B.Y * A.m[3, 1] + B.Z * A.m[3, 2] + A.m[3, 3];
+  if W <> 0 then
+  begin
+    Result.X := Result.X / W;
+    Result.Y := Result.Y / W;
+    Result.Z := Result.Z / W;
+  end;
 end;
 
 class operator TMat4.Multiply(const A, B: TMat4): TMat4;
@@ -3370,12 +3469,35 @@ begin
   F := m[2, 3]; m[2, 3] := m[3, 2]; m[3, 2] := F;
 end;
 
+const
+  ToRad = (PI / 180);
+
 procedure TMat4.Rotate(X, Y, Z: Single);
 begin
-  Rotate(X, Y, Z, DefaultRotationOrder);
+  RotateRad(X * ToRad, Y * ToRad, Z * ToRad, DefaultRotationOrder);
 end;
 
 procedure TMat4.Rotate(X, Y, Z: Single; Order: TRotationOrder);
+begin
+  RotateRad(X * ToRad, Y * ToRad, Z * ToRad, Order);
+end;
+
+procedure TMat4.RotateAt(X, Y, Z: Single; const Pivot: TVec3);
+begin
+  RotateRadAt(X * ToRad, Y * ToRad, Z * ToRad, Pivot, DefaultRotationOrder)
+end;
+
+procedure TMat4.RotateAt(X, Y, Z: Single; const Pivot: TVec3; Order: TRotationOrder);
+begin
+  RotateRadAt(X * ToRad, Y * ToRad, Z * ToRad, Pivot, Order)
+end;
+
+procedure TMat4.RotateRad(X, Y, Z: Single);
+begin
+  RotateRad(X, Y, Z, DefaultRotationOrder);
+end;
+
+procedure TMat4.RotateRad(X, Y, Z: Single; Order: TRotationOrder);
 var
   A, B: TMatrix;
 
@@ -3420,9 +3542,6 @@ var
 
 begin
   A := Self;
-  X := X * (PI / 180);
-  Y := Y * (PI / 180);
-  Z := Z * (PI / 180);
   case Order of
     roXYZ:
       begin
@@ -3464,15 +3583,15 @@ begin
   Self := A;
 end;
 
-procedure TMat4.RotateAt(X, Y, Z: Single; const Pivot: TVec3);
+procedure TMat4.RotateRadAt(X, Y, Z: Single; const Pivot: TVec3);
 begin
-  RotateAt(X, Y, Z, Pivot, DefaultRotationOrder)
+  RotateRadAt(X, Y, Z, Pivot, DefaultRotationOrder)
 end;
 
-procedure TMat4.RotateAt(X, Y, Z: Single; const Pivot: TVec3; Order: TRotationOrder);
+procedure TMat4.RotateRadAt(X, Y, Z: Single; const Pivot: TVec3; Order: TRotationOrder);
 begin
   Translate(Pivot.X, Pivot.Y, Pivot.Z);
-  Rotate(X, Y, Z, Order);
+  RotateRad(X, Y, Z, Order);
   Translate(-Pivot.X, -Pivot.Y, -Pivot.Z);
 end;
 
@@ -3499,9 +3618,9 @@ var
   T: TMatrix;
 begin
   T := StockMatrix;
-  T.m[3, 0] := X;
-  T.m[3, 1] := Y;
-  T.m[3, 2] := Z;
+  T.m[0, 3] := X;
+  T.m[1, 3] := Y;
+  T.m[2, 3] := Z;
   Self := Self * T;
 end;
 
@@ -3637,11 +3756,31 @@ begin
   Result := (width <= 0) or (height <= 0);
 end;
 
-function Clamp(Value: Single; Min: Single = 0; Max: Single = 1): Single;
+function TRect.Left: Single;
+begin
+  Result := X;
+end;
+
+function TRect.Top: Single;
+begin
+  Result := Y;
+end;
+
+function TRect.Right: Single;
+begin
+  Result := X + Width;
+end;
+
+function TRect.Bottom: Single;
+begin
+  Result := Y + Height;
+end;
+
+function Clamp(Value: Double; Min: Double = 0; Max: Double = 1): Double;
 begin
   if Value < Min then
     Result := Min
-  else if Result > Max then
+  else if Value > Max then
     Result := Max
   else
     Result := Value;
@@ -3692,6 +3831,110 @@ begin
   Result.x := x; Result.y := y; Result.width := width; Result.height := height;
 end;
 
+function RotateAxis(Radians: Single; const A: TVec3): TMatrix;
+var
+  C, S, OneMinusC: Single;
+begin
+  C := Cos(Radians);
+  S := Sin(Radians);
+  OneMinusC := 1 - C;
+  Result.M[0, 0] := C + A.X * A.X * OneMinusC;
+  Result.M[0, 1] := A.X * A.Y * OneMinusC - A.Z * S;
+  Result.M[0, 2] := A.X * A.Z * OneMinusC + A.Y * S;
+  Result.M[0, 3] := 0;
+  Result.M[1, 0] := A.Y * A.X * OneMinusC + A.Z * S;
+  Result.M[1, 1] := C + A.Y * A.Y * OneMinusC;
+  Result.M[1, 2] := A.Y * A.Z * OneMinusC - A.X * S;
+  Result.M[1, 3] := 0;
+  Result.M[2, 0] := A.Z * A.X * OneMinusC - A.Y * S;
+  Result.M[2, 1] := A.Z * A.Y * OneMinusC + A.X * S;
+  Result.M[2, 2] := C + A.Z * A.Z * OneMinusC;
+  Result.M[2, 3] := 0;
+  Result.M[3, 0] := 0;
+  Result.M[3, 1] := 0;
+  Result.M[3, 2] := 0;
+  Result.M[3, 3] := 1;
+end;
+
+{ Uniform updates }
+
+procedure TUniformBool.Update;
+begin
+  PShader(shader).SetUniform(Self);
+end;
+
+procedure TUniformBool.Update(V: Boolean);
+begin
+  Value := V;
+  PShader(shader).SetUniform(Self);
+end;
+
+procedure TUniformInt.Update;
+begin
+  PShader(shader).SetUniform(Self);
+end;
+
+procedure TUniformInt.Update(V: Integer);
+begin
+  Value := V;
+  PShader(shader).SetUniform(Self);
+end;
+
+procedure TUniformFloat.Update;
+begin
+  PShader(shader).SetUniform(Self);
+end;
+
+procedure TUniformFloat.Update(V: Single);
+begin
+  Value := V;
+  PShader(shader).SetUniform(Self);
+end;
+
+procedure TUniformVec2.Update;
+begin
+  PShader(shader).SetUniform(Self);
+end;
+
+procedure TUniformVec2.Update(V: TVec2);
+begin
+  Value := V;
+  PShader(shader).SetUniform(Self);
+end;
+
+procedure TUniformVec3.Update;
+begin
+  PShader(shader).SetUniform(Self);
+end;
+
+procedure TUniformVec3.Update(V: TVec3);
+begin
+  Value := V;
+  PShader(shader).SetUniform(Self);
+end;
+
+procedure TUniformVec4.Update;
+begin
+  PShader(shader).SetUniform(Self);
+end;
+
+procedure TUniformVec4.Update(V: TVec4);
+begin
+  Value := V;
+  PShader(shader).SetUniform(Self);
+end;
+
+procedure TUniformSampler2d.Update;
+begin
+  PShader(shader).SetUniform(Self);
+end;
+
+procedure TUniformSampler2d.Update(V: Integer);
+begin
+  Value := V;
+  PShader(shader).SetUniform(Self);
+end;
+
 { TShader }
 
 procedure TShader.Load(vertFile, fragFile: PChar);
@@ -3709,34 +3952,64 @@ begin
   Result := GetShaderLocation(Self, name);
 end;
 
-procedure TShader.GetUniform(name: PChar; out uniform: TUniformInt);
+procedure TShader.GetUniform(name: PChar; out uniform: TUniformBool);
 begin
+  uniform.shader := @id;
   uniform.location := GetShaderLocation(Self, name);
+  uniform.value := Default(Boolean);
 end;
 
-procedure TShader.GetUniform(name: PChar; out uniform: TUniformSingle);
+procedure TShader.GetUniform(name: PChar; out uniform: TUniformInt);
 begin
+  uniform.shader := @id;
   uniform.location := GetShaderLocation(Self, name);
+  uniform.value := Default(Integer);
+end;
+
+procedure TShader.GetUniform(name: PChar; out uniform: TUniformFloat);
+begin
+  uniform.shader := @id;
+  uniform.location := GetShaderLocation(Self, name);
+  uniform.value := Default(Single);
 end;
 
 procedure TShader.GetUniform(name: PChar; out uniform: TUniformVec2);
 begin
+  uniform.shader := @id;
   uniform.location := GetShaderLocation(Self, name);
+  uniform.value := Default(TVec2);
 end;
 
 procedure TShader.GetUniform(name: PChar; out uniform: TUniformVec3);
 begin
+  uniform.shader := @id;
   uniform.location := GetShaderLocation(Self, name);
+  uniform.value := Default(TVec3);
 end;
 
 procedure TShader.GetUniform(name: PChar; out uniform: TUniformVec4);
 begin
+  uniform.shader := @id;
   uniform.location := GetShaderLocation(Self, name);
+  uniform.value := Default(TVec4);
 end;
 
 procedure TShader.GetUniform(name: PChar; out uniform: TUniformSampler2d);
 begin
+  uniform.shader := @id;
   uniform.location := GetShaderLocation(Self, name);
+  uniform.value := Default(Integer);
+end;
+
+procedure TShader.SetUniform(const uniform: TUniformBool);
+var
+  I: Integer;
+begin
+  if uniform.value then
+    I := 1
+  else
+    I := 0;
+  SetShaderValue(Self, uniform.location, @I, SHADER_UNIFORM_INT);
 end;
 
 procedure TShader.SetUniform(const uniform: TUniformInt);
@@ -3744,7 +4017,7 @@ begin
   SetShaderValue(Self, uniform.location, @uniform.value, SHADER_UNIFORM_INT);
 end;
 
-procedure TShader.SetUniform(const uniform: TUniformSingle);
+procedure TShader.SetUniform(const uniform: TUniformFloat);
 begin
   SetShaderValue(Self, uniform.location, @uniform.value, SHADER_UNIFORM_FLOAT);
 end;

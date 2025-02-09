@@ -416,9 +416,10 @@ type
     { Clip drawing to a rectangle. You can use an empty rect to remove the
       clipping or combine mutliple calls to intersect the previous clipping
       regions }
+    procedure Clip(X, Y, Width, Height: Single); overload;
     procedure Clip(const Rect: TRect); overload;
     { Shortcut to remove the clipping }
-    procedure Clip; overload;
+    procedure Unclip; overload;
     { Clear all pixels in the current render or back buffer target. A render
       bitmap can be used with the canvas using its Bind and Unbind methods. }
     procedure Clear;
@@ -495,9 +496,9 @@ function Clamp(A: Single): Single;
 function NewColorB(R, G, B: Byte; A: Byte = $FF): TColorF; inline;
 function NewColorF(R, G, B: Single; A: Single = 1): TColorF; inline;
 function NewHSL(H, S, L: Single; A: Single = 1): TColorF; inline;
-function NewPointF(X, Y: Single): TVec2; inline;
-function NewRectF(Width, Height: Single): TRect; overload; inline;
-function NewRectF(X, Y, Width, Height: Single): TRect; overload; inline;
+function NewPoint(X, Y: Single): TVec2; inline;
+function NewRect(Width, Height: Single): TRect; overload; inline;
+function NewRect(X, Y, Width, Height: Single): TRect; overload; inline;
 
 function NewMatrix: IMatrix;
 function NewPen: IPen; overload;
@@ -1024,8 +1025,9 @@ type
     { ICanvas }
     procedure Push;
     procedure Pop;
+    procedure Clip(X, Y, Width, Height: Single); overload;
     procedure Clip(const Rect: TRect); overload;
-    procedure Clip; overload;
+    procedure Unclip; overload;
     procedure Clear;
     function MeasureText(Font: IFont; const Text: string): TVec2;
     function MeasureMemo(Font: IFont; const Text: string; Width: Single): Single;
@@ -1264,7 +1266,7 @@ end;
 
 function TBitmap.GetClientRect: TRect;
 begin
-  Result := {%H-}NewRectF(Width, Height);
+  Result := {%H-}NewRect(Width, Height);
 end;
 
 function TBitmap.GetWidth: LongWord;
@@ -1292,7 +1294,7 @@ end;
 
 function TRenderBitmap.GetClientRect: TRect;
 begin
-  Result := {%H-}NewRectF(Width, Height);
+  Result := {%H-}NewRect(Width, Height);
 end;
 
 function TRenderBitmap.GetWidth: LongWord;
@@ -1320,7 +1322,7 @@ begin
   nvgEndFrame(C.Ctx);
   nvgluBindFramebuffer(Id);
   glViewport(0, 0, Width, Height);
-  nvgBeginFrame(C.Ctx, Width, Height, Width / Height);
+  nvgBeginFrame(C.Ctx, Width, Height, 1);
   Canvas.Push;
   C.LastPen := nil;
   C.LastBrush := nil;
@@ -1716,7 +1718,7 @@ end;
 constructor TBitmapBrush.Create;
 begin
   inherited Create;
-  Scale := {%H-}NewPointF(1, 1);
+  Scale := {%H-}NewPoint(1, 1);
   Opacity := 1;
 end;
 
@@ -2348,7 +2350,7 @@ begin
   C := Self;
   S := Stack;
   C.BlendMode := S.BlendMode;
-  C.Clip;
+  C.Unclip;
   C.Clip(S.ClipRect);
   C.Opacity := S.Opacity;
   C.Winding := S.Winding;
@@ -2357,21 +2359,22 @@ begin
   BeginPath;
 end;
 
-procedure TCanvas.Clip(const Rect: TRect); overload;
+procedure TCanvas.Clip(X, Y, Width, Height: Single);
 begin
-  if Rect.IsEmpty then
-    nvgResetScissor(Ctx)
-  else if ClipRect.IsEmpty then
-    nvgScissor(Ctx, Rect.X, Rect.Y, Rect.Width, Rect.Height)
-  else
-    nvgIntersectScissor(Ctx, Rect.X, Rect.Y, Rect.Width, Rect.Height);
+  Clip(NewRect(X, Y, Width, Height));
+end;
+
+procedure TCanvas.Clip(const Rect: TRect);
+begin
+  CheckMatrix;
+  nvgScissor(Ctx, Rect.X, Rect.Y, Rect.Width, Rect.Height);
+  //nvgIntersectScissor(Ctx, Rect.X, Rect.Y, Rect.Width, Rect.Height);
   ClipRect := Rect;
 end;
 
-procedure TCanvas.Clip; overload;
+procedure TCanvas.Unclip;
 begin
-  if ClipRect.IsEmpty then
-    nvgResetScissor(Ctx);
+  nvgResetScissor(Ctx);
   ClipRect := RectEmpty;
 end;
 
@@ -2835,17 +2838,17 @@ begin
   Result.A := Clamp(A);
 end;
 
-function NewPointF(X, Y: Single): TVec2;
+function NewPoint(X, Y: Single): TVec2;
 begin
   Result.X := X; Result.Y := Y;
 end;
 
-function NewRectF(Width, Height: Single): TRect;
+function NewRect(Width, Height: Single): TRect;
 begin
   Result.X := 0; Result.Y := 0; Result.Width := Width; Result.Height := Height;
 end;
 
-function NewRectF(X, Y, Width, Height: Single): TRect;
+function NewRect(X, Y, Width, Height: Single): TRect;
 begin
   Result.X := X; Result.Y := Y; Result.Width := Width; Result.Height := Height;
 end;

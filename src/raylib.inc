@@ -30,7 +30,7 @@
 
 { Choose your OpenGL backend using the defines below }
 
-{$define gl2}
+{.$define gl2}
 
 {$ifndef gl2}
   {$define gl3}

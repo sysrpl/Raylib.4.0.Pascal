@@ -15,6 +15,77 @@
     </General>
     <BuildModes>
       <Item Name="Default" Default="True"/>
+      <Item Name="Debug">
+        <CompilerOptions>
+          <Version Value="11"/>
+          <Target>
+            <Filename Value="pool"/>
+          </Target>
+          <SearchPaths>
+            <IncludeFiles Value="$(ProjOutDir)"/>
+            <OtherUnitFiles Value="../../src"/>
+            <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
+          </SearchPaths>
+          <Parsing>
+            <SyntaxOptions>
+              <IncludeAssertionCode Value="True"/>
+            </SyntaxOptions>
+          </Parsing>
+          <CodeGeneration>
+            <Checks>
+              <IOChecks Value="True"/>
+              <RangeChecks Value="True"/>
+              <OverflowChecks Value="True"/>
+              <StackChecks Value="True"/>
+            </Checks>
+            <VerifyObjMethodCallValidity Value="True"/>
+          </CodeGeneration>
+          <Linking>
+            <Debugging>
+              <DebugInfoType Value="dsDwarf3"/>
+              <UseHeaptrc Value="True"/>
+              <TrashVariables Value="True"/>
+              <UseExternalDbgSyms Value="True"/>
+            </Debugging>
+          </Linking>
+          <Other>
+            <CompilerMessages>
+              <IgnoredMessages idx5028="True" idx5024="True"/>
+            </CompilerMessages>
+          </Other>
+        </CompilerOptions>
+      </Item>
+      <Item Name="Release">
+        <CompilerOptions>
+          <Version Value="11"/>
+          <Target>
+            <Filename Value="pool"/>
+          </Target>
+          <SearchPaths>
+            <IncludeFiles Value="$(ProjOutDir)"/>
+            <OtherUnitFiles Value="../../src"/>
+            <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
+          </SearchPaths>
+          <CodeGeneration>
+            <SmartLinkUnit Value="True"/>
+            <Optimizations>
+              <OptimizationLevel Value="3"/>
+            </Optimizations>
+          </CodeGeneration>
+          <Linking>
+            <Debugging>
+              <GenerateDebugInfo Value="False"/>
+              <RunWithoutDebug Value="True"/>
+            </Debugging>
+            <LinkSmart Value="True"/>
+          </Linking>
+          <Other>
+            <CompilerMessages>
+              <IgnoredMessages idx5028="True" idx5024="True"/>
+            </CompilerMessages>
+          </Other>
+        </CompilerOptions>
+      </Item>
     </BuildModes>
     <PublishOptions>
       <Version Value="2"/>
@@ -23,6 +94,11 @@
     <RunParams>
       <FormatVersion Value="2"/>
     </RunParams>
+    <RequiredPackages>
+      <Item>
+        <PackageName Value="raylib_core"/>
+      </Item>
+    </RequiredPackages>
     <Units>
       <Unit>
         <Filename Value="pool.lpr"/>
@@ -33,6 +109,11 @@
         <Filename Value="poolobjs.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="PoolObjs"/>
+      </Unit>
+      <Unit>
+        <Filename Value="poolballs.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="PoolBalls"/>
       </Unit>
     </Units>
   </ProjectOptions>

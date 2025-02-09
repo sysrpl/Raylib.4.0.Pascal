@@ -1,4 +1,4 @@
-unit RayLib.Collections;
+unit Raylib.Collections;
 
 {$i raylib.inc}
 
@@ -6,7 +6,7 @@ interface
 
 uses
   SysUtils, Classes,
-  RayLib.System;
+  Raylib.System;
 
 {doc off}
 type
@@ -307,6 +307,22 @@ type
     procedure RemoveItem(P: Pointer); override;
   public
     function IndexOf(Item: T): Integer; override;
+  end;
+
+{ TStack\<T\> }
+
+  TStack<T> = class(TObject)
+  private
+    FList: TList<T>;
+    function GetCount: Integer;
+    function GetCurrent: T;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Push(const Item: T);
+    function Pop: T;
+    property Current: T read GetCurrent;
+    property Count: Integer read GetCount;
   end;
 
 {docignore}
@@ -1046,6 +1062,47 @@ end;
 function TInterfaces<T>.IndexOf(Item: T): Integer;
 begin
   Result := FList.Find(TCompare<T>(@FindInterface), Item);
+end;
+
+{ TStack<T> }
+
+constructor TStack<T>.Create;
+begin
+  inherited Create;
+  FList := TList<T>.Create;
+end;
+
+destructor TStack<T>.Destroy;
+begin
+  FList.Free;
+  inherited Destroy;
+end;
+
+function TStack<T>.GetCount: Integer;
+begin
+  Result := FList.Count;
+end;
+
+function TStack<T>.GetCurrent: T;
+begin
+  if FList.Count > 0 then
+    Result := FList[FList.Count - 1]
+  else
+    Result := Default(T);
+end;
+
+procedure TStack<T>.Push(const Item: T);
+begin
+  FList.Add(Item);
+end;
+
+function TStack<T>.Pop: T;
+begin
+  if FList.Count > 0 then
+    Result := FList[FList.Count - 1]
+  else
+    Result := Default(T);
+  FList.Delete(FList.Count - 1);
 end;
 
 end.

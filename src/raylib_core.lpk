@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <Name Value="raylib_core"/>
+    <Type Value="RunAndDesignTime"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <SearchPaths>
+        <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)/"/>
+      </SearchPaths>
+    </CompilerOptions>
+    <Files>
+      <Item>
+        <Filename Value="raylib.app.pas"/>
+        <UnitName Value="Raylib.App"/>
+      </Item>
+      <Item>
+        <Filename Value="raylib.pas"/>
+        <UnitName Value="Raylib"/>
+      </Item>
+      <Item>
+        <Filename Value="raylib.rl.pas"/>
+        <UnitName Value="Raylib.Rl"/>
+      </Item>
+      <Item>
+        <Filename Value="raylib.graphics.pas"/>
+        <UnitName Value="Raylib.Graphics"/>
+      </Item>
+      <Item>
+        <Filename Value="raylib.system.pas"/>
+        <UnitName Value="RayLib.System"/>
+      </Item>
+      <Item>
+        <Filename Value="raylib.gl.pas"/>
+        <UnitName Value="RayLib.Gl"/>
+      </Item>
+      <Item>
+        <Filename Value="raylib.nanovg.pas"/>
+        <UnitName Value="Raylib.NanoVG"/>
+      </Item>
+      <Item>
+        <Filename Value="raylib.collections.pas"/>
+        <UnitName Value="RayLib.Collections"/>
+      </Item>
+      <Item>
+        <Filename Value="raylib.constants.pas"/>
+        <UnitName Value="RayLib.Constants"/>
+      </Item>
+      <Item>
+        <Filename Value="raylib.core.pas"/>
+        <UnitName Value="RayLib.Core"/>
+      </Item>
+      <Item>
+        <Filename Value="raylib.glfw.pas"/>
+        <UnitName Value="Raylib.Glfw"/>
+      </Item>
+      <Item>
+        <Filename Value="raylib.gui.pas"/>
+        <UnitName Value="Raylib.Gui"/>
+      </Item>
+      <Item>
+        <Filename Value="raylib.opengl.pas"/>
+        <UnitName Value="raylib.opengl"/>
+      </Item>
+    </Files>
+    <RequiredPkgs>
+      <Item>
+        <PackageName Value="FCL"/>
+      </Item>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

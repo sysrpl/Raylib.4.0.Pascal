@@ -5,7 +5,7 @@ unit PoolObjs;
 interface
 
 uses
-  RayLib, Raylib.Graphics, SysUtils, Math;
+  RayLib, Raylib.Graphics, Raylib.GL, Raylib.RL, SysUtils, Math;
 
 const
   PixelW = 1100;
@@ -78,6 +78,7 @@ type
     Table: ISprite;
     Skirt: ISprite;
     Stick: ISprite;
+    Help: ISprite;
     Pockets: TPoolPockets;
     Rails: TPoolRails;
     Power: IBitmapBrush;
@@ -88,26 +89,30 @@ type
     SoftShotSounds: array[0..2] of TSound;
     Preview: TVec2;
     PreviewTarget: TVec2;
+    PreviewIndex: Integer;
     NeedsPreview: Boolean;
-    PriorStickAngle: Single;
+    PriorStickAngle: Double;
+    function ShortestDistance(out Collide: TVec2; out Target: Integer): Boolean;
   public
     Balls: TPoolBalls;
-    StickAngle: Single;
-    Strength: Single;
+    StickAngle: Double;
+    Strength: Double;
     Aim: Boolean;
     Laser: Integer;
     Walls: Boolean;
     Tracking: Boolean;
     Moving: Boolean;
-    Zoom: Single;
+    Zoom: Double;
     Pan: TVec2;
     PanZoom: Boolean;
+    Helping: Boolean;
     procedure Init(Canvas: ICanvas);
     procedure Release;
     procedure RackCueBall;
     procedure RackBalls(Setup: Integer);
     procedure Update;
     procedure Shoot;
+    procedure DrawTest(Canvas: ICanvas);
     procedure Draw(Canvas: ICanvas);
     function TableToWindow(const P: TVec2): TVec2;
     function WindowToTable(const P: TVec2): TVec2;
@@ -181,21 +186,24 @@ const
   CornerRailOffset = 3.8;
   SideRailOffset = 2.75;
 var
-  S: Single;
+  S: Double;
   I: Integer;
 begin
   Table := NewSprite;
-  Table.Bitmap := Canvas.LoadBitmap('table.png');
+  Table.Bitmap := Canvas.LoadBitmap('assets/table.png');
   Table.Pivot := [0, 0];
   Skirt := NewSprite;
-  Skirt.Bitmap := Canvas.LoadBitmap('skirt.png');
+  Skirt.Bitmap := Canvas.LoadBitmap('assets/skirt.png');
   Skirt.Pivot := [0, 0];
+  Help := NewSprite;
+  Help.Bitmap := Canvas.LoadBitmap('assets/help.png');
+  Help.Pivot := [0, 0];
   Offset := [50, 50];
   ScaleX := TableLong / (Table.Bitmap.Width - 100);
   ScaleY := TableShort / (Table.Bitmap.Height - 100);
   Stick := NewSprite;
-  Stick.Bitmap := Canvas.LoadBitmap('stick.tga');
-  Power := NewBrush(Canvas.LoadBitmap('power.png'));
+  Stick.Bitmap := Canvas.LoadBitmap('assets/stick.tga');
+  Power := NewBrush(Canvas.LoadBitmap('assets/power.png'));
   Stick.Position := [500, 300];
   S := StickLong / Stick.Bitmap.Width / ScaleX;
   Stick.Scale := [S, S];
@@ -203,14 +211,13 @@ begin
   Stick.Position := [300, 200];
   StickAngle := Pi / 2;
   Strength := 0.5;
-  InitAudioDevice;
-  RackSounds[0] := LoadSound('rack0.ogg');
-  RackSounds[1] := LoadSound('rack1.ogg');
-  RackSounds[2] := LoadSound('rack2.ogg');
-  RackSounds[3] := LoadSound('rack3.ogg');
-  SoftShotSounds[0] := LoadSound('shot-soft0.ogg');
-  SoftShotSounds[1] := LoadSound('shot-soft1.ogg');
-  SoftShotSounds[2] := LoadSound('shot-soft2.ogg');
+  RackSounds[0] := LoadSound('assets/rack0.ogg');
+  RackSounds[1] := LoadSound('assets/rack1.ogg');
+  RackSounds[2] := LoadSound('assets/rack2.ogg');
+  RackSounds[3] := LoadSound('assets/rack3.ogg');
+  SoftShotSounds[0] := LoadSound('assets/shot2.ogg');
+  SoftShotSounds[1] := LoadSound('assets/shot1.ogg');
+  SoftShotSounds[2] := LoadSound('assets/shot0.ogg');
   SetLength(Pockets, 6);
   Pockets[0].Pos := [-PocketCornerOffset, -PocketCornerOffset];
   Pockets[0].Radius := PocketCornerRadius;
@@ -303,6 +310,7 @@ var
   A, B: TVec2;
 begin
   NeedsPreview := True;
+  PreviewIndex := -1;
   Randomize;
   case Setup of
     2:
@@ -437,12 +445,12 @@ end;
 type
   TCollideInfo = record
     Dir: TVec2;
-    Speed: Single;
+    Speed: Double;
   end;
 
 procedure CollideAB(var A, B: TPoolBall; out AH, BH: TCollideInfo);
 var
-  D: Single;
+  D: Double;
 begin
   FillChar(AH{%H-}, SizeOf(AH), 0);
   FillChar(BH{%H-}, SizeOf(BH), 0);
@@ -507,9 +515,9 @@ begin
   B.Dir := V;
 end;
 
-function BallRailDistance(var Ball: TPoolBall; var Rail: TPoolRail): Single;
+function BallRailDistance(var Ball: TPoolBall; var Rail: TPoolRail): Double;
 var
-  A, B, C, D, E: Single;
+  A, B, C, D, E: Double;
 begin
   A := Ball.Pos.x - Rail.A.x;
   B := Ball.Pos.y - Rail.A.y;
@@ -563,7 +571,7 @@ procedure TPoolTable.Update;
 
   procedure CheckRail(var Ball: TPoolBall; Side: Integer);
   var
-    A, B: Single;
+    A, B: Double;
     R: TVec2;
     I: Integer;
   begin
@@ -787,9 +795,175 @@ begin
   end;
 end;
 
+function CircleCollision(const A, B, Dir: TVec2; R: Single; out C: TVec2): Boolean;
+var
+  AB: TVec2;
+  ProjectionLength, ClosestDistanceSquared, MovementDistanceSquared: Single;
+begin
+  // Calculate the vector from A to B
+  AB := B - A;
+  // Project AB onto Dir (the movement direction of A)
+  ProjectionLength := AB.Dot(Dir);
+  // If the projection is negative, A is moving away from B
+  if ProjectionLength < 0 then
+    Exit(False);
+  // Calculate the point on the line where A is closest to B
+  C := A + ProjectionLength * Dir;
+  // Calculate the squared distance from this closest point to B
+  ClosestDistanceSquared := (B - C).Dot(B - C);
+  // Check if the closest distance is less than or equal to 2 * R
+  if ClosestDistanceSquared > 4 * R * R then
+    Exit(False);
+  // If a collision occurs, adjust C to where circle A touches circle B
+  MovementDistanceSquared := 4 * R * R - ClosestDistanceSquared;
+  C := C - Sqrt(MovementDistanceSquared) * Dir;
+  Result := True;
+end;
+
+function LeftOrRight(const A, B, V: TVec2): Integer;
+var
+  AB: TVec2;
+  CrossProduct: Single;
+begin
+  // Calculate the vector from A to B
+  AB := B - A;
+
+  // Compute the 2D cross product of V and AB
+  CrossProduct := V.X * AB.Y - V.Y * AB.X;
+  // Determine the relative position of B
+  if CrossProduct > 0 then
+    Result := 1 // Circle B is to the left of the line
+  else if CrossProduct < 0 then
+    Result := -1 // Circle B is to the right of the line
+  else
+    Result := 0; // Circle B is exactly on the line
+end;
+
+function TPoolTable.ShortestDistance(out Collide: TVec2; out Target: Integer): Boolean;
+var
+  A, B, D, V: TVec2;
+  M: Single;
+  I: Integer;
+begin
+  Result := False;
+  Collide := Vec(0, 0);
+  M := 0;
+  A := Balls[0].Pos;
+  V := Vec(0, 1);
+  V := V.Rotate(-StickAngle);
+  for I := 1 to High(Balls) do
+  begin
+    B := Balls[I].Pos;
+    if CircleCollision(A, B, V, BallRadius, D) then
+    begin
+      if (D.x < BallRadius) or (D.y < BallRadius) or
+        (D.x > TableLong - BallRadius) or (D.y > TableShort - BallRadius) then
+        Continue;
+
+      if Result then
+      begin
+        if A.Distance(D) < M then
+        begin
+          Collide := D;
+          Target := I;
+          M := A.Distance(Collide);
+        end;
+      end
+      else
+      begin
+        Collide := D;
+        Target := I;
+        M := A.Distance(Collide);
+      end;
+      Result := True;
+    end;
+  end;
+end;
+
+procedure TPoolTable.DrawTest(Canvas: ICanvas);
+var
+  W: Single;
+  A, B, C, V: TVec2;
+  I: Integer;
+begin
+  W := 2 * ScaleX;
+  Canvas.MoveTo(0, 0);
+  Canvas.LineTo(Table.Bitmap.Width, 0);
+  Canvas.LineTo(Table.Bitmap.Width, Table.Bitmap.Height);
+  Canvas.LineTo(0, Table.Bitmap.Height);
+  Canvas.ClosePath;
+  Canvas.Stroke(NewPen(colorRed, 20, capRound));
+  Canvas.Matrix.Push;
+  Canvas.Matrix.Scale(1 / ScaleX, 1 / ScaleY);
+  Canvas.Matrix.Translate(Offset.X, Offset.Y);
+  { Draw cue ball }
+  A := Balls[0].Pos;
+  with A do
+    Canvas.Ellipse(X - BallRadius, Y - BallRadius, BallDiameter, BallDiameter);
+  Canvas.Stroke(NewPen(colorYellow, W, capRound));
+  { Draw other balls }
+  for I := 1 to High(Balls) do
+  begin
+    A := Balls[I].Pos;
+    with A do
+      Canvas.Ellipse(X - BallRadius, Y - BallRadius, BallDiameter, BallDiameter);
+    Canvas.Stroke(NewPen(colorBlack, W, capRound));
+  end;
+  { Draw red laser }
+  A := Balls[0].Pos;
+  Canvas.MoveTo(A.X, A.Y);
+  B := Vec(0, 0);
+  B.Y := 1000;
+  B := B.Rotate(-StickAngle);
+  B := A + B;
+  Canvas.LineTo(B.X, B.Y);
+  Canvas.Stroke(NewPen(colorRed, W / 2, capRound));
+  { Draw collisions }
+  if ShortestDistance(C, I) then
+  begin
+    with C do
+      Canvas.Ellipse(X - BallRadius, Y - BallRadius, BallDiameter, BallDiameter);
+    Canvas.Stroke(NewPen(colorTeal, W, capRound));
+    B := Balls[I].Pos;
+    V := B - C;
+    V.Normalize;
+    I := LeftOrRight(A, B, V);
+    V := V * 1000;
+    Canvas.MoveTo(C.X, C.Y);
+    Canvas.LineTo(V.X + C.X, V.Y + C.Y);
+    Canvas.Stroke(NewPen(colorLime, W, capRound));
+    if I > 0 then
+    begin
+      Canvas.MoveTo(C.X, C.Y);
+      Canvas.LineTo(-V.Y + C.X, V.X + C.Y);
+      Canvas.Stroke(NewPen(colorLime, W, capRound));
+    end
+    else if I < 0 then
+    begin
+      Canvas.MoveTo(C.X, C.Y);
+      Canvas.LineTo(V.Y + C.X, -V.X + C.Y);
+      Canvas.Stroke(NewPen(colorLime, W, capRound));
+    end;
+  end;
+  Canvas.Matrix.Pop;
+end;
+
 procedure TPoolTable.Draw(Canvas: ICanvas);
 
-  procedure DashedLine(A, B: TVec2; Offset, Space: Single);
+  function LeftOrRight(A, B, C: TVec2): Integer;
+  var
+    CrossProduct: Double;
+  begin
+    CrossProduct := (B.X - A.X) * (C.Y - A.Y) - (B.Y - A.Y) * (C.X - A.X);
+    if CrossProduct > 0 then
+      Result := -1 // C is to the left of line A-B
+    else if CrossProduct < 0 then
+      Result := 1 // C is to the right of line A-B
+    else
+      Result := 0; // C is on the line A-B
+  end;
+
+  procedure DashedLine(A, B: TVec2; Offset, Space: Double);
   var
     N, C: TVec2;
     I: Integer;
@@ -821,7 +995,7 @@ procedure TPoolTable.Draw(Canvas: ICanvas);
     Max = CY - Outer / 2 + 10;
     Min = CY - Inner / 2 - 15;
   var
-    S: Single;
+    S: Double;
     R: TRect;
   begin
     R := [CX - Inner / 2, CY - Inner / 2, Inner, Inner];
@@ -866,7 +1040,23 @@ procedure TPoolTable.Draw(Canvas: ICanvas);
   end;
 
   procedure GeneratePreview;
-  const
+  var
+    C: TVec2;
+    T: Integer;
+  begin
+    Preview := [-1000, -1000];
+    PreviewTarget := [-1100, -1100];
+    PreviewIndex := -1;
+    if ShortestDistance(C, T) then
+    begin
+      Preview := C;
+      PreviewTarget := Balls[T].Pos;
+      PreviewIndex := T;
+    end;
+
+  end;
+
+  {const
     Step = 0.001;
   var
     B, V: TVec2;
@@ -876,6 +1066,7 @@ procedure TPoolTable.Draw(Canvas: ICanvas);
       Exit;
     Preview := [-1000, -1000];
     PreviewTarget := [-1100, -1100];
+    PreviewIndex := -1;
     NeedsPreview := False;
     B := Balls[0].Pos;
     V := [Step, 0];
@@ -889,12 +1080,36 @@ procedure TPoolTable.Draw(Canvas: ICanvas);
         begin
           Preview := B;
           PreviewTarget := Balls[I].Pos;
+          PreviewIndex := I;
           Exit;
         end;
       end;
       B := B + V;
     until (B.x < BallRadius) or (B.y < BallRadius) or
       (B.x > TableLong - BallRadius) or (B.y > TableShort - BallRadius);
+  end;}
+
+  function IsRight: Integer;
+  const
+    Epsilon = 0.001;
+  var
+    A, B, C: TVec2;
+    D: Double;
+  begin
+    if PreviewIndex < 0 then
+      Exit(0);
+    A := Balls[0].Pos;
+    B := Balls[PreviewIndex].Pos;
+    C := Vec(0, 10);
+    C := C.Rotate(-StickAngle);
+    C := C + A;
+    D := (B.x - A.x) * (C.y - A.y) - (B.y - A.y) * (C.x - A.x);
+    if D > Epsilon then
+      Result := -1
+    else if D < -Epsilon then
+      Result := 1
+    else
+      Result := 0;
   end;
 
 var
@@ -1032,7 +1247,7 @@ begin
       Canvas.Stroke(NewPen(Tracks[I].Color, BallRadius, capRound));
     end;
   Canvas.Matrix.Pop;
-  Laser := Laser mod 4;
+  Laser := Laser mod 5;
   if (not Balls[0].Pocketed) and (Balls[0].Sinking = 0) and
     (not Moving) and (not Tracking) then
     if Laser > 0 then
@@ -1064,12 +1279,18 @@ begin
         P1 := (P1 - P0) * 2000 + P0;
         Canvas.MoveTo(P0.x, P0.y);
         Canvas.LineTo(P1.x, P1.y);
-        Canvas.Stroke(NewPen($80FF0000));
+        Canvas.MoveTo(P0.x, P0.y);
+        I := IsRight;
+        if I <> 0 then
+        begin
+          P1 := P1.Rotate(P0, Pi / 2 * IsRight);
+          Canvas.LineTo(P1.x, P1.y);
+        end;
+        Canvas.Stroke(NewPen($80FF00FF, 2, capRound));
       end;
     end;
   Canvas.DrawSprite(Skirt);
-  //  (not PanZoom) and
-  if (not Balls[0].Pocketed) and (Balls[0].Sinking = 0) and
+  if (not PanZoom) and (not Balls[0].Pocketed) and (Balls[0].Sinking = 0) and
     (not Moving) and (not Tracking) then
   begin
     P0 := TableToWindow(Balls[0].Pos);
@@ -1091,6 +1312,10 @@ begin
     Canvas.DrawSprite(Stick);
    }
   end;
+  // Canvas.Clip(0, 0, 100, 1000);
+  if Helping then
+    Canvas.DrawSprite(Help);
+  // Canvas.Unclip;
 end;
 
 function TPoolTable.WindowToTable(const P: TVec2): TVec2;

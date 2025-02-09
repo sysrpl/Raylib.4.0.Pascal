@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="12"/>
+    <General>
+      <Flags>
+        <MainUnitHasCreateFormStatements Value="False"/>
+        <MainUnitHasTitleStatement Value="False"/>
+        <MainUnitHasScaledStatement Value="False"/>
+      </Flags>
+      <SessionStorage Value="InProjectDir"/>
+      <Title Value="table"/>
+      <ResourceType Value="res"/>
+      <UseXPManifest Value="True"/>
+      <XPManifest>
+        <DpiAware Value="True"/>
+      </XPManifest>
+    </General>
+    <BuildModes>
+      <Item Name="Default" Default="True"/>
+      <Item Name="Debug">
+        <CompilerOptions>
+          <Version Value="11"/>
+          <Target>
+            <Filename Value="table"/>
+          </Target>
+          <SearchPaths>
+            <IncludeFiles Value="$(ProjOutDir)"/>
+            <OtherUnitFiles Value="../../src"/>
+            <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
+          </SearchPaths>
+          <Parsing>
+            <SyntaxOptions>
+              <SyntaxMode Value="Delphi"/>
+              <IncludeAssertionCode Value="True"/>
+            </SyntaxOptions>
+          </Parsing>
+          <CodeGeneration>
+            <Checks>
+              <IOChecks Value="True"/>
+              <RangeChecks Value="True"/>
+              <OverflowChecks Value="True"/>
+              <StackChecks Value="True"/>
+            </Checks>
+            <VerifyObjMethodCallValidity Value="True"/>
+          </CodeGeneration>
+          <Linking>
+            <Debugging>
+              <DebugInfoType Value="dsDwarf3"/>
+              <UseHeaptrc Value="True"/>
+              <TrashVariables Value="True"/>
+              <UseExternalDbgSyms Value="True"/>
+            </Debugging>
+            <Options>
+              <Win32>
+                <GraphicApplication Value="True"/>
+              </Win32>
+            </Options>
+          </Linking>
+          <Other>
+            <CompilerMessages>
+              <IgnoredMessages idx6058="True" idx5060="True" idx5026="True" idx5024="True"/>
+            </CompilerMessages>
+            <ConfigFile>
+              <WriteConfigFilePath Value=""/>
+            </ConfigFile>
+          </Other>
+        </CompilerOptions>
+      </Item>
+      <Item Name="Release">
+        <CompilerOptions>
+          <Version Value="11"/>
+          <Target>
+            <Filename Value="table"/>
+          </Target>
+          <SearchPaths>
+            <IncludeFiles Value="$(ProjOutDir)"/>
+            <OtherUnitFiles Value="../../src"/>
+            <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
+          </SearchPaths>
+          <Parsing>
+            <SyntaxOptions>
+              <SyntaxMode Value="Delphi"/>
+            </SyntaxOptions>
+          </Parsing>
+          <CodeGeneration>
+            <SmartLinkUnit Value="True"/>
+            <Optimizations>
+              <OptimizationLevel Value="3"/>
+            </Optimizations>
+          </CodeGeneration>
+          <Linking>
+            <Debugging>
+              <GenerateDebugInfo Value="False"/>
+              <RunWithoutDebug Value="True"/>
+            </Debugging>
+            <LinkSmart Value="True"/>
+            <Options>
+              <Win32>
+                <GraphicApplication Value="True"/>
+              </Win32>
+            </Options>
+          </Linking>
+          <Other>
+            <CompilerMessages>
+              <IgnoredMessages idx6058="True" idx5060="True" idx5026="True" idx5024="True"/>
+            </CompilerMessages>
+            <ConfigFile>
+              <WriteConfigFilePath Value=""/>
+            </ConfigFile>
+          </Other>
+        </CompilerOptions>
+      </Item>
+    </BuildModes>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+    <RunParams>
+      <FormatVersion Value="2"/>
+    </RunParams>
+    <Units>
+      <Unit>
+        <Filename Value="table.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Table"/>
+      </Unit>
+      <Unit>
+        <Filename Value="tablerender.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TableRender"/>
+      </Unit>
+      <Unit>
+        <Filename Value="tableview.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TableView"/>
+      </Unit>
+      <Unit>
+        <Filename Value="tablesky.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TableSky"/>
+      </Unit>
+      <Unit>
+        <Filename Value="tableballs.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TableBalls"/>
+      </Unit>
+      <Unit>
+        <Filename Value="tablemodel.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TableModel"/>
+      </Unit>
+      <Unit>
+        <Filename Value="shaders/cabinet.frag"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="shaders/base.vert"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="shaders/metal.frag"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="shaders/shapes.frag"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="shaders/slate.frag"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="shaders/rails.frag"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="shaders/plastic.frag"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="shaders/feet.frag"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="shaders/ball.frag"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="shaders/ball.vert"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="shaders/skybox.frag"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="tablestick.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TableStick"/>
+      </Unit>
+      <Unit>
+        <Filename Value="shaders/stick.vert"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="shaders/stick.frag"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="tablevars.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TableVars"/>
+      </Unit>
+      <Unit>
+        <Filename Value="tablelogic.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TableLogic"/>
+      </Unit>
+      <Unit>
+        <Filename Value="shaders/shapes.vert"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+    </Units>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="11"/>
+    <Target>
+      <Filename Value="table"/>
+    </Target>
+    <SearchPaths>
+      <IncludeFiles Value="$(ProjOutDir)"/>
+      <OtherUnitFiles Value="../../src"/>
+      <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
+    </SearchPaths>
+    <Parsing>
+      <SyntaxOptions>
+        <SyntaxMode Value="Delphi"/>
+      </SyntaxOptions>
+    </Parsing>
+    <Linking>
+      <Options>
+        <Win32>
+          <GraphicApplication Value="True"/>
+        </Win32>
+      </Options>
+    </Linking>
+    <Other>
+      <CompilerMessages>
+        <IgnoredMessages idx6058="True" idx5060="True" idx5026="True" idx5024="True"/>
+      </CompilerMessages>
+      <ConfigFile>
+        <WriteConfigFilePath Value=""/>
+      </ConfigFile>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <Exceptions>
+      <Item>
+        <Name Value="EAbort"/>
+      </Item>
+      <Item>
+        <Name Value="ECodetoolError"/>
+      </Item>
+      <Item>
+        <Name Value="EFOpenError"/>
+      </Item>
+    </Exceptions>
+  </Debugging>
+</CONFIG>

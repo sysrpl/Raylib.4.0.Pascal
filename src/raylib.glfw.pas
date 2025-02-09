@@ -450,7 +450,7 @@ function glfwInit: Integer; cdecl; external;
 
 implementation
 
-{$linklib X11}
+{.$linklib X11}
 
 end.
 

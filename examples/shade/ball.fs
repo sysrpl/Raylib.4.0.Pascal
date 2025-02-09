@@ -23,8 +23,7 @@ const vec3 white = vec3(1.0);
 // area reserved for ball number texture
 const float square = 0.28;
 // cleanup factor for texture artifacts
-const float edge = 0.0035;
-//const float edge = 0.0001;
+const float edge = 0.01;
 
 // rotate on the X axis
 mat4 rotationX(float angle ) {

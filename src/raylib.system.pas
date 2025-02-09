@@ -1,4 +1,4 @@
-unit RayLib.System;
+unit Raylib.System;
 
 {$i raylib.inc}
 
@@ -2181,7 +2181,7 @@ begin
              Dest[J] := #10;
              Inc(J);
              Inc(I);
-             if Source[I]=#10 then
+             if Source[I] = #10 then
                Inc(I);
           end;
       else
@@ -2191,54 +2191,6 @@ begin
       end;
     end;
 end;
-
-
-{var
-  Line: string;
-  I, J, K: Integer;
-begin
-  if Length(S) < 1 then
-    Exit('');
-  WriteLn(S);
-  I := StrFindCount(S, #10) + StrFindCount(S, #13);
-  WriteLn(I);
-  SetLength(Result, Length(S) + I * 2);
-  Line := LineBreakStyles[Style];
-  I := 1;
-  J := 1;
-  K := Length(S) + 1;
-  while (I < K) and (S[I] > #0) do
-  begin
-    if ((S[I] = #10) and (S[I + 1] = #13)) or ((S[I] = #13) and (S[I + 1] = #10)) then
-    begin
-      Result[J] := Line[1];
-      Inc(J);
-      if Style = tlbsCRLF then
-      begin
-        Result[J] := Line[2];
-        Inc(J);
-      end;
-      Inc(I);
-    end
-    else if (S[I] = #10) or (S[I] = #13) then
-    begin
-      Result[J] := Line[1];
-      Inc(J);
-      if Style = tlbsCRLF then
-      begin
-        Result[J] := Line[2];
-        Inc(J);
-      end;
-    end
-    else
-    begin
-      Result[J] := S[I];
-      Inc(J);
-    end;
-    Inc(I);
-  end;
-  SetLength(Result, J - 1);
-end;}
 
 function StrAdjustLineBreaks(const S: string): string;
 begin

@@ -1,7 +1,8 @@
 program Shade;
 
 uses
-  Raylib;
+  Raylib,
+  Raylib.OpenGL;
 
 const
   Width = 512;
@@ -11,11 +12,14 @@ procedure Run;
 var
   Shader: TShader;
   S, H, B: TUniformInt;
-  A: TUniformSingle;
+  A: TUniformFloat;
   L: TUniformVec2;
   T: TTexture2D;
 begin
   InitWindow(Width, Height, 'Billiard Ball');
+  if not gladLoadGL then
+    Exit;
+
   SetTargetFPS(60);
   Shader.Load(nil, 'ball.fs');
 
@@ -24,7 +28,7 @@ begin
   Shader.SetUniform(S);
 
   Shader.GetUniform('highlight', H);
-  H.value := Width;
+  H.value := 1;
   Shader.SetUniform(H);
 
   Shader.GetUniform('lightpos', L);
@@ -36,14 +40,14 @@ begin
   Shader.SetUniform(A);
 
   Shader.GetUniform('ball', B);
-  B.value := 8;
+  B.value := 9;
   Shader.SetUniform(B);
 
   T := LoadTexture('numbers.png');
   GenTextureMipmaps(T);
-  SetTextureWrap(T, TEXTURE_WRAP_CLAMP);
-  SetTextureFilter(T, TEXTURE_FILTER_TRILINEAR);
-
+  glBindTexture(GL_TEXTURE_2D, T.id);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   while not WindowShouldClose do
   begin
     BeginDrawing;
@@ -65,7 +69,7 @@ begin
     end;
     if IsKeyPressed(KEY_S) then
     begin
-      H.value := (H.value) mod 2;
+      H.value := (H.value + 1) mod 2;
       Shader.SetUniform(H);
     end;
     if IsMouseButtonDown(MOUSE_BUTTON_LEFT) then

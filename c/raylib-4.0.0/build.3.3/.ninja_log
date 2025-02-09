@@ -1,0 +1,27 @@
+# ninja log v5
+0	548	1661753154629862104	raylib/CMakeFiles/raylib.dir/rshapes.c.o	34bc5d3c48a8e2ed
+1	1840	1661753155921877534	raylib/CMakeFiles/raylib.dir/rtext.c.o	ec0acd312b55535d
+1840	1965	1661753156045879015	raylib/CMakeFiles/raylib.dir/utils.c.o	f23f8ef9e7f95caf
+0	3866	1661753157945901708	raylib/CMakeFiles/raylib.dir/rcore.c.o	a9c0710919bab2ca
+3867	4109	1661753158189904622	raylib/external/glfw/src/CMakeFiles/glfw.dir/context.c.o	2f6fbdfe63fc4653
+4109	4265	1661753158345906485	raylib/external/glfw/src/CMakeFiles/glfw.dir/init.c.o	5ab12d56ae6785fd
+4265	4720	1661753158801911932	raylib/external/glfw/src/CMakeFiles/glfw.dir/input.c.o	4ddd20e4a5adecf0
+4720	5066	1661753159145916040	raylib/external/glfw/src/CMakeFiles/glfw.dir/monitor.c.o	8e3f6cb68e1c5aa2
+5066	5227	1661753159309917999	raylib/external/glfw/src/CMakeFiles/glfw.dir/vulkan.c.o	bea9b2a677ff6fd7
+5227	5501	1661753159581921248	raylib/external/glfw/src/CMakeFiles/glfw.dir/window.c.o	7f7c671a11731db5
+5501	5918	1661753159997926216	raylib/external/glfw/src/CMakeFiles/glfw.dir/x11_init.c.o	1d174642cf69eeaa
+5918	6193	1661753160273929513	raylib/external/glfw/src/CMakeFiles/glfw.dir/x11_monitor.c.o	417cd5948fde75e8
+0	6922	1661753161001938208	raylib/CMakeFiles/raylib.dir/rmodels.c.o	35fb349112913605
+6922	6999	1661753161081939163	raylib/external/glfw/src/CMakeFiles/glfw.dir/xkb_unicode.c.o	cccd74e28ea9cbc4
+6999	7081	1661753161161940119	raylib/external/glfw/src/CMakeFiles/glfw.dir/posix_time.c.o	f864f3104b3b27ff
+7082	7182	1661753161261941314	raylib/external/glfw/src/CMakeFiles/glfw.dir/posix_thread.c.o	66028e7cfe3f9164
+6194	7208	1661753161289941648	raylib/external/glfw/src/CMakeFiles/glfw.dir/x11_window.c.o	5ccdba45d294de4d
+7182	7405	1661753161485943989	raylib/external/glfw/src/CMakeFiles/glfw.dir/glx_context.c.o	f0d5fc982e1ecfd8
+7208	7506	1661753161585945182	raylib/external/glfw/src/CMakeFiles/glfw.dir/egl_context.c.o	61aa160d6158603e
+7405	7519	1661753161601945375	raylib/external/glfw/src/CMakeFiles/glfw.dir/osmesa_context.c.o	6d9b4bded70f4e3c
+7506	7736	1661753161817947955	raylib/external/glfw/src/CMakeFiles/glfw.dir/linux_joystick.c.o	f584bdd638b79aad
+7736	7759	1661753161841948241	raylib/external/glfw/src/libglfw3.a	94f8210b70961a1d
+548	8194	1661753162273953401	raylib/CMakeFiles/raylib.dir/rtextures.c.o	70d86238e5180030
+1965	13869	1661753167950021198	raylib/CMakeFiles/raylib.dir/raudio.c.o	d0283cd893af19f9
+13869	13901	1661753167982021580	raylib/libraylib.a	162d95c09b191ad7
+1	40	1661753769813226925	raylib/libraylib.a	162d95c09b191ad7

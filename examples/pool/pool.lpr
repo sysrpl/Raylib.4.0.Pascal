@@ -1,11 +1,12 @@
 program Pool;
 
 uses
-  RayLib,
+  Raylib,
   Raylib.System,
   Raylib.Graphics,
   Raylib.App,
-  PoolObjs;
+  PoolObjs,
+  PoolBalls;
 
 type
   TPoolScene = class(TScene)
@@ -32,16 +33,18 @@ begin
   Table.Laser := 0;
   Table.Zoom := 1;
   Table.Pan := [0, 0];
+  Table.Helping := True;
   PriorZoom := 2;
   PriorPan := Table.Pan;
-  Font := Canvas.LoadFont('contrail_one_regular.ttf');
+  Font := Canvas.LoadFont('assets/contrail_one_regular.ttf');
   Font.Color := colorWhite;
   Font.Size := 28;
-  Status := Canvas.LoadFont('chela_one_regular.ttf');
+  Status := Canvas.LoadFont('assets/chela_one_regular.ttf');
   Status.Align := fontRight;
   Status.Size := 36;
   Horiz := True;
   Table.Strength := 1;
+
 end;
 
 procedure TPoolScene.Unload;
@@ -67,6 +70,17 @@ var
 begin
   Table.Aim := False;
   StatusText := '';
+  if IsKeyPressed(KEY_F1) then
+    Table.Helping := not Table.Helping;
+  if IsMouseButtonReleased(0) then
+    Table.Helping := False;
+  if Table.Helping then
+  begin
+    Table.PanZoom := False;
+    Table.Zoom := 1;
+    Table.Pan := [0, 0];
+    Exit;
+  end;
   if IsKeyPressed(KEY_Z) then
   begin
     Table.PanZoom := not Table.PanZoom;
@@ -144,63 +158,49 @@ begin
     Exit;
   end;
   if IsKeyPressed(KEY_S) then
-    Table.Laser := Table.Laser + 1;
+    Table.Laser := (Table.Laser + 1) mod 5;
   if IsKeyPressed(KEY_W) then
     Table.Walls := not Table.Walls;
   if IsKeyDown(KEY_S) then
-    StatusText := 'Cycle laser sight';
+    case Table.Laser of
+      0: StatusText := 'Cycle laser sight (off)';
+      1: StatusText := 'Cycle laser sight (on)';
+      2: StatusText := 'Cycle laser sight (on with walls)';
+      3: StatusText := 'Cycle laser sight (on with collide)';
+      4: StatusText := 'Cycle laser sight (on with paths)';
+    else
+      StatusText := 'Cycle laser sight';
+    end;
   if IsKeyDown(KEY_W) then
     StatusText := 'Toggle draw walls';
-  if IsKeyDown(KEY_LEFT_SHIFT) or IsKeyDown(KEY_RIGHT_SHIFT) then
+  { Fine Control }
+  Table.Aim := True;
+  if GetTime - FineTime < 0.3 then
+    FineSpeed := 240
+  else if GetTime - FineTime < 1.3 then
+    FineSpeed := 120
+  else if GetTime - FineTime < 3 then
+    FineSpeed := 40
+  else
+    FineSpeed := 10;
+  if IsKeyDown(KEY_UP) then
   begin
+    Table.StickAngle := Table.StickAngle + GetFrameTime / FineSpeed;
     StatusText := 'Fine control';
-    Table.Aim := True;
-    if GetTime - FineTime < 0.3 then
-      FineSpeed := 120
-    else if GetTime - FineTime < 1.3 then
-      FineSpeed := 60
-    else if GetTime - FineTime < 3 then
-      FineSpeed := 20
-    else
-      FineSpeed := 5;
-    if IsKeyDown(KEY_UP) then
-      Table.StickAngle := Table.StickAngle + GetFrameTime / FineSpeed
-    else if IsKeyDown(KEY_DOWN) then
-      Table.StickAngle := Table.StickAngle - GetFrameTime / FineSpeed
-    else
-      FineTime := GetTime;
-    if IsKeyDown(KEY_LEFT) then
-      Table.Strength := Table.Strength - GetFrameTime / 5
-    else if IsKeyDown(KEY_RIGHT) then
-      Table.Strength := Table.Strength + GetFrameTime / 5;
-    if Table.Strength <= 0 then
-      StatusText := 'Fine control no strength';
   end
-  else if GetTime > Delayed then
+  else if IsKeyDown(KEY_DOWN) then
   begin
-    I := 0;
-    if IsKeyDown(KEY_UP) then
-      I := 1;
-    if IsKeyDown(KEY_RIGHT) then
-      I := I or 1 shl 1;
-    if IsKeyDown(KEY_DOWN) then
-      I := I or 1 shl 2;
-    if IsKeyDown(KEY_LEFT) then
-      I := I or 1 shl 3;
-    case I of
-      1: Table.StickAngle := 0;
-      2: Table.StickAngle := Pi * 0.5;
-      3: Table.StickAngle := Pi * 0.25;
-      4: Table.StickAngle := Pi;
-      6: Table.StickAngle := Pi * 0.75;
-      8: Table.StickAngle := Pi * 1.5;
-      9: Table.StickAngle := Pi * 1.75;
-      12: Table.StickAngle := Pi * 1.25;
-    end;
-    case I of
-      3, 6, 9, 12: Delayed := GetTime + 0.5;
-    end;
-  end;
+    Table.StickAngle := Table.StickAngle - GetFrameTime / FineSpeed;
+    StatusText := 'Fine control';
+  end
+  else
+    FineTime := GetTime;
+  if IsKeyDown(KEY_LEFT) then
+    Table.Strength := Table.Strength - GetFrameTime / 5
+  else if IsKeyDown(KEY_RIGHT) then
+    Table.Strength := Table.Strength + GetFrameTime / 5;
+  if Table.Strength <= 0 then
+    StatusText := 'Fine control no strength';
   if IsKeyPressed(KEY_H) and (not Horiz) then
   begin
     Horiz := True;
@@ -244,16 +244,19 @@ begin
     WriteMove(5, 5)
   else
     WriteMove(100, 5);
-  if Table.PanZoom then
+  if not Table.Helping then
   begin
-    WriteLine('Press "z" to exit pan / zoom mode');
-    WriteLine('Zoom: %.2f', [Table.Zoom]);
+    if Table.PanZoom then
+    begin
+      WriteLine('Press "z" to exit pan / zoom mode');
+      WriteLine('Zoom: %.2f', [Table.Zoom]);
+    end;
+    if Table.Tracking then
+      WriteLine('Press "x" to exit tracking mode');
+    if Table.Aim then
+      WriteLine('Angle %.2f° / Strength %.2f', [Table.StickAngle * RAD2DEG, Table.Strength]);
+    Canvas.DrawTextStrong(Status, StatusText, Width - 110, Height - 35);
   end;
-  if Table.Tracking then
-    WriteLine('Press "x" to exit tracking mode');
-  if Table.Aim then
-    WriteLine('Angle %.2f° / Strength %.2f', [Table.StickAngle * RAD2DEG, Table.Strength]);
-  Canvas.DrawTextStrong(Status, StatusText, Width - 110, Height - 35);
   EndCanvas;
 end;
 

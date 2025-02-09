@@ -303,6 +303,7 @@ begin
     FHeight := GetMonitorHeight(0);
   end;
   InitWindow(FWidth, FHeight, PChar(FTitle));
+  InitAudioDevice;
 end;
 
 procedure TApplication.Run(SceneClass: TSceneClass);

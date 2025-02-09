@@ -1,8 +1,6 @@
-unit RayLib.Core;
+unit Raylib.Core;
 
-{$mode delphi}
-{$minenumsize 4}
-{$a8}
+{$i raylib.inc}
 
 interface
 
