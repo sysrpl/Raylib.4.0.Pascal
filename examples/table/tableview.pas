@@ -156,6 +156,10 @@ procedure TTableView.LimitCamera;
 const
   SlateLimit = Inch;
   CabinetLimit = Inch * 4;
+  Dist = 0.02;
+var
+  V: TVec2;
+  I: Integer;
 begin
   if (Abs(Camera.position.x) < SlateX / 2) and (Abs(Camera.position.z) < SlateZ / 2) then
   begin
@@ -174,6 +178,14 @@ begin
       FOrbitCamera.position.y := CabinetLimit;
       FFreeCamera.position.y := CabinetLimit;
     end;
+  end;
+  for I := 1 to High(State.BallPos) do
+  begin
+    V.X := Camera.position.x;
+    V.Y := Camera.position.z;
+    if (State.BallPos[I].Distance(V) < BallRadius + Dist) and
+      (Camera.position.y < BallDiameter + Dist) then
+      Camera.position.y := BallDiameter + Dist;
   end;
 end;
 

@@ -8,8 +8,9 @@
         <Filename Value="table.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Table"/>
-        <TopLine Value="58"/>
-        <CursorPos X="3" Y="75"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="33"/>
+        <CursorPos X="3" Y="40"/>
         <UsageCount Value="200"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -18,20 +19,20 @@
         <Filename Value="tablerender.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="TableRender"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="174"/>
         <CursorPos Y="190"/>
         <UsageCount Value="206"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
         <Filename Value="tableview.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="TableView"/>
-        <EditorIndex Value="9"/>
-        <TopLine Value="154"/>
-        <CursorPos Y="189"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="148"/>
+        <CursorPos Y="155"/>
         <UsageCount Value="202"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -60,21 +61,19 @@
         <Filename Value="tablemodel.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="TableModel"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="68"/>
         <CursorPos X="39" Y="103"/>
         <UsageCount Value="201"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
         <Filename Value="shaders/cabinet.frag"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="228"/>
         <CursorPos Y="258"/>
         <UsageCount Value="200"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="OpenGL_20shader_20language"/>
       </Unit>
       <Unit>
@@ -106,19 +105,17 @@
       <Unit>
         <Filename Value="shaders/slate.frag"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="185"/>
         <CursorPos Y="209"/>
         <UsageCount Value="200"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="OpenGL_20shader_20language"/>
       </Unit>
       <Unit>
         <Filename Value="shaders/rails.frag"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="-1"/>
         <UsageCount Value="200"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="OpenGL_20shader_20language"/>
       </Unit>
       <Unit>
@@ -141,11 +138,10 @@
       <Unit>
         <Filename Value="shaders/ball.frag"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="22"/>
         <CursorPos Y="20"/>
         <UsageCount Value="200"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="OpenGL_20shader_20language"/>
       </Unit>
       <Unit>
@@ -169,10 +165,10 @@
         <Filename Value="tablestick.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="TableStick"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="19"/>
-        <CursorPos X="35" Y="53"/>
+        <TopLine Value="47"/>
+        <CursorPos X="5" Y="47"/>
         <UsageCount Value="200"/>
+        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
@@ -196,9 +192,9 @@
         <Filename Value="tablevars.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="TableVars"/>
-        <EditorIndex Value="10"/>
+        <EditorIndex Value="1"/>
         <TopLine Value="65"/>
-        <CursorPos X="5" Y="98"/>
+        <CursorPos X="5" Y="72"/>
         <UsageCount Value="201"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -207,9 +203,9 @@
         <Filename Value="tablelogic.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="TableLogic"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="24"/>
-        <CursorPos Y="59"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="333"/>
+        <CursorPos X="34" Y="352"/>
         <UsageCount Value="201"/>
         <Bookmarks Count="1">
           <Item0 X="41" Y="786" ID="2"/>
@@ -231,7 +227,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="273"/>
         <CursorPos X="18" Y="291"/>
-        <UsageCount Value="100"/>
+        <UsageCount Value="98"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
@@ -240,7 +236,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="178"/>
         <CursorPos X="58" Y="185"/>
-        <UsageCount Value="29"/>
+        <UsageCount Value="27"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
@@ -249,7 +245,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="348"/>
         <CursorPos X="30" Y="362"/>
-        <UsageCount Value="3"/>
+        <UsageCount Value="1"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
@@ -258,7 +254,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="1312"/>
         <CursorPos X="3" Y="1312"/>
-        <UsageCount Value="22"/>
+        <UsageCount Value="20"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
@@ -267,7 +263,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="2021"/>
         <CursorPos X="91" Y="2036"/>
-        <UsageCount Value="34"/>
+        <UsageCount Value="32"/>
         <Bookmarks Count="1">
           <Item0 X="24" Y="2050" ID="1"/>
         </Bookmarks>
@@ -279,18 +275,15 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="402"/>
         <CursorPos X="10" Y="420"/>
-        <UsageCount Value="3"/>
+        <UsageCount Value="1"/>
       </Unit>
       <Unit>
         <Filename Value="tablehelp.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="TableHelp"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="8"/>
-        <TopLine Value="54"/>
-        <CursorPos X="52" Y="74"/>
-        <UsageCount Value="37"/>
-        <Loaded Value="True"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="35" Y="77"/>
+        <UsageCount Value="59"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
@@ -298,127 +291,130 @@
         <UnitName Value="Raylib.NanoVG"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="13" Y="26"/>
-        <UsageCount Value="12"/>
+        <UsageCount Value="9"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
     </Units>
     <JumpHistory HistoryIndex="29">
       <Position>
-        <Filename Value="tableview.pas"/>
-        <Caret Line="310" Column="3" TopLine="302"/>
-      </Position>
-      <Position>
-        <Filename Value="table.lpr"/>
-        <Caret Line="107" Column="23" TopLine="91"/>
-      </Position>
-      <Position>
-        <Filename Value="tablerender.pas"/>
-        <Caret Line="249" TopLine="142"/>
-      </Position>
-      <Position>
-        <Filename Value="tablerender.pas"/>
-      </Position>
-      <Position>
-        <Filename Value="tableview.pas"/>
-        <Caret Line="309" Column="24" TopLine="292"/>
-      </Position>
-      <Position>
-        <Filename Value="table.lpr"/>
-        <Caret Line="75" Column="3" TopLine="58"/>
-      </Position>
-      <Position>
-        <Filename Value="tablelogic.pas"/>
-        <Caret Line="68" Column="15" TopLine="59"/>
-      </Position>
-      <Position>
-        <Filename Value="tablelogic.pas"/>
-        <Caret Line="943" TopLine="909"/>
-      </Position>
-      <Position>
-        <Filename Value="tablelogic.pas"/>
-        <Caret Line="818" TopLine="783"/>
-      </Position>
-      <Position>
-        <Filename Value="tablelogic.pas"/>
-      </Position>
-      <Position>
-        <Filename Value="tablelogic.pas"/>
-        <Caret Line="747" Column="10" TopLine="730"/>
-      </Position>
-      <Position>
         <Filename Value="tablelogic.pas"/>
         <Caret Line="44" Column="10" TopLine="31"/>
       </Position>
       <Position>
-        <Filename Value="tablerender.pas"/>
-        <Caret Line="180" Column="30" TopLine="170"/>
+        <Filename Value="tablestick.pas"/>
+        <Caret Line="62" Column="18" TopLine="34"/>
       </Position>
       <Position>
-        <Filename Value="tablerender.pas"/>
-        <Caret Line="39" TopLine="19"/>
+        <Filename Value="tablestick.pas"/>
+        <Caret Line="61" Column="22" TopLine="41"/>
       </Position>
       <Position>
-        <Filename Value="tablerender.pas"/>
-        <Caret Line="97" TopLine="81"/>
+        <Filename Value="tablestick.pas"/>
+        <Caret Line="63" Column="22" TopLine="41"/>
       </Position>
       <Position>
-        <Filename Value="shaders/slate.frag"/>
-        <Caret Line="182" Column="61" TopLine="163"/>
+        <Filename Value="tablestick.pas"/>
+        <Caret Line="70" Column="3" TopLine="41"/>
       </Position>
       <Position>
-        <Filename Value="shaders/slate.frag"/>
-        <Caret Line="62" Column="12" TopLine="37"/>
+        <Filename Value="tablestick.pas"/>
+        <Caret Line="59" Column="23" TopLine="42"/>
       </Position>
       <Position>
-        <Filename Value="shaders/slate.frag"/>
-        <Caret Line="63" Column="24" TopLine="37"/>
+        <Filename Value="tablestick.pas"/>
+        <Caret Line="63" Column="39" TopLine="46"/>
       </Position>
       <Position>
-        <Filename Value="shaders/slate.frag"/>
-        <Caret Line="90" Column="23" TopLine="61"/>
+        <Filename Value="tablestick.pas"/>
+        <Caret Line="70" Column="37" TopLine="49"/>
       </Position>
       <Position>
-        <Filename Value="shaders/slate.frag"/>
+        <Filename Value="tablestick.pas"/>
+        <Caret Line="77" Column="49" TopLine="55"/>
       </Position>
       <Position>
-        <Filename Value="shaders/slate.frag"/>
-        <Caret Line="81" Column="62" TopLine="63"/>
+        <Filename Value="tablelogic.pas"/>
+        <Caret Line="356" Column="38" TopLine="338"/>
       </Position>
       <Position>
-        <Filename Value="shaders/ball.frag"/>
-        <Caret Line="97" Column="29" TopLine="82"/>
+        <Filename Value="tablelogic.pas"/>
+        <Caret Line="357" Column="40" TopLine="335"/>
       </Position>
       <Position>
-        <Filename Value="shaders/ball.frag"/>
-        <Caret Line="165" TopLine="130"/>
+        <Filename Value="tablestick.pas"/>
+        <Caret Line="64" Column="4" TopLine="46"/>
       </Position>
       <Position>
-        <Filename Value="shaders/cabinet.frag"/>
-        <Caret Line="125" Column="41" TopLine="5"/>
+        <Filename Value="tablestick.pas"/>
+        <Caret Line="75" Column="6" TopLine="46"/>
       </Position>
       <Position>
-        <Filename Value="shaders/cabinet.frag"/>
-        <Caret Line="110" Column="23" TopLine="71"/>
+        <Filename Value="tablestick.pas"/>
+        <Caret Line="64" Column="14" TopLine="46"/>
       </Position>
       <Position>
-        <Filename Value="shaders/cabinet.frag"/>
-        <Caret Line="12" Column="14"/>
+        <Filename Value="tablestick.pas"/>
+        <Caret Line="65" Column="7" TopLine="39"/>
       </Position>
       <Position>
-        <Filename Value="shaders/slate.frag"/>
-        <Caret Line="74" Column="93" TopLine="85"/>
+        <Filename Value="tablestick.pas"/>
+        <Caret Line="77" Column="49" TopLine="54"/>
       </Position>
       <Position>
-        <Filename Value="shaders/rails.frag"/>
-        <Caret Line="55" Column="94" TopLine="37"/>
+        <Filename Value="tablestick.pas"/>
+        <Caret Line="66" Column="28" TopLine="47"/>
       </Position>
       <Position>
-        <Filename Value="shaders/rails.frag"/>
-        <Caret Line="12" Column="14"/>
+        <Filename Value="tablestick.pas"/>
+        <Caret Line="68" TopLine="53"/>
       </Position>
       <Position>
-        <Filename Value="shaders/rails.frag"/>
-        <Caret Line="71" Column="20" TopLine="41"/>
+        <Filename Value="tablestick.pas"/>
+        <Caret Line="69" TopLine="53"/>
+      </Position>
+      <Position>
+        <Filename Value="tablestick.pas"/>
+        <Caret Line="70" TopLine="53"/>
+      </Position>
+      <Position>
+        <Filename Value="tablestick.pas"/>
+        <Caret Line="72" TopLine="53"/>
+      </Position>
+      <Position>
+        <Filename Value="tablestick.pas"/>
+        <Caret Line="73" TopLine="53"/>
+      </Position>
+      <Position>
+        <Filename Value="tablestick.pas"/>
+        <Caret Line="74" TopLine="53"/>
+      </Position>
+      <Position>
+        <Filename Value="tablestick.pas"/>
+        <Caret Line="75" TopLine="53"/>
+      </Position>
+      <Position>
+        <Filename Value="tablestick.pas"/>
+        <Caret Line="79" Column="71" TopLine="53"/>
+      </Position>
+      <Position>
+        <Filename Value="tablestick.pas"/>
+        <Caret Line="77" Column="10" TopLine="59"/>
+      </Position>
+      <Position>
+        <Filename Value="tableview.pas"/>
+        <Caret Line="179" Column="17" TopLine="151"/>
+      </Position>
+      <Position>
+        <Filename Value="tableview.pas"/>
+        <Caret Line="188" Column="10" TopLine="169"/>
+      </Position>
+      <Position>
+        <Filename Value="tableview.pas"/>
+        <Caret Line="203" TopLine="168"/>
+      </Position>
+      <Position>
+        <Filename Value="tableview.pas"/>
+        <Caret Line="188" Column="70" TopLine="164"/>
       </Position>
     </JumpHistory>
     <RunParams>
