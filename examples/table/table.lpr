@@ -27,6 +27,10 @@ type
     FStick: TTableStick;
     FBalls: TTableBalls;
     FLogic: TTableLogic;
+    FTimeCheck: Int64;
+    FLowFps: Double;
+    FFrame: Int64;
+    FFrameAccum: Double;
   protected
     procedure Load; override;
     procedure Unload; override;
@@ -51,6 +55,7 @@ begin
   FStick.Load;
   FLogic.Load(FBalls, FStick);
   FBackground := NewBrush(Vec(0, 0), Vec(0, WindowHeight), colorGray, colorBlack);
+  FLowFps := 9999;
 end;
 
 procedure TTableScene.Unload;
@@ -64,10 +69,32 @@ begin
 end;
 
 procedure TTableScene.Logic(Width, Height: Integer; StopWatch: TStopWatch);
+var
+  L: Double;
+  I: Integer;
 begin
   State.Fps := StopWatch.Fps;
   State.TimeFrame := StopWatch.TimeFrame;
   State.TimeNow := StopWatch.Time;
+  Inc(FFrame);
+  if FFrame mod 2 = 0 then
+  begin
+    FFrameAccum := StopWatch.Time - FFrameAccum;
+    if FFrameAccum > 0 then
+      L := 2 / FFrameAccum
+    else
+      L := 99999;
+    if L < FLowFps then
+      FLowFps := L;
+    FFrameAccum := StopWatch.Time;
+  end;
+  I := Trunc(State.TimeNow);
+  if I > FTimeCheck then
+  begin
+    FTimeCheck := I;
+    State.LowFps := Round(FLowFps);
+    FLowFps := 99999;
+  end;
   if IsKeyPressed(KEY_F1) then
     State.Help := True;
   if IsMouseButtonPressed(MOUSE_BUTTON_LEFT) then
@@ -106,6 +133,7 @@ begin
     FHelp.Draw(Canvas)
   else
   begin
+    FHelp.DrawFps(Canvas);
     FRenderer.Draw(Canvas);
     if IsKeyDown(KEY_P) then
       FLogic.Debug(Canvas);

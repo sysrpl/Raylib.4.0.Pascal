@@ -392,6 +392,8 @@ type
     procedure WriteColumn(const S: string; Column: Single; Layout: TTextLayout = textLeft);
     { Write text and start a new line }
     procedure WriteLine(const S: string);
+    { Write text at the current line using a layout }
+    procedure WriteAt(const S: string; X, Y: Single);
   end;
 
 { IResourceStore is associated with a canvas, and allows for the creation and
@@ -1015,6 +1017,7 @@ type
     procedure NewPage;
     procedure NewLine;
     procedure Write(const S: string; Layout: TTextLayout = textLeft);
+    procedure WriteAt(const S: string; X, Y: Single);
     procedure WriteColumn(const S: string; Column: Single; Layout: TTextLayout = textLeft);
     procedure WriteLine(const S: string);
   end;
@@ -2051,6 +2054,11 @@ begin
       end
   else
   end;
+end;
+
+procedure TTextWriter.WriteAt(const S: string; X, Y: Single);
+begin
+  Canvas.DrawText(Font, S, X, Y);
 end;
 
 procedure TTextWriter.WriteColumn(const S: string; Column: Single; Layout: TTextLayout = textLeft);

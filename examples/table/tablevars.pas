@@ -60,6 +60,8 @@ var
     Help: Boolean;
     { The frames per second }
     Fps: Integer;
+    { The lowest frames per second }
+    LowFps: Integer;
     { The number of triangles drawn }
     Triangles: Integer;
     { The seconds since the last frame }

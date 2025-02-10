@@ -53,7 +53,8 @@ begin
   F := 'assets/pool-' +  FragName + '.obj';
   Model := LoadModel(PChar(F));
   Model.transform.Identity;
-  Model.transform.Rotate(90, 0, 0);
+  // Model.transform.Rotate(90, 0, 0);
+  Model.transform.Rotate(0, 90, 0);
   Model.materials.shader := Shader;
 end;
 
@@ -70,7 +71,7 @@ procedure TTableModel.Draw(const CameraPos, LightPos: TVec3);
       M: TMat4;
     begin
       M.Identity;
-      M.Rotate(90, 0, 0);
+      // M.Rotate(90, 0, 0);
       M.Translate(CameraPos.x, CameraPos.y, CameraPos.z);
       Model.transform := M;
     end;
@@ -78,6 +79,8 @@ procedure TTableModel.Draw(const CameraPos, LightPos: TVec3);
 var
   I: Integer;
 begin
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_FRONT_FACE);
   Time.Update(TimeQuery);
   Eye.Update(CameraPos);
   Light.Update(LightPos);

@@ -25,7 +25,8 @@ type
   public
     procedure Load(Canvas: ICanvas);
     procedure Unload;
-    procedure Draw(Canvas: ICanvas); overload;
+    procedure Draw(Canvas: ICanvas);
+    procedure DrawFps(Canvas: ICanvas);
   end;
 
 implementation
@@ -72,7 +73,7 @@ begin
   Canvas.FillRect(FFade, FRect);
   Canvas.DrawImage(FChalkboard, FSource, FDest);
   FWriter.NewPage;
-  FWriter.Write('fps ' + IntToStr(State.Fps));
+  FWriter.Write('fps ' + IntToStr(State.Fps) + ' | low ' + IntToStr(State.LowFps));
   FWriter.Write('Pool Table Simulator Help', textTop);
   FWriter.Newline;
   FWriter.Newline;
@@ -116,6 +117,20 @@ begin
   end;
   FWriter.Write(S, textTop);
   FWriter.Write('Click anywhere to close this window', textBottom);
+end;
+
+procedure TTableHelp.DrawFps(Canvas: ICanvas);
+var
+  R: TRect;
+  T: TVec2;
+  S: string;
+begin
+  S := 'fps ' + IntToStr(State.Fps) + ' | low ' + IntToStr(State.LowFps);
+  T := Canvas.MeasureText(FFont, S);
+  R := Rect(2, 2, T.X + 14, T.Y + 14);
+  Canvas.RoundRect(R, 12);
+  Canvas.Fill(FFade);
+  FWriter.WriteAt(S, 7, 9);
 end;
 
 end.
