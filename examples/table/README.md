@@ -6,6 +6,6 @@ This project is FOSS software.
 
 ## Screen Shots
 
-![Alt text](//examples/table/screenshots/help.png?raw=true "Help and Instructions")
+![Alt text](/examples/table/screenshots/help.png?raw=true "Help and Instructions")
 
-![Alt text](//examples/table/screenshots/action.png?raw=true "Free Camera Mode")
+![Alt text](/examples/table/screenshots/action.png?raw=true "Free Camera Mode")
