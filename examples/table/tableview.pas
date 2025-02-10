@@ -147,6 +147,7 @@ begin
   Camera := FOverheadCamera;
   FMode := camOverhead;
   Mode := FMode;
+  State.CameraMode := Ord(FMode);
 
   FStartTime := TimeQuery;
 end;
@@ -306,6 +307,10 @@ end;
 procedure TTableView.Track;
 begin
   State.Overhead := False;
+  if IsKeyPressed(KEY_E) then
+    RenderOptions.Smoothing := (RenderOptions.Smoothing + 1) mod 3;
+  if IsKeyPressed(KEY_Q) then
+    RenderOptions.Shadows := not RenderOptions.Shadows;
   if TimeQuery - FStartTime < 1 then
   begin
     FMouse := GetMousePosition;
@@ -350,6 +355,7 @@ begin
     end;
   end;
   State.Overhead := (FMode = camOverhead) and (Mode = camOverhead);
+  State.CameraMode := Ord(FMode);
   LimitCamera;
 end;
 

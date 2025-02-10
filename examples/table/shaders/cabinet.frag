@@ -9,7 +9,8 @@ uniform vec3 eye;
 uniform vec3 light;
 uniform vec3 stick[2];
 uniform bool moving;
-uniform bool errorcorrect;
+uniform bool shadows;
+uniform int smoothing;
 
 out vec4 finalColor;
 
@@ -134,10 +135,13 @@ vec4 generateWood(vec2 fc)
 
 vec3 edgeblend(vec3 colorout, vec3 colorin, float position, float edge)
 {
+    if (smoothing == 0)
+        return position > edge ? colorout : colorin;
+
     float dist = distance(eye, vertex);
     float m = dist / 1000;
 
-    if (errorcorrect)
+    if (smoothing == 2)
     {
       vec3 n = normalize(normal);
       vec3 v = normalize(eye - vertex);
@@ -250,7 +254,7 @@ void main()
     {
 
         color = findPip(color);
-        if (!moving)
+        if (shadows && !moving)
             color = stickShadow(color, 0);
     }
 

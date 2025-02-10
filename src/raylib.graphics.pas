@@ -356,6 +356,44 @@ type
     property Opacity: Single read GetOpacity write SetOpacity;
   end;
 
+{ ITextWriter simplifies writing multi line text with formatting }
+
+  TTextLayout = (
+    { Top left }
+    textLeft,
+    { Top center }
+    textTop,
+    { Top right }
+    textRight,
+    { Bottom center }
+    textBottom,
+    { Center left }
+    textMiddleLeft,
+    { Centered from all margins }
+    textMiddle,
+    { Centered from all margins }
+    textMiddleRight,
+    { Centered from all margins }
+    textMemo);
+
+  ITextWriter = interface
+  ['{CF8628E0-A660-4102-B4C5-01150CED28F3}']
+    { Reset the starting point where writing begins }
+    procedure Paper(const Rect: TRect);
+    { Move the margin left by an amount }
+    procedure Indent(Margin: Single);
+    { Revert the paper back to its initial size as if nothing has been written }
+    procedure NewPage;
+    { Move down one row based on the font height }
+    procedure NewLine;
+    { Write text at the current line using a layout }
+    procedure Write(const S: string; Layout: TTextLayout = textLeft);
+    { Write text offset by a column amount from the left }
+    procedure WriteColumn(const S: string; Column: Single; Layout: TTextLayout = textLeft);
+    { Write text and start a new line }
+    procedure WriteLine(const S: string);
+  end;
+
 { IResourceStore is associated with a canvas, and allows for the creation and
   management of bitmap and font resources. Resoruces are tracked by name, and
   subsequent requests using the same name return an existing resource rather
@@ -367,6 +405,8 @@ type
     function GetFontColor: TColorF;
     procedure SetFontColor(const Value: TColorF);
     {$endregion}
+    { Create a text writer given a font }
+    function NewTextWriter(Font: IFont): ITextWriter;
     { Create a new render bitmap, checking the store first if a render bitmap
       with a matching name already exists. }
     function NewBitmap(const Name: string; Width, Height: LongWord): IRenderBitmap;
@@ -962,6 +1002,23 @@ type
     procedure SetOpacity(Value: Single);
   end;
 
+  TTextWriter= class(TGraphicsObject, ITextWriter)
+  public
+    Font: IFont;
+    Canvas: ICanvas;
+    Area: TRect;
+    Page: TRect;
+    RowHeight: Single;
+    constructor Create(C: ICanvas; F: IFont);
+    procedure Paper(const Rect: TRect);
+    procedure Indent(Margin: Single);
+    procedure NewPage;
+    procedure NewLine;
+    procedure Write(const S: string; Layout: TTextLayout = textLeft);
+    procedure WriteColumn(const S: string; Column: Single; Layout: TTextLayout = textLeft);
+    procedure WriteLine(const S: string);
+  end;
+
   TCanvasStack = class
     BlendMode: TBlendMode;
     ClipRect: TRect;
@@ -1011,6 +1068,7 @@ type
     { IResourceStore }
     function GetFontColor: TColorF;
     procedure SetFontColor(const Value: TColorF);
+    function NewTextWriter(Font: IFont): ITextWriter;
     function NewBitmap(const Name: string; Width, Height: LongWord): IRenderBitmap; overload;
     function NewBitmap(Id: Integer; const Name: string): IBitmap; overload;
     procedure DisposeBitmap(Bitmap: IBitmap);
@@ -1921,6 +1979,97 @@ begin
   Opacity := Value;
 end;
 
+{ TTextWriter }
+
+constructor TTextWriter.Create(C: ICanvas; F: IFont);
+begin
+  Canvas := C;
+  Font := F;
+  Area := NewRect(5000, 5000);
+  RowHeight := Canvas.MeasureText(Font, 'Wg').Y * 1.25;
+end;
+
+procedure TTextWriter.Paper(const Rect: TRect);
+begin
+  Area := Rect;
+  Page := Rect;
+end;
+
+procedure TTextWriter.Indent(Margin: Single);
+begin
+  Area.X := Area.X + Margin;
+  Area.Width := Page.Width - Margin;
+end;
+
+procedure TTextWriter.NewPage;
+begin
+  Area := Page;
+end;
+
+procedure TTextWriter.NewLine;
+begin
+  Area.Height := Area.Height - RowHeight;
+  Area.Y := Area.Y + RowHeight;
+end;
+
+procedure TTextWriter.Write(const S: string; Layout: TTextLayout = textLeft);
+var
+  V: TVec2;
+begin
+  if Area.Height <= 0 then
+    Exit;
+  case Layout of
+    textLeft:
+      Canvas.DrawText(Font, S, Area.X, Area.Y);
+    textTop:
+      begin
+        V := Canvas.MeasureText(Font, S);
+        V.X := Area.X + (Area.Width - V.X) / 2;
+        Canvas.DrawText(Font, S, V.X, Area.Y);
+      end;
+    textRight:
+      begin
+        V := Canvas.MeasureText(Font, S);
+        V.X := Area.Right - V.X;
+        Canvas.DrawText(Font, S, V.X, Area.Y);
+      end;
+    textMiddleLeft:
+      begin
+        Canvas.DrawText(Font, S, Area.X, Area.Y + (Area.Height - RowHeight) / 2);
+      end;
+    textBottom:
+      begin
+        V := Canvas.MeasureText(Font, S);
+        V.X := Area.X + (Area.Width - V.X) / 2;
+        Canvas.DrawText(Font, S, V.X, Area.Bottom - V.Y);
+      end;
+    textMemo:
+      begin
+        Canvas.DrawTextMemo(Font, S, Area.X, Area.Y, Area.Width);
+        Area.Y := Area.Y + Canvas.MeasureMemo(Font, S, Area.Width);
+        Area.Height := Page.Bottom - Area.Y;
+      end
+  else
+  end;
+end;
+
+procedure TTextWriter.WriteColumn(const S: string; Column: Single; Layout: TTextLayout = textLeft);
+var
+  A: TRect;
+begin
+  A := Area;
+  Area.X := A.X + A.Width * Column;
+  Area.Width := A.Width - Area.X;
+  Write(S, Layout);
+  Area := A;
+end;
+
+procedure TTextWriter.WriteLine(const S: string);
+begin
+  Write(S);
+  NewLine;
+end;
+
 { TCanvas }
 
 constructor TCanvas.Create;
@@ -2125,6 +2274,11 @@ end;
 procedure TCanvas.SetFontColor(const Value: TColorF);
 begin
   DefaultFontColor := Value;
+end;
+
+function TCanvas.NewTextWriter(Font: IFont): ITextWriter;
+begin
+  Result := TTextWriter.Create(Self, Font);
 end;
 
 function TCanvas.NewBitmap(const Name: string; Width, Height: LongWord): IRenderBitmap;

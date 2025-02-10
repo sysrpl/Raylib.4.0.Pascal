@@ -36,10 +36,6 @@ type
     FCabinetStick0: TUniformVec3;
     FCabinetStick1: TUniformVec3;
     FCabinetMoving: TUniformBool;
-
-    FSlateError: TUniformBool;
-    FCabinetError: TUniformBool;
-
     FBalls: array[0..15] of TUniformVec2;
     FPower: IBitmapBrush;
   public
@@ -98,11 +94,6 @@ begin
   FCabinet.Shader.GetUniform('stick[0]', FCabinetStick0);
   FCabinet.Shader.GetUniform('stick[1]', FCabinetStick1);
   FCabinet.Shader.GetUniform('moving',  FCabinetMoving);
-
-
-  FCabinet.Shader.GetUniform('errorcorrect',  FCabinetError);
-  FSlate.Shader.GetUniform('errorcorrect',  FSlateError);
-  // Test := True;
 end;
 
 procedure TTableRender.Unload;
@@ -196,11 +187,6 @@ procedure TTableRender.Draw(Camera: TCamera3D; Light: TVec3);
 var
   I: Integer;
 begin
-  if IsKeyPressed(KEY_E) then
-  begin
-    FCabinetError.Update(not FCabinetError.value);
-    FSlateError.Update(not FSlateError.value);
-  end;
   BeginMode3D(Camera);
   if IsKeyPressed(KEY_T) then
     Test := not Test;

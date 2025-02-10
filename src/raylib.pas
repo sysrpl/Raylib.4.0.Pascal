@@ -3747,9 +3747,9 @@ end;
 procedure TRect.Inflate(DX, DY: Single);
 begin
   x := x - DX;
-  y := y - DX;
+  y := y - DY;
   width := width + DX * 2;
-  height := height + DX * 2;
+  height := height + DY * 2;
 end;
 
 procedure TRect.Move(DX, DY: Single);

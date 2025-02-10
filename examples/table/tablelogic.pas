@@ -13,7 +13,6 @@ uses
   TableStick,
   TableVars;
 
-
 type
   TPocket = record
     Pos: TVec2;
@@ -110,8 +109,6 @@ end;
 
 procedure TableSounds.Rack;
 begin
-  if State.Help then
-    Exit;
   PlaySoundMulti(FRack[Random(4)]);
 end;
 
@@ -735,12 +732,6 @@ var
 begin
   if State.Moving then
     Exit;
-  if IsKeyPressed(KEY_SPACE) then
-  begin
-    { Shoot begins ball movement setting State.Moving to True }
-    Shoot;
-    Exit;
-  end;
   for I := KEY_ONE to KEY_NINE do
     if IsKeyPressed(I) then
     begin
@@ -749,6 +740,14 @@ begin
     end;
   if IsKeyPressed(KEY_F5) then
     Shuffle;
+  if State.Help then
+    Exit;
+  if IsKeyPressed(KEY_SPACE) then
+  begin
+    { Shoot begins ball movement setting State.Moving to True }
+    Shoot;
+    Exit;
+  end;
   if (IsKeyDown(KEY_LEFT_SHIFT) or IsKeyDown(KEY_RIGHT_SHIFT)) then
     Slow := 0.05
   else

@@ -21,7 +21,8 @@ uniform bool collides;
 uniform vec2 collidepoint;
 uniform int collideindex;
 uniform bool moving;
-uniform bool errorcorrect;
+uniform bool shadows;
+uniform int smoothing;
 
 out vec4 finalColor;
 
@@ -56,10 +57,13 @@ float segment(vec2 p, vec2 a, vec2 b)
 
 vec3 edgeblend(vec3 colorout, vec3 colorin, float position, float edge)
 {
+    if (smoothing == 0)
+        return position > edge ? colorout : colorin;
+
     float dist = distance(eye, vertex);
     float m = dist / 1000;
 
-    if (errorcorrect)
+    if (smoothing == 2)
     {
       vec3 n = normalize(normal);
       vec3 v = normalize(eye - vertex);
@@ -83,10 +87,13 @@ vec3 edgeblend(vec3 colorout, vec3 colorin, float position, float edge)
 
 float floatblend(float position, float edge)
 {
+    if (smoothing == 0)
+        return position > edge ? 0.0 : 1.0;
+
     float dist = distance(eye, vertex);
     float m = dist / 1000;
 
-    if (errorcorrect)
+    if (smoothing == 2)
     {
       vec3 n = normalize(normal);
       vec3 v = normalize(eye - vertex);
@@ -181,17 +188,22 @@ void main()
     color = color * n;
 
     // rail shadows
-    float d = abs(vertex.z);
-    if (d > width)
+
+    float d;
+    if (shadows)
     {
-      float s = smoothstep(fade + width, width, d);
-      color = mix(color * 0.6, color, s);
-    }
-    d = abs(vertex.x);
-    if (d > depth)
-    {
-      float s = smoothstep(fade + depth, depth, d);
-      color = mix(color * 0.6, color, s);
+      d = abs(vertex.z);
+      if (d > width)
+      {
+        float s = smoothstep(fade + width, width, d);
+        color = mix(color * 0.6, color, s);
+      }
+      d = abs(vertex.x);
+      if (d > depth)
+      {
+        float s = smoothstep(fade + depth, depth, d);
+        color = mix(color * 0.6, color, s);
+      }
     }
 
     // black line
@@ -235,6 +247,8 @@ void main()
     }
 
     // apply shadows as sum along with the diffuse factor
+    if (!shadows)
+        sum = 0;
     color = mix(color, vec3(0), clamp(sum, 0, 1) * 0.7) * diff;
 
     vec3 red = vec3(0.7, 0, 0);

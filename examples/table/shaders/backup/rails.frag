@@ -67,7 +67,8 @@ void main()
     n = (n + 15) / 16;
     color = color * n;
 
-    //    color = stickShadow(color, 0);
+    if (!moving)
+        color = stickShadow(color, 0);
 
     finalColor = vec4(color * diff, 1);
 }

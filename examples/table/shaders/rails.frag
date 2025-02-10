@@ -9,6 +9,7 @@ uniform vec3 eye;
 uniform vec3 light;
 uniform vec3 stick[2];
 uniform bool moving;
+uniform bool shadows;
 
 out vec4 finalColor;
 
@@ -67,7 +68,7 @@ void main()
     n = (n + 15) / 16;
     color = color * n;
 
-    if (!moving)
+    if (shadows && !moving)
         color = stickShadow(color, 0);
 
     finalColor = vec4(color * diff, 1);

@@ -65,14 +65,14 @@ end;
 
 procedure TTableScene.Logic(Width, Height: Integer; StopWatch: TStopWatch);
 begin
+  State.Fps := StopWatch.Fps;
   State.TimeFrame := StopWatch.TimeFrame;
   State.TimeNow := StopWatch.Time;
   if IsKeyPressed(KEY_F1) then
     State.Help := True;
   if IsMouseButtonPressed(MOUSE_BUTTON_LEFT) then
     State.Help := False;
-  if not State.Help then
-    FLogic.Track;
+  FLogic.Track;
   FLogic.Think;
 end;
 
@@ -103,9 +103,7 @@ begin
   end;
   BeginCanvas(Width, Height);
   if State.Help then
-  begin
-    FHelp.Draw(Canvas);
-  end
+    FHelp.Draw(Canvas)
   else
   begin
     FRenderer.Draw(Canvas);

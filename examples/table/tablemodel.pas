@@ -21,6 +21,8 @@ type
     Time: TUniformFloat;
     Eye: TUniformVec3;
     Light: TUniformVec3;
+    Smoothing: TUniformInt;
+    Shadows: TUniformBool;
     TexId: Integer;
     TexName: string;
     TexId2: Integer;
@@ -46,6 +48,8 @@ begin
   Shader.GetUniform('time', Time);
   Shader.GetUniform('eye', Eye);
   Shader.GetUniform('light', Light);
+  Shader.GetUniform('shadows', shadows);
+  Shader.GetUniform('smoothing', Smoothing);
   F := 'assets/pool-' +  FragName + '.obj';
   Model := LoadModel(PChar(F));
   Model.transform.Identity;
@@ -96,6 +100,8 @@ begin
     I := glGetUniformLocation(Shader.id, PChar(TexName2));
     glUniform1i(I, 2)
   end;
+  Shadows.Update(RenderOptions.Shadows);
+  Smoothing.Update(RenderOptions.Smoothing);
   DrawModel(Model, Vec(0, 0, 0), 1, WHITE);
   Inc(State.Triangles, Model.meshes.triangleCount);
 end;

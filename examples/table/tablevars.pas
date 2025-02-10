@@ -58,6 +58,8 @@ var
   State: record
     { Help is true when help is being displayed }
     Help: Boolean;
+    { The frames per second }
+    Fps: Integer;
     { The number of triangles drawn }
     Triangles: Integer;
     { The seconds since the last frame }
@@ -92,6 +94,8 @@ var
     Moving: Boolean;
     { The cue ball is sinking }
     Sinking: Boolean;
+    { The cue ball is sinking }
+    CameraMode: Integer;
   end;
 
   RenderOptions: record
