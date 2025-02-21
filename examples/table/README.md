@@ -6,7 +6,7 @@ Here is a 3D pool table simulation application. The simulation is intended to te
 
 ## Download Binary
 
-A binary is included in this folder that should work on any x86-64 Debian based Linux distribution. You can also [download this zip file](https://cache.slimpinball.org/downloads/table) containing a working build.
+A binary is included in this folder that should work on any x86-64 Debian based Linux distribution. You can also [download this zip file](https://cache.slimpinball.org/downloads/table.zip) containing a working build.
 
 ## Screen Shots
 
