@@ -16,13 +16,14 @@ uses
 type
   TTableRender = record
   private
-    FSkybox: TTableModel;
     FShapes: TTableModel;
     FFeet: TTableModel;
     FSlate: TTableModel;
     FRails: TTableModel;
-    FCabinet: TTableModel;
-    FMetal: TTableModel;
+    FCabinetTop: TTableModel;
+    FCabinetBottom: TTableModel;
+    FMetalTop: TTableModel;
+    FMetalBottom: TTableModel;
     FPlastic: TTableModel;
     FSlateStick0: TUniformVec3;
     FSlateStick1: TUniformVec3;
@@ -59,20 +60,21 @@ begin
   GenTextureMipmaps(State.SkyTex);
   SetTextureFilter(State.SkyTex, TEXTURE_FILTER_BILINEAR);
 
-  FSkybox.Load('skybox');
-  FSkybox.TexId := State.SkyTex.id;
-  FSkybox.TexName := 'probe';
-  FSkybox.Locked := True;
-
   FShapes.Load('shapes', 'shapes');
   FFeet.Load('feet');
   FSlate.Load('slate');
   FRails.Load('rails');
-  FCabinet.Load('cabinet');
+  FCabinetTop.Load('cabinet-top');
 
-  FMetal.Load('metal');
-  FMetal.TexId := State.SkyTex.id;
-  FMetal.TexName := 'probe';
+  FCabinetBottom.Load('cabinet-bottom');
+
+  FMetalTop.Load('metal-top');
+  FMetalTop.TexId := State.SkyTex.id;
+  FMetalTop.TexName := 'probe';
+
+  FMetalBottom.Load('metal-bottom');
+  FMetalBottom.TexId := State.SkyTex.id;
+  FMetalBottom.TexName := 'probe';
 
   FPlastic.Load('plastic');
 
@@ -91,21 +93,21 @@ begin
   FRails.Shader.GetUniform('stick[0]', FRailsStick0);
   FRails.Shader.GetUniform('stick[1]', FRailsStick1);
   FRails.Shader.GetUniform('moving', FRailsMoving);
-  FCabinet.Shader.GetUniform('stick[0]', FCabinetStick0);
-  FCabinet.Shader.GetUniform('stick[1]', FCabinetStick1);
-  FCabinet.Shader.GetUniform('moving',  FCabinetMoving);
+  FCabinetTop.Shader.GetUniform('stick[0]', FCabinetStick0);
+  FCabinetTop.Shader.GetUniform('stick[1]', FCabinetStick1);
+  FCabinetTop.Shader.GetUniform('moving',  FCabinetMoving);
 end;
 
 procedure TTableRender.Unload;
 begin
   UnloadTexture(State.SkyTex);
   FPlastic.Unload;
-  FMetal.Unload;
-  FCabinet.Unload;
+  FMetalTop.Unload;
+  FCabinetTop.Unload;
+  FCabinetBottom.Unload;
   FRails.Unload;
   FSlate.Unload;
   FFeet.Unload;
-  FSkybox.Unload;
   FShapes.Unload;
 end;
 
@@ -220,10 +222,15 @@ begin
       FCabinetStick1.Update(State.StickPos[1]);
     end;
     { Draw the table objects, culling the feet if the camera is over the cabinet }
-    if (Abs(Camera.position.x) > CabinetX / 2) or (Abs(Camera.position.z) > CabinetZ / 2) then
+    State.Feet := (Abs(Camera.position.x) > CabinetX / 2) or (Abs(Camera.position.z) > CabinetZ / 2);
+    if State.Feet then
+    begin
       FFeet.Draw(Camera.position, Light);
-    FCabinet.Draw(Camera.position, Light);
-    FMetal.Draw(Camera.position, Light);
+      FCabinetBottom.Draw(Camera.position, Light);
+      FMetalBottom.Draw(Camera.position, Light);
+    end;
+    FCabinetTop.Draw(Camera.position, Light);
+    FMetalTop.Draw(Camera.position, Light);
     FRails.Draw(Camera.position, Light);
     FSlate.Draw(Camera.position, Light);
     FPlastic.Draw(Camera.position, Light);

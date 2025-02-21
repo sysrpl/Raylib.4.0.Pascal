@@ -85,6 +85,8 @@ vec3 colors[8] = vec3[](
 
 vec3 edgeblend(vec3 colorout, vec3 colorin, float position, float edge)
 {
+    if (smoothing == 0)
+        return position > edge ? colorout : colorin;
 
     float dist = distance(eye, vertex);
     float m = dist / 15;

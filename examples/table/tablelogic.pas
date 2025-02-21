@@ -999,7 +999,10 @@ begin
       State.StickDir.Normalize;
       State.StickAngle := State.StickDir.Angle([1, 0]);
       State.Collides := ShortestDistance(State.CollidePoint, State.CollideIndex);
+      FStick.Angle := State.StickDir;
       State.Moving := False;
+      State.StickPos[0] := [5000, 5000];
+      State.StickPos[1] := [5001, 5000];
       Break;
     end;
   end;

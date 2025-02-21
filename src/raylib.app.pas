@@ -31,6 +31,7 @@ type
     MultiSampling: Boolean;
     Resizable: Boolean;
     Undecorated: Boolean;
+    Monitor: Integer;
   end;
 
 { TStopWatch }
@@ -281,6 +282,7 @@ procedure TApplication.Init;
 var
   P: TCreateParams;
   F: LongWord;
+  V: TVec2;
 begin
   P.Title := FTitle;
   P.Width := FWidth;
@@ -296,13 +298,21 @@ begin
   if P.Resizable then F := F or FLAG_WINDOW_RESIZABLE;
   if P.Undecorated then F := F or FLAG_WINDOW_UNDECORATED;
   SetConfigFlags(F);
+  if P.Monitor > 0 then
+    SetWindowMonitor(P.Monitor - 1)
+  else
+    SetWindowMonitor(0);
   if P.FullScreen then
   begin
-    SetWindowMonitor(0);
     FWidth := GetMonitorWidth(0);
     FHeight := GetMonitorHeight(0);
   end;
   InitWindow(FWidth, FHeight, PChar(FTitle));
+  if P.Monitor > 0 then
+  begin
+    V := GetMonitorPosition(P.Monitor - 1);
+    SetWindowPosition(Round(V.X), Round(V.Y));
+  end;
   InitAudioDevice;
 end;
 
@@ -334,6 +344,7 @@ begin
       LoadNanoVG(@glfwGetProcAddress);
     end;
     FScene.FCanvas := NewCanvas;
+    FScene.FClientRect := [Width, Height];
     FScene.Load;
     while not WindowShouldClose do
     begin

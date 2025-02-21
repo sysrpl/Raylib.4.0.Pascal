@@ -272,7 +272,7 @@ procedure SinCos(const X: Single; out S, C: Single); overload;
 { Combined sine and cosine dobule trigometric function }
 procedure SinCos(constref X: Double; out S, C: Double); overload;
 { Bind a value between 0 and 1 }
-function Clamp(Percent: Float): Float;
+function Clamp(Percent: Float; Min: Float = 0; Max: Float = 1): Float;
 { Convert a float to a byte }
 function FloatToByte(F: Float): Byte;
 { Convert degrees to radians }
@@ -1270,12 +1270,12 @@ begin
   C := Cos(X);
 end;
 
-function Clamp(Percent: Float): Float;
+function Clamp(Percent: Float; Min: Float = 0; Max: Float = 1): Float;
 begin
-  if Percent < 0 then
-    Result := 0
-  else if Percent > 1 then
-    Result := 1
+  if Percent < Min then
+    Result := Min
+  else if Percent > Max then
+    Result := Max
   else
     Result := Percent;
 end;

@@ -48,7 +48,7 @@ begin
   Shader.GetUniform('time', Time);
   Shader.GetUniform('eye', Eye);
   Shader.GetUniform('light', Light);
-  Shader.GetUniform('shadows', shadows);
+  Shader.GetUniform('shadows', Shadows);
   Shader.GetUniform('smoothing', Smoothing);
   F := 'assets/pool-' +  FragName + '.obj';
   Model := LoadModel(PChar(F));

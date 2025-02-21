@@ -230,7 +230,8 @@ void main()
     shadow = smoothstep(-0.2, 1, shadow);
     shadow = mix(0.3, 1, shadow);
 
-    color = stickShadow(color, 0);
+    if (shadows)
+      color = stickShadow(color, 0);
 
     finalColor = vec4(color * shadow, 1);
 }

@@ -378,6 +378,8 @@ type
 
   ITextWriter = interface
   ['{CF8628E0-A660-4102-B4C5-01150CED28F3}']
+    function GetShadow: Boolean;
+    procedure SetShadow(Value: Boolean);
     { Reset the starting point where writing begins }
     procedure Paper(const Rect: TRect);
     { Move the margin left by an amount }
@@ -394,6 +396,8 @@ type
     procedure WriteLine(const S: string);
     { Write text at the current line using a layout }
     procedure WriteAt(const S: string; X, Y: Single);
+    { When shadow is true a black shadow appears under text making it easier to read in some scenes }
+    property Shadow: Boolean read GetShadow write SetShadow;
   end;
 
 { IResourceStore is associated with a canvas, and allows for the creation and
@@ -408,7 +412,9 @@ type
     procedure SetFontColor(const Value: TColorF);
     {$endregion}
     { Create a text writer given a font }
-    function NewTextWriter(Font: IFont): ITextWriter;
+    function NewTextWriter(Font: IFont): ITextWriter; overload;
+    { Create a text writer given a font and a page }
+    function NewTextWriter(Font: IFont; Page: TRect; Margin: TVec2): ITextWriter; overload;
     { Create a new render bitmap, checking the store first if a render bitmap
       with a matching name already exists. }
     function NewBitmap(const Name: string; Width, Height: LongWord): IRenderBitmap;
@@ -1011,7 +1017,10 @@ type
     Area: TRect;
     Page: TRect;
     RowHeight: Single;
+    Shadow: Boolean;
     constructor Create(C: ICanvas; F: IFont);
+    function GetShadow: Boolean;
+    procedure SetShadow(Value: Boolean);
     procedure Paper(const Rect: TRect);
     procedure Indent(Margin: Single);
     procedure NewPage;
@@ -1071,7 +1080,8 @@ type
     { IResourceStore }
     function GetFontColor: TColorF;
     procedure SetFontColor(const Value: TColorF);
-    function NewTextWriter(Font: IFont): ITextWriter;
+    function NewTextWriter(Font: IFont): ITextWriter; overload;
+    function NewTextWriter(Font: IFont; Page: TRect; Margin: TVec2): ITextWriter; overload;
     function NewBitmap(const Name: string; Width, Height: LongWord): IRenderBitmap; overload;
     function NewBitmap(Id: Integer; const Name: string): IBitmap; overload;
     procedure DisposeBitmap(Bitmap: IBitmap);
@@ -1992,6 +2002,16 @@ begin
   RowHeight := Canvas.MeasureText(Font, 'Wg').Y * 1.25;
 end;
 
+function TTextWriter.GetShadow: Boolean;
+begin
+  Result := Shadow;
+end;
+
+procedure TTextWriter.SetShadow(Value: Boolean);
+begin
+  Shadow := Value;
+end;
+
 procedure TTextWriter.Paper(const Rect: TRect);
 begin
   Area := Rect;
@@ -2016,6 +2036,35 @@ begin
 end;
 
 procedure TTextWriter.Write(const S: string; Layout: TTextLayout = textLeft);
+
+  procedure DrawShadow(Font: IFont; S: string; X, Y: Single);
+  var
+    C: TColorF;
+  begin
+    if Shadow then
+    begin
+      C := Font.Color;
+      Font.Color := colorBlack;
+      Canvas.DrawText(Font, S, X + 1, Y + 1);
+      Font.Color := C;
+    end;
+    Canvas.DrawText(Font, S, X, Y);
+  end;
+
+  procedure DrawShadowMemo(Font: IFont; S: string; X, Y, W: Single);
+  var
+    C: TColorF;
+  begin
+    if Shadow then
+    begin
+      C := Font.Color;
+      Font.Color := colorBlack;
+      Canvas.DrawTextMemo(Font, S, X + 1, Y + 1, W);
+      Font.Color := C;
+    end;
+    Canvas.DrawTextMemo(Font, S, X, Y, W);
+  end;
+
 var
   V: TVec2;
 begin
@@ -2023,32 +2072,32 @@ begin
     Exit;
   case Layout of
     textLeft:
-      Canvas.DrawText(Font, S, Area.X, Area.Y);
+      DrawShadow(Font, S, Area.X, Area.Y);
     textTop:
       begin
         V := Canvas.MeasureText(Font, S);
         V.X := Area.X + (Area.Width - V.X) / 2;
-        Canvas.DrawText(Font, S, V.X, Area.Y);
+        DrawShadow(Font, S, V.X, Area.Y);
       end;
     textRight:
       begin
         V := Canvas.MeasureText(Font, S);
         V.X := Area.Right - V.X;
-        Canvas.DrawText(Font, S, V.X, Area.Y);
+        DrawShadow(Font, S, V.X, Area.Y);
       end;
     textMiddleLeft:
       begin
-        Canvas.DrawText(Font, S, Area.X, Area.Y + (Area.Height - RowHeight) / 2);
+        DrawShadow(Font, S, Area.X, Area.Y + (Area.Height - RowHeight) / 2);
       end;
     textBottom:
       begin
         V := Canvas.MeasureText(Font, S);
         V.X := Area.X + (Area.Width - V.X) / 2;
-        Canvas.DrawText(Font, S, V.X, Area.Bottom - V.Y);
+        DrawShadow(Font, S, V.X, Area.Bottom - V.Y);
       end;
     textMemo:
       begin
-        Canvas.DrawTextMemo(Font, S, Area.X, Area.Y, Area.Width);
+        DrawShadowMemo(Font, S, Area.X, Area.Y, Area.Width);
         Area.Y := Area.Y + Canvas.MeasureMemo(Font, S, Area.Width);
         Area.Height := Page.Bottom - Area.Y;
       end
@@ -2287,6 +2336,13 @@ end;
 function TCanvas.NewTextWriter(Font: IFont): ITextWriter;
 begin
   Result := TTextWriter.Create(Self, Font);
+end;
+
+function TCanvas.NewTextWriter(Font: IFont; Page: TRect; Margin: TVec2): ITextWriter; overload;
+begin
+  Result := TTextWriter.Create(Self, Font);
+  Page.Inflate(-Margin.X, -Margin.Y);
+  Result.Paper(Page);
 end;
 
 function TCanvas.NewBitmap(const Name: string; Width, Height: LongWord): IRenderBitmap;

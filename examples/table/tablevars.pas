@@ -96,8 +96,10 @@ var
     Moving: Boolean;
     { The cue ball is sinking }
     Sinking: Boolean;
-    { The cue ball is sinking }
+    { The viewing mode of the camera }
     CameraMode: Integer;
+    { Test whether feet are being drawn }
+    Feet: Boolean;
   end;
 
   RenderOptions: record

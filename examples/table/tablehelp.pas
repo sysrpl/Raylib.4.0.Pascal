@@ -58,7 +58,6 @@ end;
 
 procedure TTableHelp.Unload;
 begin
-
 end;
 
 procedure TTableHelp.Draw(Canvas: ICanvas);
@@ -126,6 +125,9 @@ var
   S: string;
 begin
   S := 'fps ' + IntToStr(State.Fps) + ' | low ' + IntToStr(State.LowFps);
+  if State.Feet then
+    S := S + ' | feet ';
+  S := S + ' | triangles ' + IntToStr(State.Triangles);
   T := Canvas.MeasureText(FFont, S);
   R := Rect(2, 2, T.X + 14, T.Y + 14);
   Canvas.RoundRect(R, 12);

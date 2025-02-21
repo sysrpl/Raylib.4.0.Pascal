@@ -89,7 +89,6 @@ var
 begin
   if State.Moving or State.Sinking then
     Exit;
-  BeginMode3D(Camera);
   M.Identity;
   M.Translate(BallRadius * 1.2 + + (Sin(TimeQuery * 1.5) + 1) * 0.06, 0, 0);
   { Set the vertical angle of the cue stick }
@@ -125,9 +124,10 @@ begin
   M.RotateRad(0, Pi + State.StickDir.Angle([1, 0]), 0);
   M.Translate(State.BallPos[0].x, BallRadius, State.BallPos[0].y);
   FStick.Model.transform := M;
-  FStick.Draw(Camera.position, Light);
   State.StickPos[0] := M * Vec(0, 0, 0);
   State.StickPos[1] := M * Vec(1.5, 0, 0);
+  BeginMode3D(Camera);
+  FStick.Draw(Camera.position, Light);
   EndMode3D;
 end;
 

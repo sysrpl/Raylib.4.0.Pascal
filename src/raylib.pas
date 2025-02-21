@@ -542,6 +542,14 @@ type
     procedure Update(V: Integer);
   end;
 
+  TUniformMatrix = record
+    shader: PInteger;
+    location: Integer;
+    value: TMatrix;
+    procedure Update; overload;
+    procedure Update(V: TMatrix);
+  end;
+
 { Shader }
 
   TShader = record
@@ -559,6 +567,7 @@ type
     procedure GetUniform(name: PChar; out uniform: TUniformVec3); overload;
     procedure GetUniform(name: PChar; out uniform: TUniformVec4); overload;
     procedure GetUniform(name: PChar; out uniform: TUniformSampler2d); overload;
+    procedure GetUniform(name: PChar; out uniform: TUniformMatrix); overload;
     procedure SetUniform(const uniform: TUniformBool); overload;
     procedure SetUniform(const uniform: TUniformInt); overload;
     procedure SetUniform(const uniform: TUniformFloat); overload;
@@ -566,6 +575,7 @@ type
     procedure SetUniform(const uniform: TUniformVec3); overload;
     procedure SetUniform(const uniform: TUniformVec4); overload;
     procedure SetUniform(const uniform: TUniformSampler2d); overload;
+    procedure SetUniform(var uniform: TUniformMatrix); overload;
   end;
   PShader = ^TShader;
 
@@ -1715,6 +1725,8 @@ procedure EndScissorMode; cdecl; external;
 procedure BeginVrStereoMode(config: TVrStereoConfig); cdecl; external;
 { End stereo rendering (requires VR simulator) }
 procedure EndVrStereoMode; cdecl; external;
+{ Force the above modes to flush their rendering batches }
+procedure FlushBatches;
 
 { VR stereo config functions for VR simulator }
 
@@ -2752,7 +2764,8 @@ implementation
   {$ifdef gl2}
     {$linklib raylib-gl2-linux}
   {$else}
-    {$linklib raylib-gl3-linux}
+    {.$linklib raylib-gl3-linux}
+    {$linklib raylib-jpg-linux}
   {$endif}
 {$endif}
 {$ifdef windows}
@@ -3950,6 +3963,17 @@ begin
   PShader(shader).SetUniform(Self);
 end;
 
+procedure TUniformMatrix.Update;
+begin
+  PShader(shader).SetUniform(Self);
+end;
+
+procedure TUniformMatrix.Update(V: TMatrix);
+begin
+  Value := V;
+  PShader(shader).SetUniform(Self);
+end;
+
 { TShader }
 
 procedure TShader.Load(vertFile, fragFile: PChar);
@@ -4016,6 +4040,13 @@ begin
   uniform.value := Default(Integer);
 end;
 
+procedure TShader.GetUniform(name: PChar; out uniform: TUniformMatrix);
+begin
+  uniform.shader := @id;
+  uniform.location := GetShaderLocation(Self, name);
+  uniform.value.Identity;
+end;
+
 procedure TShader.SetUniform(const uniform: TUniformBool);
 var
   I: Integer;
@@ -4055,6 +4086,20 @@ end;
 procedure TShader.SetUniform(const uniform: TUniformSampler2d);
 begin
   SetShaderValue(Self, uniform.location, @uniform.value, SHADER_UNIFORM_VEC4);
+end;
+
+procedure TShader.SetUniform(var uniform: TUniformMatrix);
+begin
+  SetShaderValueMatrix(Self, uniform.location, uniform.value);
+end;
+
+var
+  C: TCamera2D;
+
+procedure FlushBatches;
+begin
+  BeginMode2D(C);
+  EndShaderMode;
 end;
 
 end.
