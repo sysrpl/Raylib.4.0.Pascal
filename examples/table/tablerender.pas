@@ -59,23 +59,18 @@ begin
   State.SkyTex := LoadTexture('assets/probe.png');
   GenTextureMipmaps(State.SkyTex);
   SetTextureFilter(State.SkyTex, TEXTURE_FILTER_BILINEAR);
-
   FShapes.Load('shapes', 'shapes');
   FFeet.Load('feet');
   FSlate.Load('slate');
   FRails.Load('rails');
   FCabinetTop.Load('cabinet-top');
-
   FCabinetBottom.Load('cabinet-bottom');
-
   FMetalTop.Load('metal-top');
-  FMetalTop.TexId := State.SkyTex.id;
-  FMetalTop.TexName := 'probe';
-
+  FMetalTop.TexId1 := State.SkyTex.id;
+  FMetalTop.TexName1 := 'probe';
   FMetalBottom.Load('metal-bottom');
-  FMetalBottom.TexId := State.SkyTex.id;
-  FMetalBottom.TexName := 'probe';
-
+  FMetalBottom.TexId1 := State.SkyTex.id;
+  FMetalBottom.TexName1 := 'probe';
   FPlastic.Load('plastic');
 
   for I := Low(FBalls) to High(FBalls) do

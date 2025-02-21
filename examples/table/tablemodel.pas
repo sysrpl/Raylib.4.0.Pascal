@@ -23,10 +23,12 @@ type
     Light: TUniformVec3;
     Smoothing: TUniformInt;
     Shadows: TUniformBool;
-    TexId: Integer;
-    TexName: string;
+    TexId1: Integer;
+    TexName1: string;
+    TexLoc1: Integer;
     TexId2: Integer;
     TexName2: string;
+    TexLoc2: Integer;
     Locked: Boolean;
     procedure Load(const FragName: string; VertName: string = '');
     procedure Unload;
@@ -75,30 +77,30 @@ procedure TTableModel.Draw(const CameraPos, LightPos: TVec3);
       Model.transform := M;
     end;
 
-var
-  I: Integer;
 begin
   Time.Update(TimeQuery);
   Eye.Update(CameraPos);
   Light.Update(LightPos);
   if Locked then
     Follow;
-  if TexName <> '' then
+  if TexName1 <> '' then
   begin
     // This is a work around for the raylib problem that does not allow
     // usage of aditional textures in custom shaders
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, TexId);
-    I := glGetUniformLocation(Shader.id, PChar(TexName));
-    glUniform1i(I, 1)
+    glBindTexture(GL_TEXTURE_2D, TexId1);
+    if TexLoc1 = 0 then
+      TexLoc1 := glGetUniformLocation(Shader.id, PChar(TexName1));
+    glUniform1i(TexLoc1, 1)
   end;
   if TexName2 <> '' then
   begin
     // Multitexture support
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, TexId2);
-    I := glGetUniformLocation(Shader.id, PChar(TexName2));
-    glUniform1i(I, 2)
+    if TexLoc2 = 0 then
+      TexLoc2 := glGetUniformLocation(Shader.id, PChar(TexName2));
+    glUniform1i(TexLoc2, 2)
   end;
   Shadows.Update(RenderOptions.Shadows);
   Smoothing.Update(RenderOptions.Smoothing);

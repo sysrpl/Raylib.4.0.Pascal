@@ -110,8 +110,8 @@ begin
   SetTextureFilter(FNumbers, TEXTURE_FILTER_BILINEAR);
   GenTextureMipmaps(FNumbers);
   FBall.Load('ball', 'ball');
-  FBall.TexId := State.SkyTex.id;
-  FBall.TexName := 'probe';
+  FBall.TexId1 := State.SkyTex.id;
+  FBall.TexName1 := 'probe';
   FBall.TexId2 := FNumbers.id;
   FBall.TexName2 := 'numbers';
   FBall.Shader.GetUniform('index', FIndex);

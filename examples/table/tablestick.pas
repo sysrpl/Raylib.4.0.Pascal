@@ -37,8 +37,8 @@ begin
   SetTextureFilter(FWrap, TEXTURE_FILTER_BILINEAR);
   GenTextureMipmaps(FWrap);
   FStick.Load('stick', 'stick');
-  FStick.TexId2 := FWrap.id;
-  FStick.TexName2 := 'wrap';
+  FStick.TexId1 := FWrap.id;
+  FStick.TexName1 := 'wrap';
 end;
 
 procedure TTableStick.Unload;
