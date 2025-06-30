@@ -1,4 +1,4 @@
-# 3D Pool Table Simlation for Linux
+# 3D Pool Table Simulation for Linux
 
 This is a FOSS software project. See the license at the head of this git repository.
 
