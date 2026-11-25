@@ -91,6 +91,7 @@ type
     FHeight: Integer;
     FScene: TScene;
     FLoaded: Boolean;
+    procedure CenterWindow(Monitor: Integer);
     procedure Init;
     function GetTitle: string;
     procedure SetTitle(const Value: string);
@@ -278,11 +279,41 @@ begin
     SetHeight(FHeight);
 end;
 
+{ Center the window on a monitor, where 0 is the primary monitor and 1 or more
+  is a position in the monitor list }
+
+procedure TApplication.CenterWindow(Monitor: Integer);
+var
+  Monitors: PPGLFWmonitor;
+  M: PGLFWmonitor;
+  Mode: PGLFWvidmode;
+  Count, X, Y: Integer;
+begin
+  M := glfwGetPrimaryMonitor;
+  if Monitor > 0 then
+  begin
+    Monitors := glfwGetMonitors(Count);
+    if Monitor <= Count then
+    begin
+      Inc(Monitors, Monitor - 1);
+      M := Monitors^;
+    end;
+  end;
+  if M = nil then
+    Exit;
+  Mode := glfwGetVideoMode(M);
+  if Mode = nil then
+    Exit;
+  X := 0;
+  Y := 0;
+  glfwGetMonitorPos(M, @X, @Y);
+  SetWindowPosition(X + (Mode.width - FWidth) div 2, Y + (Mode.height - FHeight) div 2);
+end;
+
 procedure TApplication.Init;
 var
   P: TCreateParams;
   F: LongWord;
-  V: TVec2;
 begin
   P.Title := FTitle;
   P.Width := FWidth;
@@ -291,27 +322,28 @@ begin
   P.MultiSampling := True;
   P.Resizable := False;
   P.Undecorated := False;
+  P.Monitor := 0;
   FScene.CreateParams(P);
   F := FLAG_VSYNC_HINT;
   if P.FullScreen then F := F or FLAG_FULLSCREEN_MODE;
   if P.MultiSampling then F := F or FLAG_MSAA_4X_HINT;
   if P.Resizable then F := F or FLAG_WINDOW_RESIZABLE;
   if P.Undecorated then F := F or FLAG_WINDOW_UNDECORATED;
+  { Windows stay hidden until they have been centered }
+  if not P.FullScreen then F := F or FLAG_WINDOW_HIDDEN;
   SetConfigFlags(F);
-  if P.Monitor > 0 then
-    SetWindowMonitor(P.Monitor - 1)
-  else
-    SetWindowMonitor(0);
   if P.FullScreen then
   begin
     FWidth := GetMonitorWidth(0);
     FHeight := GetMonitorHeight(0);
   end;
   InitWindow(FWidth, FHeight, PChar(FTitle));
-  if P.Monitor > 0 then
+  if not P.FullScreen then
   begin
-    V := GetMonitorPosition(P.Monitor - 1);
-    SetWindowPosition(Round(V.X), Round(V.Y));
+    CenterWindow(P.Monitor);
+    ClearWindowState(FLAG_WINDOW_HIDDEN);
+    { Some window managers ignore the position of a hidden window }
+    CenterWindow(P.Monitor);
   end;
   InitAudioDevice;
 end;

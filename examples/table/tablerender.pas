@@ -31,6 +31,7 @@ type
     FSlateCollidePoint: TUniformVec2;
     FSlateCollideIndex: TUniformInt;
     FSlateMoving: TUniformBool;
+    FSlateAssist: TUniformInt;
     FRailsStick0: TUniformVec3;
     FRailsStick1: TUniformVec3;
     FRailsMoving: TUniformBool;
@@ -85,6 +86,7 @@ begin
   FSlate.Shader.GetUniform('collidepoint', FSlateCollidePoint);
   FSlate.Shader.GetUniform('collideindex', FSlateCollideIndex);
   FSlate.Shader.GetUniform('moving', FSlateMoving);
+  FSlate.Shader.GetUniform('assist', FSlateAssist);
   FRails.Shader.GetUniform('stick[0]', FRailsStick0);
   FRails.Shader.GetUniform('stick[1]', FRailsStick1);
   FRails.Shader.GetUniform('moving', FRailsMoving);
@@ -194,7 +196,7 @@ begin
     { Update the shader uniforms }
     for I := Low(FBalls) to High(FBalls) do
       FBalls[I].Update(State.BallPos[I]);
-    if State.Moving or State.Sinking then
+    if State.Moving or State.Sinking or State.Tracking then
     begin
       FSlateMoving.Update(True);
       FRailsMoving.Update(True);
@@ -204,6 +206,7 @@ begin
     begin
       { If there is no movement and we can draw the cue stick and collision paths }
       FSlateMoving.Update(False);
+      FSlateAssist.Update(RenderOptions.Assist);
       FRailsMoving.Update(False);
       FCabinetMoving.Update(False);
       FSlateStick0.Update(State.StickPos[0]);

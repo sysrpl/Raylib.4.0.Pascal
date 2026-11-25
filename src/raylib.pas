@@ -2755,6 +2755,9 @@ var
 
 implementation
 
+uses
+  Math;
+
 {$ifdef linux}
   {$linklib c}
   {$linklib m}
@@ -4102,4 +4105,9 @@ begin
   EndShaderMode;
 end;
 
+initialization
+  { Graphics drivers expect floating point exceptions to be off, and their threads
+    inherit this setting when the window is created }
+  SetExceptionMask([exInvalidOp, exDenormalized, exZeroDivide,
+    exOverflow, exUnderflow, exPrecision]);
 end.

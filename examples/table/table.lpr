@@ -1,6 +1,7 @@
 program Table;
 
 uses
+	CThreads,
   Raylib,
   Raylib.Gl,
   Raylib.System,
@@ -125,6 +126,8 @@ begin
   FRenderer.Draw(FView.Camera, FView.Light);
   if not FRenderer.Test then
   begin
+    if State.Tracking then
+      FBalls.DrawPaths(FView.Camera);
     FBalls.Draw(FView.Camera, FView.Light);
     FStick.Draw(FView.Camera, FView.Light);
   end;

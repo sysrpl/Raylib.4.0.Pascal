@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="12"/>
+    <Version Value="13"/>
     <General>
       <Flags>
         <MainUnitHasCreateFormStatements Value="False"/>
@@ -61,9 +61,6 @@
             <CompilerMessages>
               <IgnoredMessages idx6058="True" idx5060="True" idx5026="True" idx5024="True"/>
             </CompilerMessages>
-            <ConfigFile>
-              <WriteConfigFilePath Value=""/>
-            </ConfigFile>
           </Other>
         </CompilerOptions>
       </Item>
@@ -105,9 +102,6 @@
             <CompilerMessages>
               <IgnoredMessages idx6058="True" idx5060="True" idx5026="True" idx5024="True"/>
             </CompilerMessages>
-            <ConfigFile>
-              <WriteConfigFilePath Value=""/>
-            </ConfigFile>
           </Other>
         </CompilerOptions>
       </Item>
@@ -254,9 +248,6 @@
       <CompilerMessages>
         <IgnoredMessages idx6058="True" idx5060="True" idx5026="True" idx5024="True"/>
       </CompilerMessages>
-      <ConfigFile>
-        <WriteConfigFilePath Value=""/>
-      </ConfigFile>
     </Other>
   </CompilerOptions>
   <Debugging>

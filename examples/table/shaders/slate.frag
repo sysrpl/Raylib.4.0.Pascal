@@ -21,6 +21,7 @@ uniform bool collides;
 uniform vec2 collidepoint;
 uniform int collideindex;
 uniform bool moving;
+uniform int assist;
 uniform bool shadows;
 uniform int smoothing;
 
@@ -120,28 +121,73 @@ float line(vec2 a, vec2 b, float w)
     return floatblend(d, w / 2);
 }
 
+// the change in table position from one pixel to the next, set by main
+
+vec2 pixelx;
+vec2 pixely;
+
+// pixelsize returns the size of one pixel on the table measured in direction n
+//    this includes the view distance and the view angle
+
+float pixelsize(vec2 n)
+{
+    return max(length(vec2(dot(n, pixelx), dot(n, pixely))), 0.000001);
+}
+
+// coverage returns how much of a pixel is covered by a shape
+//    d is the distance from the center, r is the distance to the edge
+//    w is the pixel size, and shapes are never thinner than one pixel
+
+float coverage(float d, float r, float w)
+{
+    if (smoothing == 0)
+        return d > r ? 0.0 : 1.0;
+    r = max(r, w * 0.5);
+    return clamp((min(d + w * 0.5, r) - max(d - w * 0.5, -r)) / w, 0.0, 1.0);
+}
+
+// dashsum returns the total dash length from 0 to x where each dash is half of 1
+
+float dashsum(float x)
+{
+    return floor(x) * 0.5 + min(fract(x), 0.5);
+}
+
+// dash returns how much of a pixel is covered by dashes
+//    x is the position and w is the pixel size, both in units of one dash and gap
+
+float dash(float x, float w)
+{
+    x = fract(x);
+    if (smoothing == 0)
+        return x < 0.5 ? 1.0 : 0.0;
+    return clamp((dashsum(x + w * 0.5) - dashsum(x - w * 0.5)) / w, 0.0, 1.0);
+}
+
 // dashedline returns line with d spaced dashes animated by t time
 
 float dashedline(vec2 a, vec2 b, float w, float d, float t)
 {
-    float c = line(a, b, w);
+    vec2 e = b - a;
+    vec2 p = vertex.xz - a;
+    vec2 q = p - e * clamp(dot(p, e) / max(dot(e, e), 0.000001), 0.0, 1.0);
+    e = normalize(e);
+    float r = length(q);
+    vec2 n = r > 0.000001 ? q / r : vec2(-e.y, e.x);
+    float c = coverage(r, w / 2, pixelsize(n));
     if (c == 0)
       return 0.0;
-    vec2 e = normalize(b - a);
-    e = a + e * 20;
-    float r = distance(vertex.xz - a, e) + mod(t, 10);
-    r = mod(r, d) - d / 2;
-    return c * floatblend(r, 0);
+    return c * dash((dot(p, e) - mod(t, d)) / d, pixelsize(e) / d);
 }
 
 // circle returns a solid circle shape
 
 float circle(vec2 p, float r)
 {
-    float d = distance(p, vertex.xz);
-    if (d > r * 2)
-        return 0.0;
-    return floatblend(d, r);
+    p = vertex.xz - p;
+    float d = length(p);
+    vec2 n = d > 0.000001 ? p / d : vec2(1.0, 0.0);
+    return coverage(d, r, pixelsize(n));
 }
 
 // ring returns a hollow circle shape of wall thickness w
@@ -158,17 +204,18 @@ float ring(vec2 p, float r, float w)
 
 float dashedring(vec2 p, float r, float w, float n, float t)
 {
-    float d = distance(p, vertex.xz);
-    if (d > r * 2 + w)
-        return 0.0;
-    float a = floatblend(d, r + w / 2);
-    float b = 1 - floatblend(d, r - w / 2);
-    float c = a * b;
-    if (c == 0)
-        return c;
     p = p - vertex.xz;
-    d = sin(atan(p.y, p.x) * n + mod(t, PI * 10));
-    return c * floatblend(d, 0);
+    float d = length(p);
+    if (d < 0.000001)
+        return 0.0;
+    vec2 e = p / d;
+    float c = coverage(abs(d - r), w / 2, pixelsize(e));
+    if (c == 0)
+        return 0.0;
+    // the size of a pixel around the ring
+    float s = pixelsize(vec2(-e.y, e.x)) / d;
+    float x = atan(p.y, p.x) * n + mod(t, PI * 10);
+    return c * dash(x / (PI * 2) + 0.5, s * n / (PI * 2));
 }
 
 // width = 50.0 / 2.0 / 12.0 / meter
@@ -177,6 +224,9 @@ float dashedring(vec2 p, float r, float w, float n, float t)
 
 void main()
 {
+    pixelx = dFdx(vertex.xz);
+    pixely = dFdy(vertex.xz);
+
     vec3 norm = normalize(normal);
     vec3 ray = normalize(light - vertex);
     float diff = max(dot(ray, norm), 0.2);
@@ -251,6 +301,13 @@ void main()
         sum = 0;
     color = mix(color, vec3(0), clamp(sum, 0, 1) * 0.7) * diff;
 
+    if (assist == 0)
+    {
+        // do not draw any aiming help
+        finalColor = vec4(color, 1);
+        return;
+    }
+
     vec3 red = vec3(0.7, 0, 0);
     vec3 green = vec3(0, 0.9, 0);
     vec3 blue = vec3(0.0, 0, 0.6);
@@ -260,6 +317,20 @@ void main()
     vec2 pb = pa * 0.04 + balls[0];
     if (collides)
     {
+        if (assist == 2)
+        {
+            // draw the path of the object ball after the hit
+            vec2 od = normalize(balls[collideindex] - collidepoint);
+            vec2 oa = balls[collideindex] + od * 0.04;
+            color = mix(color, red, dashedline(oa, oa + od * 10, 0.0065, 0.025, time * 0.07));
+            // draw the path of the cue ball after the hit, if it is not a straight shot
+            vec2 cd = pa - od * dot(pa, od);
+            if (length(cd) > 0.001)
+            {
+                cd = normalize(cd);
+                color = mix(color, blue, dashedline(collidepoint, collidepoint + cd * 10, 0.0065, 0.025, time * 0.07));
+            }
+        }
         pa = collidepoint;
         color = mix(color, red, dashedring(balls[collideindex], 0.04, 0.0065, 10, time * 8));
         color = mix(color, green, circle(collidepoint, 0.01));

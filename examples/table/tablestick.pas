@@ -87,7 +87,7 @@ var
   Dist, Angle: Single;
   M: TMat4;
 begin
-  if State.Moving or State.Sinking then
+  if State.Moving or State.Sinking or State.Tracking then
     Exit;
   M.Identity;
   M.Translate(BallRadius * 1.2 + + (Sin(TimeQuery * 1.5) + 1) * 0.06, 0, 0);

@@ -461,7 +461,7 @@ begin
     BH.Dir := B.Pos - A.Pos;
     BH.Dir.Normalize;
     { D holds the energy percentage tranfered to B }
-    D := A.Dir.Dot(BH.Dir);
+    D := A.Dir.DotClamp(BH.Dir);
     { Energy transfer to B }
     BH.Speed := A.Speed * D * SpeedLossHit;
     { The wrong way: A.Speed * (1 - D) * SpeedLossHit;

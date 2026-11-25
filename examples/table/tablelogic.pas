@@ -338,6 +338,7 @@ begin
   for I := Low(FBalls.Items) to High(FBalls.Items) do
   begin
     FBalls.Items[I].Reset;
+    FBalls.Items[I].History.Release;
     FBalls.Items[I].Pocketed := (Random < 0.2) and (I > 0);
     if FBalls.Items[I].Pocketed then
     begin
@@ -373,6 +374,7 @@ begin
   for I := Low(FBalls.Items) to High(FBalls.Items) do
   begin
     FBalls.Items[I].Reset;
+    FBalls.Items[I].History.Release;
     M.Identity;
     M.Rotate(Random * 360, Random * 360, Random * 360);
     FBalls.Items[I].Matrix := M;
@@ -730,6 +732,13 @@ var
   Slow: Single;
   I: Integer;
 begin
+  if not State.Help then
+  begin
+    if IsKeyPressed(KEY_L) then
+      RenderOptions.Assist := (RenderOptions.Assist + 1) mod 3;
+    if IsKeyPressed(KEY_X) then
+      State.Tracking := not State.Tracking;
+  end;
   if State.Moving then
     Exit;
   for I := KEY_ONE to KEY_NINE do
@@ -865,7 +874,7 @@ procedure TTableLogic.Update;
     { Reduce ball speed due to impact }
     Ball.Speed := Ball.Speed * SpeedLossRail;
     { And track the collision }
-    Ball.History.Add(Ball.Pos);
+    Ball.History.Add(Ball.Pos, True);
   end;
 
 var
@@ -902,6 +911,8 @@ begin
       S := B.Sinking + Slice;
       if S > SinkTime then
       begin
+        { Track the pocket as the end position }
+        B.History.Add(FPockets[B.SinkPocket].Pos, False);
         B.Reset;
         B.Sinking := SinkTime;
         FSounds.Pocket;
@@ -982,8 +993,8 @@ begin
         V := V * TouchDiameter;
         A.Pos := B.Pos + V;
         { Track the collision }
-        A.History.Add(A.Pos);
-        B.History.Add(B.Pos);
+        A.History.Add(A.Pos, True);
+        B.History.Add(B.Pos, True);
         { Alter the two balls direction and speed }
         CollideBalls(A^, B^);
         FSounds.Tap(A.Speed + B.Speed > 1.5);
@@ -991,9 +1002,10 @@ begin
     { Stop the simulation if there is zero total ball movement }
     if Move = 0 then
     begin
-      { Track the end position }
+      { Track the end position, unless the ball ends in a pocket }
       for I := Low(FBalls.Items) to High(FBalls.Items) do
-        FBalls.Items[I].History.Add(FBalls.Items[I].Pos);
+        if not (FBalls.Items[I].Pocketed or (FBalls.Items[I].Sinking > 0)) then
+          FBalls.Items[I].History.Add(FBalls.Items[I].Pos, False);
       { Point the cue stick at the center of the table }
       State.StickDir := Vec(0, 0) - FBalls.Items[0].Pos;
       State.StickDir.Normalize;

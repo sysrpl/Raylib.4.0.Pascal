@@ -96,6 +96,8 @@ var
     Moving: Boolean;
     { The cue ball is sinking }
     Sinking: Boolean;
+    { Tracking is true if the paths of the last shot are being drawn }
+    Tracking: Boolean;
     { The viewing mode of the camera }
     CameraMode: Integer;
     { Test whether feet are being drawn }
@@ -107,7 +109,8 @@ var
     Shadows: Boolean;
     { Apply smooth modes for vector graphics [0..2] }
     Smoothing: Integer;
-    { Assist level for pool shots [0..2] }
+    { Assist level for pool shots [0..2], where 0 is off, 1 shows where the cue
+      ball will hit, and 2 adds the paths taken after the hit }
     Assist: Integer;
   end;
 
