@@ -2,6 +2,7 @@ program Shade;
 
 uses
   Raylib,
+  Raylib.Glfw,
   Raylib.OpenGL;
 
 const
@@ -16,7 +17,7 @@ var
   L: TUniformVec2;
   T: TTexture2D;
 begin
-  InitWindow(Width, Height, 'Billiard Ball');
+  InitWindowCentered(Width, Height, 'Billiard Ball');
   if not gladLoadGL then
     Exit;
 

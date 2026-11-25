@@ -1,14 +1,15 @@
 program HelloWorld;
 
 uses
-  Raylib;
+  Raylib,
+  Raylib.Glfw;
 
 const
   W = 800;
   H = 450;
 begin
-  // Create a 800 x 450 window
-  InitWindow(W, H, 'This is a Raylib window');
+  // Create a 800 x 450 window centered on the primary monitor
+  InitWindowCentered(W, H, 'This is a Raylib window');
   // Be nice to our GPU and limit the framerate
   SetTargetFPS(60);
   // Repeat while the window hasn't been closed

@@ -4,7 +4,8 @@ program PlayMusic;
 {$ifdef windows}{$apptype gui}{$endif}
 
 uses
-  Raylib;
+  Raylib,
+  Raylib.Glfw;
 
 const
   W = 800;
@@ -16,7 +17,7 @@ var
   C: TColor;
 begin
   SetTargetFPS(60);
-  InitWindow(W, H, 'Raylib Music Test');
+  InitWindowCentered(W, H, 'Raylib Music Test');
   InitAudioDevice;
   Music := LoadMusicStream('../assets/song.mp3');
   Music.looping := True;

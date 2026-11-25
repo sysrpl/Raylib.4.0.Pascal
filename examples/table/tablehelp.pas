@@ -97,6 +97,7 @@ begin
   FWriter.WriteColumn('q: toggle shadows', 0);
   FWriter.WriteColumn('e: cycle smoothing modes', 0.5);
   FWriter.Newline;
+  FWriter.WriteColumn('r: toggle reflections', 0);
   FWriter.Newline;
   FWriter.Indent(-100);
   S := '';

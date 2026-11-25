@@ -44,6 +44,7 @@ begin
   inherited Load;
   State.Help := True;
   RenderOptions.Shadows := True;
+  RenderOptions.Reflections := True;
   RenderOptions.Smoothing := 2;
   RenderOptions.Assist := 1;
   Font := Canvas.LoadFont('assets/contrail_one_regular.ttf');

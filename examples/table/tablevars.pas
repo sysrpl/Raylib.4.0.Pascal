@@ -15,6 +15,8 @@ const
   Inch = 1 / 12 / 3.2808;
   BallDiameter = 2.25 * Inch;
   BallRadius = BallDiameter / 2;
+  { How far a ball falls into a pocket before it is gone }
+  SinkDepth = BallDiameter * 2;
   TouchDiameter = BallDiameter + 0.0001;
   StickLength = 1.5;
   SlateX = 100 * Inch;
@@ -107,6 +109,8 @@ var
   RenderOptions: record
     { Turn shadows on or off }
     Shadows: Boolean;
+    { Turn reflections of the table and other balls on or off }
+    Reflections: Boolean;
     { Apply smooth modes for vector graphics [0..2] }
     Smoothing: Integer;
     { Assist level for pool shots [0..2], where 0 is off, 1 shows where the cue

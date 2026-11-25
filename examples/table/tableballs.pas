@@ -10,7 +10,6 @@ uses
   Raylib.Rl,
   Raylib.System,
   Raylib.Graphics,
-  TableModel,
   TableVars;
 
 { TBallTrack }
@@ -38,7 +37,11 @@ type
     Touched: Boolean;
     Sinking: Single;
     SinkPocket: Integer;
-    SinkPos: TVec2;
+    { How fast a sinking ball rolls into its pocket }
+    SinkSpeed: Single;
+    { How far and how fast a sinking ball has fallen into its pocket }
+    SinkDrop: Single;
+    SinkFall: Single;
     Matrix: TMat4;
     Pocketed: Boolean;
     Tabled: Boolean;
@@ -51,13 +54,19 @@ type
 
   TTableBalls = record
   private
-    FBall: TTableModel;
+    FBallShader: TShader;
     FPathShader: TShader;
     FNumbers: TTexture2D;
-    FIndex: TUniformInt;
+    FEye: TUniformVec3;
+    FLight: TUniformVec3;
     FStick0: TUniformVec3;
     FStick1: TUniformVec3;
-    FBallError: TUniformBool;
+    FShadows: TUniformBool;
+    FReflections: TUniformBool;
+    FSmoothing: TUniformInt;
+    { The locations of the arrays used by the ball shader }
+    FCenters: Integer;
+    FTurns: array[0..2] of Integer;
   public
     Items: array[0..15] of TBall;
     procedure Load;
@@ -103,11 +112,29 @@ begin
   Pocketed := True;
   SinkPocket := 0;
   Sinking := 0;
+  SinkSpeed := 0;
+  SinkDrop := 0;
+  SinkFall := 0;
   Speed := 0;
   Pos := Vec(5000, 5000);
 end;
 
 { TTableBalls }
+
+{ The tangent of half the field of view }
+
+function ViewTangent(const Camera: TCamera3D): Single;
+var
+  A: Single;
+begin
+  A := Camera.fovy * Pi / 360;
+  Result := Sin(A) / Cos(A);
+end;
+
+const
+  { The texture units used by the ball shader }
+  ProbeUnit: Integer = 1;
+  NumbersUnit: Integer = 2;
 
 procedure TTableBalls.Load;
 var
@@ -116,14 +143,22 @@ begin
   FNumbers := LoadTexture('assets/numbers.png');
   SetTextureFilter(FNumbers, TEXTURE_FILTER_BILINEAR);
   GenTextureMipmaps(FNumbers);
-  FBall.Load('ball', 'ball');
-  FBall.TexId1 := State.SkyTex.id;
-  FBall.TexName1 := 'probe';
-  FBall.TexId2 := FNumbers.id;
-  FBall.TexName2 := 'numbers';
-  FBall.Shader.GetUniform('index', FIndex);
-  FBall.Shader.GetUniform('stick[0]', FStick0);
-  FBall.Shader.GetUniform('stick[1]', FStick1);
+  FBallShader := LoadShader('shaders/ball.vert', 'shaders/ball.frag');
+  FBallShader.GetUniform('eye', FEye);
+  FBallShader.GetUniform('light', FLight);
+  FBallShader.GetUniform('stick[0]', FStick0);
+  FBallShader.GetUniform('stick[1]', FStick1);
+  FBallShader.GetUniform('shadows', FShadows);
+  FBallShader.GetUniform('reflections', FReflections);
+  FBallShader.GetUniform('smoothing', FSmoothing);
+  FCenters := GetShaderLocation(FBallShader, 'centers');
+  FTurns[0] := GetShaderLocation(FBallShader, 'turnx');
+  FTurns[1] := GetShaderLocation(FBallShader, 'turny');
+  FTurns[2] := GetShaderLocation(FBallShader, 'turnz');
+  SetShaderValue(FBallShader, GetShaderLocation(FBallShader, 'probe'),
+    @ProbeUnit, SHADER_UNIFORM_INT);
+  SetShaderValue(FBallShader, GetShaderLocation(FBallShader, 'numbers'),
+    @NumbersUnit, SHADER_UNIFORM_INT);
   for I := Low(Items) to High(Items) do
   begin
     Items[I].Index := I;
@@ -131,8 +166,6 @@ begin
     Items[I].Dir := [1, 0];
     Items[I].Matrix.Identity;
   end;
-
-  FBall.Shader.GetUniform('errorcorrect', FBallError);
   FPathShader := LoadShader('shaders/path.vert', 'shaders/path.frag');
 end;
 
@@ -143,7 +176,7 @@ begin
   for I := Low(Items) to High(Items) do
     Items[I].History.Release;
   UnloadShader(FPathShader);
-  FBall.Unload;
+  UnloadShader(FBallShader);
   UnloadTexture(FNumbers);
 end;
 
@@ -244,8 +277,7 @@ begin
   if EyeHeight < 0.01 then
     EyeHeight := 0.01;
   { The size of a pixel at a distance of one meter }
-  PixelSize := Camera.fovy * Pi / 360;
-  PixelSize := 2 * Sin(PixelSize) / Cos(PixelSize) / GetScreenHeight;
+  PixelSize := 2 * ViewTangent(Camera) / GetScreenHeight;
   BeginMode3D(Camera);
   BeginShaderMode(FPathShader);
   { Paths are blended in order and do not hide each other }
@@ -284,44 +316,152 @@ end;
 
 procedure TTableBalls.Draw(Camera: TCamera3D; Light: TVec3);
 var
-  M: TMat4;
-  V, B: TVec3;
-  I: Integer;
+  Centers: array[0..15] of TVec3;
+  Turns: array[0..2, 0..15] of TVec3;
+  { The balls in view from the farthest to the nearest }
+  Order: array[0..15] of Integer;
+  { The square of the distance to each ball in order }
+  Dist: array[0..15] of Single;
+  F, R, U: TVec3;
+  TanH, TanV, PixelSize: Single;
+  Count: Integer;
+
+  { Determine if any part of a ball at V from the camera is in the view frustum }
+
+  function InView(const V: TVec3): Boolean;
+  var
+    Z: Single;
+  begin
+    Z := V.Dot(F);
+    Result := (Z > -BallRadius) and
+      (Abs(V.Dot(R)) - Z * TanH < BallRadius * Sqrt(1 + TanH * TanH)) and
+      (Abs(V.Dot(U)) - Z * TanV < BallRadius * Sqrt(1 + TanV * TanV));
+  end;
+
+  { Add a ball which is in view keeping the farthest balls first }
+
+  procedure Insert(Index: Integer; D: Single);
+  var
+    J: Integer;
+  begin
+    J := Count;
+    while (J > 0) and (Dist[J - 1] < D) do
+    begin
+      Order[J] := Order[J - 1];
+      Dist[J] := Dist[J - 1];
+      Dec(J);
+    end;
+    Order[J] := Index;
+    Dist[J] := D;
+    Inc(Count);
+  end;
+
+  { Draw a quad facing the camera just large enough to hold a ball }
+
+  procedure Quad(Index: Integer; DistSqr: Single);
+
+    procedure Corner(const P: TVec3);
+    begin
+      rlVertex3f(P.x, P.y, P.z);
+    end;
+
+  var
+    C, V, A, B: TVec3;
+    D, S: Single;
+  begin
+    C := Centers[Index];
+    V := C - Camera.position;
+    D := Sqrt(DistSqr);
+    V.Normalize;
+    A := V.Cross(Camera.up);
+    if A.Distance < 0.001 then
+      A := R;
+    A.Normalize;
+    B := A.Cross(V);
+    { In perspective a ball looks larger than its radius, and the rim needs room
+      for the pixels being blended }
+    S := DistSqr - BallRadius * BallRadius;
+    if S < BallRadius * BallRadius * 0.01 then
+      S := BallRadius * BallRadius * 0.01;
+    S := BallRadius * D / Sqrt(S) + 1.5 * PixelSize * D;
+    A := A * S;
+    B := B * S;
+    rlCheckRenderBatchLimit(4);
+    rlBegin(RL_QUADS);
+    { A ball fades to black as it falls into a pocket }
+    rlTexCoord2f(Index, Items[Index].SinkDrop / SinkDepth);
+    Corner(C - A - B);
+    Corner(C + A - B);
+    Corner(C + A + B);
+    Corner(C - A + B);
+    rlEnd;
+  end;
+
+var
+  V: TVec3;
+  I, J: Integer;
 begin
-  if IsKeyPressed(KEY_E) then
-    FBallError.Update(not FBallError.value);
-  V := Camera.target - Camera.position;
-  V.Normalize;
-  B.Y := BallRadius;
-  BeginMode3D(Camera);
+  F := Camera.target - Camera.position;
+  F.Normalize;
+  R := F.Cross(Camera.up);
+  R.Normalize;
+  U := R.Cross(F);
+  TanV := ViewTangent(Camera);
+  TanH := TanV * GetScreenWidth / GetScreenHeight;
+  { The size of a pixel at a distance of one meter }
+  PixelSize := 2 * TanV / GetScreenHeight;
+  Count := 0;
   for I := Low(Items) to High(Items) do
   begin
     State.BallPos[I] := Items[I].Pos;
+    Centers[I] := Vec(Items[I].Pos.X, BallRadius - Items[I].SinkDrop, Items[I].Pos.Y);
+    { The columns of the matrix are the axes of the ball in the world }
+    for J := 0 to 2 do
+      Turns[J, I] := Vec(Items[I].Matrix.m[0, J], Items[I].Matrix.m[1, J],
+        Items[I].Matrix.m[2, J]);
     if Items[I].Pocketed then
       Continue;
-    { Eliminate balls that are behind the camera }
-    B.X := Items[I].Pos.X;
-    B.Z := Items[I].Pos.Y;
-    if V.Dot(B - Camera.position) < -BallRadius then
-      Continue;
-    FIndex.Update(I);
-    if State.Tracking then
-    begin
-      { The stick is hidden so move its shadow off the table }
-      FStick0.Update(Vec(5000, 5000, 5000));
-      FStick1.Update(Vec(5001, 5000, 5000));
-    end
-    else
-    begin
-      FStick0.Update(State.StickPos[0]);
-      FStick1.Update(State.StickPos[1]);
-    end;
-    M := Items[I].Matrix;
-    M.Translate(Items[I].Pos.X, BallRadius, Items[I].Pos.Y);
-    FBall.Model.transform := M;
-    FBall.Draw(Camera.position, Light);
+    V := Centers[I] - Camera.position;
+    if InView(V) then
+      Insert(I, V.Dot(V));
   end;
+  if Count = 0 then
+    Exit;
+  BeginMode3D(Camera);
+  BeginShaderMode(FBallShader);
+  { The rims of the balls are blended }
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  FEye.Update(Camera.position);
+  FLight.Update(Light);
+  FShadows.Update(RenderOptions.Shadows);
+  FReflections.Update(RenderOptions.Reflections);
+  FSmoothing.Update(RenderOptions.Smoothing);
+  if State.Moving or State.Sinking or State.Tracking then
+  begin
+    { The stick is hidden so move its shadow off the table }
+    FStick0.Update(Vec(5000, 5000, 5000));
+    FStick1.Update(Vec(5001, 5000, 5000));
+  end
+  else
+  begin
+    FStick0.Update(State.StickPos[0]);
+    FStick1.Update(State.StickPos[1]);
+  end;
+  SetShaderValueV(FBallShader, FCenters, @Centers[0], SHADER_UNIFORM_VEC3, 16);
+  for J := 0 to 2 do
+    SetShaderValueV(FBallShader, FTurns[J], @Turns[J, 0], SHADER_UNIFORM_VEC3, 16);
+  glActiveTexture(GL_TEXTURE0 + ProbeUnit);
+  glBindTexture(GL_TEXTURE_2D, State.SkyTex.id);
+  glActiveTexture(GL_TEXTURE0 + NumbersUnit);
+  glBindTexture(GL_TEXTURE_2D, FNumbers.id);
+  glActiveTexture(GL_TEXTURE0);
+  for I := 0 to Count - 1 do
+    Quad(Order[I], Dist[I]);
+  { Ending the shader draws all the balls at once }
+  EndShaderMode;
   EndMode3D;
+  Inc(State.Triangles, Count * 2);
 end;
 
 end.

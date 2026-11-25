@@ -4,14 +4,15 @@ program DrawShapes;
 {$ifdef windows}{$apptype gui}{$endif}
 
 uses
-  Raylib;
+  Raylib,
+  Raylib.Glfw;
 
 const
   W = 800;
   H = 450;
 begin
   SetTargetFPS(60);
-  InitWindow(W, H, 'Raylib Draw Shapes Test');
+  InitWindowCentered(W, H, 'Raylib Draw Shapes Test');
   while not WindowShouldClose do
   begin
     ClearBackground(WHITE);

@@ -43,7 +43,7 @@
         <UsageCount Value="200"/>
         <EditorIndex Value="4"/>
         <TopLine Value="129"/>
-        <CursorPos X="36" Y="162"/>
+        <CursorPos X="94" Y="156"/>
       </Unit>
       <Unit>
         <Filename Value="tablemodel.pas"/>
@@ -159,8 +159,8 @@
         <UsageCount Value="201"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="126"/>
-        <CursorPos X="18" Y="158"/>
+        <TopLine Value="115"/>
+        <CursorPos X="85" Y="147"/>
       </Unit>
       <Unit>
         <Filename Value="shaders/shapes.vert"/>
@@ -171,9 +171,9 @@
       <Unit>
         <Filename Value="tablehelp.pas"/>
         <Loaded Value="True"/>
-        <UsageCount Value="114"/>
+        <UsageCount Value="115"/>
         <EditorIndex Value="5"/>
-        <CursorPos X="22" Y="27"/>
+        <CursorPos X="89" Y="25"/>
       </Unit>
       <Unit>
         <Filename Value="../../src/raylib.pas"/>

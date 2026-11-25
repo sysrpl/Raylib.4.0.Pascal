@@ -16,7 +16,7 @@ var
   Vbo: LongWord;
   V: TVec3;
 begin
-  InitWindow(Width, Height, 'Empty');
+  InitWindowCentered(Width, Height, 'Empty');
   SetTargetFPS(60);
   Shader.Load('colors.vs', 'colors.fs');
   Shader.GetUniform('size', Size);

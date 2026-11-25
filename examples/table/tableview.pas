@@ -323,6 +323,8 @@ begin
     RenderOptions.Smoothing := (RenderOptions.Smoothing + 1) mod 3;
   if IsKeyPressed(KEY_Q) then
     RenderOptions.Shadows := not RenderOptions.Shadows;
+  if IsKeyPressed(KEY_R) then
+    RenderOptions.Reflections := not RenderOptions.Reflections;
   if TimeQuery - FStartTime < 1 then
   begin
     FMouse := GetMousePosition;

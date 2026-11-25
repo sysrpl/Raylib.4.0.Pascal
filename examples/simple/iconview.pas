@@ -5,6 +5,7 @@ program iconview;
 
 uses
   Raylib,
+  Raylib.Glfw,
   Raylib.Gui;
 
 const
@@ -15,7 +16,7 @@ var
   I: Integer;
 begin
   SetTargetFPS(60);
-  InitWindow(W, H, 'Raylib Gui Icon Test');
+  InitWindowCentered(W, H, 'Raylib Gui Icon Test');
   while not WindowShouldClose do
   begin
     ClearBackground(WHITE);

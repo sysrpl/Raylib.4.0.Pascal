@@ -448,9 +448,58 @@ function glfwVulkanSupported: Integer; cdecl; external;
 function glfwGetRequiredInstanceExtensions(out count: UInt32): PPAnsiChar; cdecl; external;
 function glfwInit: Integer; cdecl; external;
 
+{ Center the window on a monitor, where 0 is the primary monitor and 1 or more
+  is a position in the monitor list }
+procedure CenterWindow(Monitor: Integer = 0);
+{ Create a window centered on a monitor }
+procedure InitWindowCentered(Width, Height: Integer; Title: PChar; Monitor: Integer = 0);
+
 implementation
 
+uses
+  Raylib;
+
 {.$linklib X11}
+
+procedure CenterWindow(Monitor: Integer = 0);
+var
+  Monitors: PPGLFWmonitor;
+  M: PGLFWmonitor;
+  Mode: PGLFWvidmode;
+  Count, X, Y: Integer;
+begin
+  M := glfwGetPrimaryMonitor;
+  if Monitor > 0 then
+  begin
+    Monitors := glfwGetMonitors(Count);
+    if Monitor <= Count then
+    begin
+      Inc(Monitors, Monitor - 1);
+      M := Monitors^;
+    end;
+  end;
+  if M = nil then
+    Exit;
+  Mode := glfwGetVideoMode(M);
+  if Mode = nil then
+    Exit;
+  X := 0;
+  Y := 0;
+  glfwGetMonitorPos(M, @X, @Y);
+  SetWindowPosition(X + (Mode.width - GetScreenWidth) div 2,
+    Y + (Mode.height - GetScreenHeight) div 2);
+end;
+
+procedure InitWindowCentered(Width, Height: Integer; Title: PChar; Monitor: Integer = 0);
+begin
+  { The window stays hidden until it has been centered }
+  SetConfigFlags(FLAG_WINDOW_HIDDEN);
+  InitWindow(Width, Height, Title);
+  CenterWindow(Monitor);
+  ClearWindowState(FLAG_WINDOW_HIDDEN);
+  { Some window managers ignore the position of a hidden window }
+  CenterWindow(Monitor);
+end;
 
 end.
 

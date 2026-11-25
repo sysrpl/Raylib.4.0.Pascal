@@ -138,7 +138,14 @@ end;
 { TTableLogic }
 
 const
-  SinkTime = 0.001;
+  { The slowest and fastest a sinking ball rolls into its pocket }
+  SinkSpeedMin = 0.5;
+  SinkSpeedMax = 1.5;
+  { The edge of the hole as a part of the pocket radius }
+  SinkLip = 0.77;
+  { How fast a sinking ball speeds up as it falls, slower than real gravity so
+    that it can be seen }
+  SinkGravity = 4;
   SideTop = 1;
   SideRight = 2;
   SideBottom = 3;
@@ -669,7 +676,7 @@ begin
   V := State.StickDir;
   for I := 1 to High(FBalls.Items) do
   begin
-    if FBalls.Items[I].Pocketed then
+    if FBalls.Items[I].Pocketed or (FBalls.Items[I].Sinking > 0) then
       Continue;
     B := FBalls.Items[I].Pos;
     if CircleCollision(A, B, V, BallRadius, D) then
@@ -824,8 +831,10 @@ procedure TTableLogic.Update;
     for I := Low(FPockets) to High(FPockets) do
       if FPockets[I].Pos.Distance(Ball.Pos) < FPockets[I].Radius then
       begin
-        Ball.SinkPos := Ball.Pos;
         Ball.SinkPocket := I;
+        Ball.SinkSpeed := Clamp(Ball.Speed, SinkSpeedMin, SinkSpeedMax);
+        Ball.SinkDrop := 0;
+        Ball.SinkFall := 0;
         Ball.Sinking := Slice;
         Break;
       end;
@@ -880,7 +889,7 @@ procedure TTableLogic.Update;
 var
   Move: Double;
   A, B: PBall;
-  T, S: Double;
+  T, S, D: Double;
   I, J: Integer;
   V, R: TVec2;
 begin
@@ -893,7 +902,6 @@ begin
     B.Sinking := 0;
     B.Speed := 0;
     B.SinkPocket := 0;
-    B.SinkPos := [0, 0];
     B.Dir := [0, 1];
     B.Pos := [SlateZ * 0.5, 0];
     State.StickDir := [-1, 0];
@@ -908,20 +916,32 @@ begin
       Continue
     else if B.Sinking > 0 then
     begin
-      S := B.Sinking + Slice;
-      if S > SinkTime then
+      S := Clamp(State.TimeFrame, 0, 0.05);
+      B.Sinking := B.Sinking + S;
+      { Roll toward the center of the pocket }
+      V := FPockets[B.SinkPocket].Pos - B.Pos;
+      D := V.Distance;
+      if D > 0.0001 then
+      begin
+        V.Normalize;
+        Move := Min(B.SinkSpeed * S, D);
+        B.Pos := B.Pos + V * Move;
+        R := V.RoL;
+        B.Matrix := B.Matrix * RotateAxis(Move / BallRadius, Vec(R.X, 0, R.Y));
+      end;
+      { Fall after passing the edge of the hole }
+      if D < FPockets[B.SinkPocket].Radius * SinkLip then
+      begin
+        B.SinkFall := B.SinkFall + SinkGravity * S;
+        B.SinkDrop := B.SinkDrop + B.SinkFall * S;
+      end;
+      if B.SinkDrop > SinkDepth then
       begin
         { Track the pocket as the end position }
         B.History.Add(FPockets[B.SinkPocket].Pos, False);
         B.Reset;
-        B.Sinking := SinkTime;
         FSounds.Pocket;
-        Continue;
       end;
-      B.Sinking := S;
-      B.Pos :=
-        FPockets[B.SinkPocket].Pos * (S / SinkTime) +
-        B.SinkPos * (1 - S / SinkTime);
       Continue;
     end;
   end;
